@@ -38,15 +38,16 @@ for iy=1:length(LATS_VAL);
     
 end;
 
+d2r=pi/180;
 for iy=1:length(LONS_VAL);
 
-    mskCint=1*(sin(deg2rad(mygrid.XC-LONS_VAL(iy)))>=0);
+    mskCint=1*(sin(d2r*(mygrid.XC-LONS_VAL(iy)))>=0);
     [mskCedge,mskWedge,mskSedge]=gcmfaces_edge_mask(mskCint);
-    tmp1=1*(cos(deg2rad(mygrid.XC-LONS_VAL(iy)))>0);
+    tmp1=1*(cos(d2r*(mygrid.XC-LONS_VAL(iy)))>0);
     mskCedge=mskCedge.*tmp1;
-    tmp1=1*(cos(deg2rad(mygrid.XG-LONS_VAL(iy)))>0);
+    tmp1=1*(cos(d2r*(mygrid.XG-LONS_VAL(iy)))>0);
     mskWedge=mskWedge.*tmp1;
-    tmp1=1*(cos(deg2rad(mygrid.XC-LONS_VAL(iy)))>0);
+    tmp1=1*(cos(d2r*(mygrid.XC-LONS_VAL(iy)))>0);
     mskSedge=mskSedge.*tmp1;
 
     clear tmp1;
