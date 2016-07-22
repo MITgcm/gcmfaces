@@ -7,7 +7,7 @@ function []=gcmfaces_lines_zonal(varargin);
 %           LATS_VAL is the latitudes vector ([-89:89]' by default)
 %           LONS_VAL is the latitudes vector ([-179.5:179.5]' by default)
 
-global mygrid;
+gcmfaces_global;
 
 if nargin>0; LATS_VAL=varargin{1}; else; LATS_VAL=[-89:89]'; end;
 if nargin>1; LONS_VAL=varargin{2}; else; LONS_VAL=[-179.5:179.5]'; end;
