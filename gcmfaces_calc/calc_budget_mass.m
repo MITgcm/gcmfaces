@@ -1,5 +1,9 @@
 function [budgO,budgI,budgOI]=calc_budget_mass(kBudget);
 % CALC_BUDGET_MASS(kBudget,doMoreBudgetOutput)
+%
+% note: within this routine `ETAN', `SIheff', and `SIhsnow' denote
+%  the corresponding tendencies as computed by diags_diff_snapshots.m
+%  rather than the state variables themselves.
 
 gcmfaces_global;
 

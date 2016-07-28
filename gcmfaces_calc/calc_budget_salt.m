@@ -1,5 +1,9 @@
 function [budgO,budgI,budgOI]=calc_budget_salt(kBudget);
 % CALC_BUDGET_SALT(kBudget)
+%
+% note: within this routine `SALT', `SIheff', and `SIhsnow' denote
+%  the corresponding tendencies as computed by diags_diff_snapshots.m
+%  rather than the state variables themselves.
 
 gcmfaces_global;
 
