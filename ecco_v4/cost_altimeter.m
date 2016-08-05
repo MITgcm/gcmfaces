@@ -97,7 +97,7 @@ if ~isempty(dir(file0)); sig_sladiff_smooth=read_bin(file0,1,0); end;
 if useNctiles; sig_sladiff_smooth=read_nctiles([dirNctiles 'sealevel'],'lsc_sigma_r5'); end;
 
 sig_sladiff_point=NaN*mygrid.RAC;
-file0=[dirSigma nameSigma{2}];
+file0=[dirSigma nameSigma{3}];
 if ~isempty(dir(file0)); sig_sladiff_point=read_bin(file0,1,0); end;
 if useNctiles; sig_sladiff_point=read_nctiles([dirNctiles 'sealevel'],'point_sigma_r5'); end;
 

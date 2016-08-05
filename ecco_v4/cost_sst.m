@@ -104,7 +104,7 @@ for mcur=1:12;
   %load model SST
   fld_mod=NaN*mygrid.RAC;
   file0=[dirTbar fileModel];
-  if ~isempty(dir(file0)); fld_mod=read_bin(file0,mm,1); end;
+  if ~isempty(dir(file0)); fld_mod=read_bin(file0,mm,0); end;
   fld_mod=fld_mod.*mygrid.mskC(:,:,1);
   sst_mod(:,:,mm)=fld_mod;
 end;
