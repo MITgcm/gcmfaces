@@ -25,10 +25,12 @@ if ~isempty(files)&~strcmp(mygrid.XC.gridType,'ll');
     RAZfull=gcmfaces;
     for iFile=1:mygrid.nFaces;
         [ni,nj]=size(mygrid.XC{iFile});
-        tmp1=dir([mygrid.dirGrid files(iFile).name]);
-        nf=tmp1.bytes/8/(ni+1)/(nj+1);
-        fld=read2memory([mygrid.dirGrid files(iFile).name],[ni+1 nj+1 nf],64);
-        RAZfull{iFile}=fld(:,:,10);
+        fid=fopen([mygrid.dirGrid files(iFile).name]);
+        for iFld=1:10; 
+          fld=fread(fid,[ni+1 nj+1],'float64');
+        end
+        fclose(fid);
+        RAZfull{iFile}=fld;
     end;
     
     mygrid.RAZfull=RAZfull;
