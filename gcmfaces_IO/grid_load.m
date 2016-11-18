@@ -24,6 +24,9 @@ if nargin==0;%assume that LLC90 grid is used
   elseif ~isempty(dir('GRID'));
     mygrid.dirGrid=['GRID' filesep];
     mygrid.fileFormat='compact';
+  elseif ~isempty(dir(['./XC.meta']));
+    mygrid.dirGrid=['.' filesep];
+    mygrid.fileFormat='compact';
   else;
      fprintf('\n please indicate the grid directory (e.g., ''./'' or ''nctiles_grid/'') \n\n');
      fprintf('   The ECCO v4 grid can be obtained as follows: \n');
@@ -164,26 +167,20 @@ if mygrid.memoryLimit<2;
     end;
 end;
 
-%if grid is incomplete (blank tiles) then try to get 
-%additional info from native grid, or apply missing value.
-test0=sum(isnan(mygrid.XC))>0;
-test1=prod(mygrid.ioSize)~=sum(isnan(NaN*mygrid.XC(:)));
-if (test0|test1)&~omitNativeGrid;
-  %treat fields that are part of the native grid
-  mygrid1=mygrid; mygrid=[];
-  grid_load_native(mygrid.dirGrid,nFaces,0);
-  mygrid1.XC=mygrid.XC; mygrid1.YC=mygrid.YC;
-  mygrid1.XG=mygrid.XG; mygrid1.YG=mygrid.YG;
-  mygrid1.RAC=mygrid.RAC;
-  mygrid=mygrid1;
-  %apply missing value for fields that aren't
+%if the native grid is found then re-load (to benefit from double precision & avoid blank tile issues)
+files=dir([mygrid.dirGrid 'grid_cs32*bin']);
+if isempty(files); files=dir([mygrid.dirGrid 'tile*.mitgrid']); end;
+%logic above needs fixing since I think blank tiles show 0 rather than NaN on some machines
+if (length(files)==mygrid.nFaces)&~omitNativeGrid;
+  grid_load_native;
+  %replace NaNs with 0s if needed (blank tile only issue)
   list0={'hFacC','hFacS','hFacW','Depth','AngleCS','AngleSN'};
   for ii=1:length(list0); 
     eval(['tmp1=mygrid.' list0{ii} ';']);
     tmp1(isnan(tmp1))=0;
     eval(['mygrid.' list0{ii} '=tmp1;']);
   end;
-  %and fix angles if needed
+  %reset angles if needed (blank tile only issue)
   tmp1=mygrid.AngleCS.^2+mygrid.AngleSN.^2;
   tmp1=1*(tmp1>0.999&tmp1<1.001);
   mygrid.AngleCS(tmp1==0)=1;
