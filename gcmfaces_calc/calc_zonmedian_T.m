@@ -35,7 +35,9 @@ for iy=1:length(mygrid.LATS_MASKS);
    tmp1=nanmedian(fld(mm,:),1); 
 
    %store:
-   FLD(iy,:,:)=reshape(tmp1,n3,n4);
+   if ~isempty(mm); 
+     FLD(iy,:,:)=reshape(tmp1,n3,n4);
+   end;
 
 end; 
 

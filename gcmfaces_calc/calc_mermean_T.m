@@ -86,8 +86,10 @@ for iy=1:ny;
   end;
 
   %store:
-  fldOut(iy,:,:)=reshape(tmp1,n3,n4);
-  weightOut(iy,:,:)=reshape(tmp2,n3,n4);
+  if ~isempty(mm);
+    fldOut(iy,:,:)=reshape(tmp1,n3,n4);
+    weightOut(iy,:,:)=reshape(tmp2,n3,n4);
+  end;
     
 end;
 
