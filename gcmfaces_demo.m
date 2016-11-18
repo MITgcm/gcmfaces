@@ -56,10 +56,9 @@ myenv.verbose=verbose;%apply verbose level selected by user
 fprintf('\n\n');
 gcmfaces_msg('/////////////////////////////////////');
 gcmfaces_msg('demo of gcmfaces_global and MITprof_global','// PART 0 :');
-gcmfaces_msg('please hit return','// >> ');
 gcmfaces_msg('/////////////////////////////////////');
+if myenv.verbose>0; gcmfaces_msg('please hit return','// >> '); pause; end;
 fprintf('\n\n');
-pause;
 if myenv.verbose>0;
     gcmfaces_msg(['* gcmfaces_global: adds gcmfaces directories to path' ...
                  ' and define environment variables (see myenv)']);
@@ -82,63 +81,57 @@ end;
 fprintf('\n\n');
 gcmfaces_msg('/////////////////////////////////////');
 gcmfaces_msg('demo of grid_load','// PART 1 :');
-gcmfaces_msg('please hit return','// >> ');
 gcmfaces_msg('/////////////////////////////////////');
+if myenv.verbose>0; gcmfaces_msg('please hit return','// >> '); pause; end;
 fprintf('\n\n');
-pause;
 grid_load;
 
 fprintf('\n\n');
 gcmfaces_msg('/////////////////////////////////////');
 gcmfaces_msg('demo of plotting routines','// PART 1 :');
-gcmfaces_msg('please hit return','// >> ');
 gcmfaces_msg('/////////////////////////////////////');
+if myenv.verbose>0; gcmfaces_msg('please hit return','// >> '); pause; end;
 fprintf('\n\n');
-pause;
 example_display;
 
 fprintf('\n\n');
 gcmfaces_msg('///////////////////////////////////////////');
 gcmfaces_msg('demo of interpolation and remapping ','// PART 2 :');
-gcmfaces_msg('please hit return','// >> ');
 gcmfaces_msg('///////////////////////////////////////////');
+if myenv.verbose>0; gcmfaces_msg('please hit return','// >> '); pause; end;
 fprintf('\n\n');
-pause;
 example_interp;
 
 fprintf('\n\n');
 gcmfaces_msg('///////////////////////////////////////////');
 gcmfaces_msg('demo of bin averaging data sample to grid','// PART 2 :');
-gcmfaces_msg('please hit return','// >> ');
 gcmfaces_msg('///////////////////////////////////////////');
+if myenv.verbose>0; gcmfaces_msg('please hit return','// >> '); pause; end;
 fprintf('\n\n');
-pause;
 fld=example_bin_average;
 
 fprintf('\n\n');
 gcmfaces_msg('///////////////////////////////////////////');
 gcmfaces_msg('demo of smoothing through diffusion','// PART 2 :');
-gcmfaces_msg('please hit return','// >> ');
 gcmfaces_msg('///////////////////////////////////////////');
+if myenv.verbose>0; gcmfaces_msg('please hit return','// >> '); pause; end;
 fprintf('\n\n');
-pause;
 example_smooth(fld);
 
 fprintf('\n\n');
 gcmfaces_msg('/////////////////////////////////////////');
 gcmfaces_msg('demo of transport computations','// PART 3 :');
-gcmfaces_msg('please hit return','// >> ');
 gcmfaces_msg('/////////////////////////////////////////');
+if myenv.verbose>0; gcmfaces_msg('please hit return','// >> '); pause; end;
 fprintf('\n\n');
-pause;
 diags=example_transports;
 
 if ~isempty(diags);
     fprintf('\n\n');
     gcmfaces_msg('/////////////////////////////////////////');
     gcmfaces_msg('demo of transport display','// PART 3 :');
-    gcmfaces_msg('please hit return','// >> ');
     gcmfaces_msg('/////////////////////////////////////////');
+    if myenv.verbose>0; gcmfaces_msg('please hit return','// >> '); pause; end;
     fprintf('\n\n');
     example_transports_disp(diags);
 end;
@@ -146,9 +139,8 @@ end;
 fprintf('\n\n');
 gcmfaces_msg('/////////////////////////////////////////');
 gcmfaces_msg('demo of budget computations','// PART 4 :');
-gcmfaces_msg('please hit return','// >> ');
 gcmfaces_msg('/////////////////////////////////////////');
+if myenv.verbose>0; gcmfaces_msg('please hit return','// >> '); pause; end;
 fprintf('\n\n');
-pause;
 example_budget;
 
