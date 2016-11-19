@@ -8,9 +8,16 @@ function [LO,LA,FLD,X,Y]=gcmfaces_section(lons,lats,fld,varargin);
 %outputs:	LO/LA is the vector of grid points longitude/latitude
 %		FLD is the vector/matrix of grid point values (from fld)
 
+gcmfaces_global;
+
 if nargin>3; sortByLon=varargin{1}; else; sortByLon=0; end;
 
-global mygrid;
+%check that LATS_MASKS has already been defined:
+if ~isfield(mygrid,'LATS_MASKS');
+    fprintf('one-time initialization of gcmfaces_lines_zonal: begin\n');
+    gcmfaces_lines_zonal;
+    fprintf('one-time initialization of gcmfaces_lines_zonal: end\n');
+end;
 
 if length(lats)==2;
     if lats(1)==-90&lats(2)==90; 

@@ -71,6 +71,15 @@ end;
 %here we always reload the grid from dirMat to make sure the same one is used throughout
 eval(['load ' dirMat nameGrid ';']);
 
+%zonal mean and sections needed for transport computations
+if ~isfield(mygrid,'mygrid.LATS_MASKS');
+    gcmfaces_lines_zonal;
+end;
+if ~isfield(mygrid,'LINES_MASKS');
+    [lonPairs,latPairs,names]=gcmfaces_lines_pairs;
+    gcmfaces_lines_transp(lonPairs,latPairs,names);
+end;
+
 %backward compatibility:
 if ~isfield(mygrid,'memoryLimit'); mygrid.memoryLimit=0; end;
 if ~isfield(mygrid,'ioSize'); mygrid.ioSize=0; end;

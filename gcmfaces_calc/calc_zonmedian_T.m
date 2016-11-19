@@ -6,7 +6,14 @@ function [FLD]=calc_zonmedian_T(fld);
 %notes:     mygrid.LATS_MASKS is the set of quasi longitudinal lines along which
 %               medians will be computed, as computed in gcmfaces_lines_zonal
 
-global mygrid;
+gcmfaces_global;
+
+%check that LATS_MASKS has already been defined:
+if ~isfield(mygrid,'LATS_MASKS');
+    fprintf('one-time initialization of gcmfaces_lines_zonal: begin\n');
+    gcmfaces_lines_zonal;
+    fprintf('one-time initialization of gcmfaces_lines_zonal: end\n');
+end;
 
 %initialize output:
 n3=max(size(fld.f1,3),1); n4=max(size(fld.f1,4),1);

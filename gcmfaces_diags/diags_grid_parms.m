@@ -49,6 +49,11 @@ end;
 
 grid_load(dirGrid,nF,frmt,memoryLimit);
 
+%add definition of zonal and transport lines to mygrid
+gcmfaces_lines_zonal;
+[lonPairs,latPairs,names]=gcmfaces_lines_pairs;
+gcmfaces_lines_transp(lonPairs,latPairs,names);
+
 %set default for model run parameters
 if doInteractive;
     choiceParams=input(['choice of default parameters? (1=ecco v4, ' ...

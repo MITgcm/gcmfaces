@@ -10,9 +10,16 @@ function [FLD]=calc_MeridionalTransport(fldU,fldV,varargin);
 %notes:     mygrid.LATS_MASKS is the set of quasi longitudinal lines along which
 %               transports will integrated, as computed in gcmfaces_lines_zonal
 
-global mygrid;
+gcmfaces_global;
 
 if nargin==3; doScaleWithArea=varargin{1}; else; doScaleWithArea=0; end;
+
+%check that LATS_MASKS has already been defined:
+if ~isfield(mygrid,'LATS_MASKS');
+    fprintf('one-time initialization of gcmfaces_lines_zonal: begin\n');
+    gcmfaces_lines_zonal;
+    fprintf('one-time initialization of gcmfaces_lines_zonal: end\n');
+end;
 
 %initialize output:
 n3=max(size(fldU.f1,3),1); n4=max(size(fldV.f1,4),1);

@@ -9,6 +9,12 @@ if myenv.verbose>0;
         'display the results (diags) of example_transports'],'');
 end;
 
+%check that LATS_MASKS has already been defined:
+if ~isfield(mygrid,'LATS_MASKS');
+    fprintf('one-time initialization of gcmfaces_lines_zonal: begin\n');
+    gcmfaces_lines_zonal;
+    fprintf('one-time initialization of gcmfaces_lines_zonal: end\n');
+end;
 
 %%%%%%%%%%%%%%%
 %display diags:

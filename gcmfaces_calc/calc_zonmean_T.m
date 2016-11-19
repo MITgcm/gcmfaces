@@ -10,14 +10,17 @@ function [fldOut,X,Y,weightOut]=calc_zonmean_T(fldIn,method,fldType);
 %    If fldType is 'intensive' (default) then fldIn is mutliplied by 
 %    RAC (method=2 or -2) or RAC.*hFacC*DRF (method=1 or -1).
 
-global mygrid;
-
-if ~isfield(mygrid,'LATS_MASKS');
-    error('please execute gcmfaces_lines_zonal to define mygrid.LATS_MASKS');
-end;
+gcmfaces_global;
 
 if isempty(who('fldType')); fldType='intensive'; end;
 if isempty(who('method')); method=1; end;
+
+%check that LATS_MASKS has already been defined:
+if ~isfield(mygrid,'LATS_MASKS');
+    fprintf('one-time initialization of gcmfaces_lines_zonal: begin\n');
+    gcmfaces_lines_zonal;
+    fprintf('one-time initialization of gcmfaces_lines_zonal: end\n');
+end;
 
 if isa(fldIn,'struct');
   list0=fieldnames(fldIn);

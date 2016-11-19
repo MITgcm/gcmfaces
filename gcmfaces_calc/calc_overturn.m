@@ -11,10 +11,17 @@ function [FLD]=calc_overturn(fldU,fldV,doFlip,list_factors);
 %               transports will integrated, as computed in gcmfaces_lines_zonal
 %           the result is converted to Sv, and sign is changed.
 
-global mygrid;
+gcmfaces_global;
 
 if nargin<3; doFlip=1; end;
 if nargin<4; list_factors={'dh','dz'}; end;
+
+%check that LATS_MASKS has already been defined:
+if ~isfield(mygrid,'LATS_MASKS');
+    fprintf('one-time initialization of gcmfaces_lines_zonal: begin\n');
+    gcmfaces_lines_zonal;
+    fprintf('one-time initialization of gcmfaces_lines_zonal: end\n');
+end;
 
 %initialize output:
 n3=max(size(fldU.f1,3),1); n4=max(size(fldV.f1,4),1);
