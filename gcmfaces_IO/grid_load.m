@@ -203,16 +203,16 @@ if mygrid.memoryLimit<1;
 end;
 
 %zonal mean and sections needed for transport computations
-if mygrid.memoryLimit<1;
-    if ~isfield(mygrid,'mygrid.LATS_MASKS');
-        gcmfaces_lines_zonal;
-        mygrid.LATS=[mygrid.LATS_MASKS.lat]';
-    end;
-    if ~isfield(mygrid,'LINES_MASKS');
-        [lonPairs,latPairs,names]=gcmfaces_lines_pairs;
-        gcmfaces_lines_transp(lonPairs,latPairs,names);
-    end;
-end;
+% if mygrid.memoryLimit<1;
+%     if ~isfield(mygrid,'mygrid.LATS_MASKS');
+%         gcmfaces_lines_zonal;
+%         mygrid.LATS=[mygrid.LATS_MASKS.lat]';
+%     end;
+%     if ~isfield(mygrid,'LINES_MASKS');
+%         [lonPairs,latPairs,names]=gcmfaces_lines_pairs;
+%         gcmfaces_lines_transp(lonPairs,latPairs,names);
+%     end;
+% end;
 
 %to allow convert2gcmfaces/doFast:
 if isempty(mygrid.facesExpand)&mygrid.memoryLimit<2;
