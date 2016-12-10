@@ -22,6 +22,7 @@ gcmfaces_global; global myparms;
 
 if isempty(who('doInteractive')); doInteractive=0; end;
 myswitch=diags_pre_process(dirModel,dirMat,doInteractive);
+diags_grid(dirModel,doInteractive); %reload mygrid if needed
 
 dirModel=[dirModel '/'];
 if isempty(dirMat); dirMat=[dirModel 'mat/']; else; dirMat=[dirMat '/']; end;

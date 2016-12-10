@@ -75,7 +75,7 @@ myswitch.doProfiles=doProfiles;
 myswitch.doCost=doCost;
 myswitch.doCtrl=doCtrl;
 
-disp(myswitch);
+fprintf('\n'); disp(myswitch);
 if doInteractive;
   test0=input('edit switches (1) or proceed (0)?\n');
   while test0;
@@ -135,9 +135,7 @@ if test0&test1;%this process will do the pre-processing
     %set grid and model parameters:
     diags_grid_parms(dirModel,listTimes,doInteractive);
     %save to disk:
-    %if doInteractive;
-    eval(['save ' dirMat 'diags_grid_parms.mat mygrid myparms;']);
-    %end;
+    eval(['save ' dirMat 'diags_grid_parms.mat myparms;']);
     delete([dirMat 'lock_mygrid']);
     test1=1;
     fprintf(['pre-processing : completed for mygrid, myparms \n\n']);
@@ -165,26 +163,18 @@ if test0&test1&doProfiles&preprocessProfiles;%this process will do the pre-proce
     fprintf(['pre-processing : started for profiles \n']);
     write2file([dirMat 'lock_profiles'],1);
     mkdir([dirMat 'profiles/']);
-    mkdir([dirMat 'profiles/input/']);
     mkdir([dirMat 'profiles/output/']);
 
     listModel=dir([dirModel '*.nc']);
     listModel={listModel(:).name};
-    for ff=1:length(listModel);
-       copyfile([dirModel listModel{ff}],[dirMat 'profiles/input/' listModel{ff}]);
-    end;
-
-    if dirModel(1)~='/'; dirModelFull=[pwd '/' dirModel]; else; dirModelFull=dirModel; end;
-    % NOTE: if on DOS system change ln to mklink
-    system(['ln -s ' dirModelFull 'profiles/*equi.data ' dirMat 'profiles/.']);
-    listModel=dir([dirMat 'profiles/input/*.nc'])
-    listModel={listModel(:).name};
     for ff=1:length(listModel); listModel{ff}=[listModel{ff}(1:end-3) '*']; end;
+
     if ~isempty(listModel);
-      MITprof_gcm2nc([dirMat 'profiles/'],listModel);
+      MITprof_gcm2nc({dirModel,[dirMat 'profiles/output/']},listModel);
     else;
       warning('no MITprof files wer found');
     end;
+
     delete([dirMat 'lock_profiles']);
     test1=1;
     fprintf(['pre-processing : completed for profiles \n\n']);
