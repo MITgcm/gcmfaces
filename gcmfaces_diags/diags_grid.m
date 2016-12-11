@@ -64,7 +64,7 @@ if ~test1;
 end;
 
 %add definition of zonal and transport lines to mygrid
-if ~isfield(mygrid,'mygrid.LATS_MASKS');
+if ~isfield(mygrid,'LATS_MASKS');
   fprintf([' diags_grid.m now defining zonal lines\n']);
   gcmfaces_lines_zonal;
 end;

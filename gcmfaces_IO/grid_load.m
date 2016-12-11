@@ -235,5 +235,3 @@ end;
 %Note : 0 should not be used as a fill for the grid itself (NaN was used).
 mygrid.missVal=0;
 
-mygrid.dirGrid=[pwd filesep mygrid.dirGrid];
-    

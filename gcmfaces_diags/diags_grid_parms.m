@@ -24,7 +24,7 @@ myparms=default_parms(myparms,choiceParams);
 %allow user to change model params if necessary
 myparms=review_parms(myparms,listTimes,doInteractive);
 
-function [parms]=default_parms(myparms,choiceParams);
+function [parms]=default_parms(parms,choiceParams);
 %set model parameters to default (ecco_v4)
 
 if choiceParams==1|choiceParams==2|choiceParams==4|choiceParams==5;
