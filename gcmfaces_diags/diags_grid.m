@@ -1,9 +1,8 @@
 function []=diags_grid(dirModel,doInteractive);
 %object :      load grid to mygrid if needed
-%input :       dirModel is the model run / output directory 
-%(optional)    doInteractive=1 allows users to specify parameters interactively
-%                     doInteractive = 0 (default) uses ECCO v4 parameters
-%                     and omits budgets and model-data misfits analyses
+%input :       dirModel is the model output directory
+%              doInteractive=1 allows users to specify parameters interactively
+%                whereas doInteractive=0 tries to specify them automatically
 
 %global variables
 gcmfaces_global;

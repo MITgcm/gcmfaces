@@ -1,9 +1,9 @@
 function []=diags_grid_parms(dirModel,listTimes,doInteractive);
 %object :      load grid, set params, and save myparms to dirMat
-%input :       listTimes is the time list obtained from diags_list_times
-%(optional)    doInteractive=1 allows users to specify parameters interactively
-%                     doInteractive = 0 (default) uses ECCO v4 parameters
-%                     and omits budgets and model-data misfits analyses
+%input :       dirModel is the model output directory
+%              listTimes is the time list obtained from diags_list_times
+%              doInteractive=1 allows users to specify parameters interactively
+%                whereas doInteractive=0 tries to specify them automatically
 
 %global variables
 gcmfaces_global;
