@@ -66,8 +66,11 @@ else;
   budgetList='basic_diags_ecco_budget_list.mat';
 end;
 
-%here we always reload the grid from dirMat to make sure the same one is used throughout
+%reload myparms from dirMat (and mygrid if included the mat file)
 eval(['load ' dirMat nameGrid ';']);
+
+%reload mygrid if needed
+if isfield(myparms,'dirGrid'); diags_grid(myparms.dirGrid,0); end;
 
 %in case mygrid.memoryLimit=1, load the stuff that was not saved to diags_grid_parms.mat
 if mygrid.memoryLimit==1;

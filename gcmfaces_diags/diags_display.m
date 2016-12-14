@@ -68,8 +68,11 @@ else;
   budgetList='basic_diags_ecco_budget_list.mat';
 end;
 
-%here we always reload the grid from dirMat to make sure the same one is used throughout
+%reload myparms from dirMat (and mygrid if included the mat file)
 eval(['load ' dirMat nameGrid ';']);
+
+%reload mygrid if needed
+if isfield(myparms,'dirGrid'); diags_grid(myparms.dirGrid,0); end;
 
 %zonal mean and sections needed for transport computations
 if ~isfield(mygrid,'mygrid.LATS_MASKS');
