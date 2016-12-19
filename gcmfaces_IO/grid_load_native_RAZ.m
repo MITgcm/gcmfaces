@@ -25,7 +25,7 @@ if ~isempty(files)&~strcmp(mygrid.XC.gridType,'ll');
     RAZfull=gcmfaces;
     for iFile=1:mygrid.nFaces;
         [ni,nj]=size(mygrid.XC{iFile});
-        fid=fopen([mygrid.dirGrid files(iFile).name]);
+        fid=fopen([mygrid.dirGrid files(iFile).name],'r','b');
         for iFld=1:10; 
           fld=fread(fid,[ni+1 nj+1],'float64');
         end
