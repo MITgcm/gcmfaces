@@ -48,6 +48,9 @@ if ~test1|~test2;
     face_XC=XC{iF}; face_YC=YC{iF};
     for ii=1:size(face_XC,1)/ni;
         for jj=1:size(face_XC,2)/nj;
+%the MITgcm exch2 package proceeds this way instead:
+%     for jj=1:size(face_XC,2)/nj;
+%         for ii=1:size(face_XC,1)/ni;            
             tileCount=tileCount+1;
             tmp_i=[1:ni]+ni*(ii-1);
             tmp_j=[1:nj]+nj*(jj-1);
