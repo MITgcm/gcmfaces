@@ -167,7 +167,6 @@ if test0&test1&doProfiles&preprocessProfiles;%this process will do the pre-proce
 
     listModel=dir([dirModel '*.nc']);
     listModel={listModel(:).name};
-    for ff=1:length(listModel); listModel{ff}=[listModel{ff}(1:end-3) '*']; end;
 
     if ~isempty(listModel);
       MITprof_gcm2nc({dirModel,[dirMat 'profiles/output/']},listModel);
