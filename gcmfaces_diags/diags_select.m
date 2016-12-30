@@ -210,6 +210,7 @@ for iChunk=listChunk;
             %    fprintf([fldName ' was found \n']);
         end;
     end;
+    listFldsMissing={listFldsNames{find(~listFldsIsPresent)}};
     listFldsNames={listFldsNames{find(listFldsIsPresent)}};
     listFlds={listFlds{find(listFldsIsPresent)}};
     
@@ -237,6 +238,10 @@ for iChunk=listChunk;
                 end;
             end;
         end;
+        for jj=1:length(listFldsMissing);
+                eval([listFldsMissing{jj} '=0;']);
+        end;
+
         fprintf([num2str(ii-i0) '/' num2str(i1-i0) ' started \n']);
         
         %generic output file name (that will potentially be overriden)
