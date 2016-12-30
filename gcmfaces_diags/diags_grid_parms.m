@@ -32,7 +32,7 @@ parms.yearFirst=1992; %first year covered by model integration
 parms.yearLast =2011; %last year covered by model integration
 parms.yearInAve=[parms.yearFirst parms.yearLast]; %period for time averages and variance computations
 parms.timeStep =3600; %model time step for tracers
-parms.iceModel =1;%0=use freezing point   1=use pkg/seaice   2=use pkg/thsice
+parms.iceModel =1;%0=use freezing point   1=use pkg/seaice   2=use pkg/thsice (not implemented)
 parms.useRFWF  =1;%1=real fresh water flux 0=virtual salt flux
 parms.useNLFS  =2;%2=rstar 1=nlfs 0=linear free surface
 parms.rhoconst =1029; %sea water density
@@ -75,6 +75,14 @@ if choiceParams==3;
         parms.SIsal0   = 0;
 end;
 
+if parms.iceModel==0;
+        parms.rhoi     = 0; %sea ice density
+        parms.rhosn    = 0; %snow density
+        parms.flami    = 0; % latent heat of fusion of ice/snow (J/kg)
+        parms.flamb    = 0; % latent heat of evaporation (J/kg)
+        parms.SIsal0   = 0;
+end;
+
 function [parms]=review_parms(parms,listTimes,doInteractive);
 %review model parameters, correct them if needed, and check a couple more things
 
@@ -92,7 +100,7 @@ while test1;
     tmp1=sprintf('parms.useNLFS    = %i; (2=rstar 1=nlfs 0=linear free surface)',parms.useNLFS);  gcmfaces_msg(tmp1,'== ');
     tmp1=sprintf('parms.rhoconst   = %0.6g (sea water density)',parms.rhoconst);  gcmfaces_msg(tmp1,'== ');
     tmp1=sprintf('parms.rcp        = %0.6g (sea water density X heat capacity)',parms.rcp);  gcmfaces_msg(tmp1,'== ');
-    if parms.iceModel==1;
+    if parms.iceModel<=1;
         tmp1=sprintf('parms.rhoi       = %0.6g (sea ice density)',parms.rhoi);  gcmfaces_msg(tmp1,'== ');
         tmp1=sprintf('parms.rhosn      = %0.6g (snow density)',parms.rhosn);  gcmfaces_msg(tmp1,'== ');
         tmp1=sprintf('parms.flami      = %0.6g (latent heat of fusion of ice/snow in J/kg)',parms.flami);  gcmfaces_msg(tmp1,'== ');
