@@ -42,7 +42,8 @@ if ~isfield(mygrid,'LATS_MASKS'); gcmfaces_lines_zonal; end;
 if ~isempty(dir([dirModel nameSigma])); 
   dirSig=dirModel;
 else;
-  error(['could not find ' nameSigma]);
+  warning(['could not find ' nameSigma ' -> abort']);
+  return;
 end;
 
 if ~isempty(dir([dirModel 'xx_' xxName '.effective.*data']));

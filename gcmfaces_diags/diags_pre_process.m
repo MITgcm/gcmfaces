@@ -42,8 +42,8 @@ if ~myenv.nctiles;%only works with binaries
       dirSnap=dirModel;
       doBudget=~isempty(dir([dirSnap 'budg2d_snap_set1*']));
     end;
-    doCtrl=~isempty(dir([dirModel 'ADXXfiles' filesep 'xx*.effective.*']));
-    doCtrl=doCtrl|~isempty(dir([dirModel 'xx*.effective.*']));
+    doCtrl=~isempty(dir([dirModel 'xx_atemp.effective.*']))
+    doCtrl=doCtrl&~isempty(dir([dirModel 'cap_sigma_tmp2m_degC_eccollc.bin']));
 else;
     dirSnap=fullfile(dirModel,'diags',filesep);
     doBudget=0;
