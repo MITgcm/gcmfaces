@@ -68,7 +68,8 @@ for iFile=1:Nfaces;
     tmp1=files(iFile).name;
     %get face dimensions
     if ~isempty(strfind(mygrid.dirGrid,'cs32_tutorial_held_suarez_cs'))|...
-            ~isempty(strfind(mygrid.dirGrid,'GRIDcube'));%special case of cs32
+            ~isempty(strfind(mygrid.dirGrid,'GRIDcube'))|...
+            ~isempty(strfind(tmp1,'cs32'));%special case of cs32
         ni=32; nj=32;
     elseif strcmp(tmp1(end-2:end),'bin');%get face dimension from file name
         tmp2=strfind(tmp1,'_');
