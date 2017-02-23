@@ -1,4 +1,4 @@
-function [nc] = nccreate(theNetCDFFile, varargin);
+function [nc] = nccreateFile(theNetCDFFile, varargin);
 % create a new netcdf file.
 %   mode: 'write','nowrite'
 

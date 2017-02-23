@@ -168,7 +168,7 @@ if doCreate;
   else;%to allow for large file:
     mode='NETCDF4';
   end;
-  ncid=nccreate(fileTile,mode);
+  ncid=nccreateFile(fileTile,mode);
   nc_global=netcdf.getConstant('NC_GLOBAL');
 
   if ~isempty(rdm); 
