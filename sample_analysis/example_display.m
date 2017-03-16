@@ -16,7 +16,7 @@ gcmfaces_global;
 
 input_list_check('example_display',nargin);
 
-if isempty(whos('method')); method=[3:5]; end;
+if isempty(whos('method')); method=[1:5]; end;
 
 if myenv.verbose>0;
     gcmfaces_msg('===============================================');
@@ -62,10 +62,24 @@ if sum(ismember(method,1));
         tmp1=axis; tmp2=text(tmp1(2)/2,tmp1(4)/2,'4','FontSize',32,'Color','r','Rotation',0);
         subplot(3,3,3); imagescnan(fld{5}','nancolor',[1 1 1]*0.8); axis xy; cb=gcmfaces_cmap_cbar(cc,{'myCmap',myCmap}); delete(cb);
         tmp1=axis; tmp2=text(tmp1(2)/2,tmp1(4)/2,'5','FontSize',32,'Color','r','Rotation',0);
-    title('display face by face');
     elseif nF==6;
-        error('face by face plot for cude : not yet implemented');
+        figureL;
+        subplot(3,4,9); imagescnan(fld{1}','nancolor',[1 1 1]*0.8); axis xy; cb=gcmfaces_cmap_cbar(cc,{'myCmap',myCmap}); delete(cb);
+        tmp1=axis; tmp2=text(tmp1(2)/2,tmp1(4)/2,'1','FontSize',32,'Color','r','Rotation',0); 
+        subplot(3,4,10); imagescnan(fld{2}','nancolor',[1 1 1]*0.8); axis xy; cb=gcmfaces_cmap_cbar(cc,{'myCmap',myCmap}); delete(cb);
+        tmp1=axis; tmp2=text(tmp1(2)/2,tmp1(4)/2,'2','FontSize',32,'Color','r','Rotation',0);
+        subplot(3,4,6); imagescnan(fld{3}','nancolor',[1 1 1]*0.8); axis xy; cb=gcmfaces_cmap_cbar(cc,{'myCmap',myCmap}); delete(cb);
+        tmp1=axis; tmp2=text(tmp1(2)/2,tmp1(4)/2,'3','FontSize',32,'Color','r','Rotation',0);
+        subplot(3,4,7); imagescnan(fld{4}','nancolor',[1 1 1]*0.8); axis xy; cb=gcmfaces_cmap_cbar(cc,{'myCmap',myCmap}); delete(cb);
+        tmp1=axis; tmp2=text(tmp1(2)/2,tmp1(4)/2,'4','FontSize',32,'Color','r','Rotation',0);
+        subplot(3,4,3); imagescnan(fld{5}','nancolor',[1 1 1]*0.8); axis xy; cb=gcmfaces_cmap_cbar(cc,{'myCmap',myCmap}); delete(cb);
+        tmp1=axis; tmp2=text(tmp1(2)/2,tmp1(4)/2,'5','FontSize',32,'Color','r','Rotation',0);
+        subplot(3,4,4); imagescnan(fld{6}','nancolor',[1 1 1]*0.8); axis xy; cb=gcmfaces_cmap_cbar(cc,{'myCmap',myCmap}); delete(cb);
+        tmp1=axis; tmp2=text(tmp1(2)/2,tmp1(4)/2,'6','FontSize',32,'Color','r','Rotation',0);
+    else;
+        error('face by face plot not yet implemented for this grid');
     end;
+    title('display face by face');
 end;
 
 if sum(ismember(method,2));
