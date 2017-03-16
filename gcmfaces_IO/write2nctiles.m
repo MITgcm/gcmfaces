@@ -1,27 +1,37 @@
 function [dimOut]=write2nctiles(fileOut,fldIn,doCreate,varargin);
-%object : write gcmfaces object to netcdf files (tiled)
-%inputs : fileOut is the name of the file to be created
-%         fldIn is the array to write to disk
-%         doCreate is a 0/1 switch; 1 => create file ; 0 => append to file. 
-%optional paramaters :
-%         can be provided in the form {'name',value}
-%         those that are currently active are
-%               'descr' is the file description (default '').
-%               'rdm' is the extended estimate description (default '').
-%               'fldName' is the nc variable name for fld (default : the outside name of fldIn).
-%               'longName' is the corresponding long name (default : '').
-%               'units' is the unit of fld (default : '(unknown)').
-%               'missval' is the missing value (default : NaN).
-%               'fillval' is the fill value (default : NaN).
-%               'tileNo' is a map of tile indices (default is face number)
-%		'coord' is auxilliary coordinates attribute (e.g. 'lon lat dep')
-%               'dimsize' is the array size associated with 'coord'
-%               'xtype' is 'double' by default 
-%netcdf dimensions : array dimensions are simply set to 'i1,i2,...'
+% WRITE2NCTILES writes a gcmfaces object to nctiles, tiled netcdf, files
 %
-%example:
-%  write2nctiles('test1',mygrid.RAC,1,{'fldName','RAC'});
-%  RAC=read_nctiles('test1','RAC');
+% inputs : 
+%    - fileOut is the name of the file to be created
+%    - fldIn is the array to write to disk
+%    - doCreate: if 1 (default) then create file ; if 0 then append to file. 
+%
+% additional paramaters can be provided afterwards in the {'name',value} form:
+%         'fldName' is the nc variable name for fld (see "notes" regarding default)
+%         'longName' is the corresponding long name ('' by default).
+%         'units' is the unit of fld ('(unknown)' by default).
+%         'missval' is the missing value (NaN by default).
+%         'fillval' is the fill value (NaN by default).
+%         'tileNo' is a map of tile indices (face # by default)
+%         'coord' is auxilliary coordinates attribute (e.g. 'lon lat dep')
+%         'dimsize' is the array size associated with 'coord'
+%         'xtype' is the variable ('double' by default)
+%         'rdm' is the extended estimate description ('' by default).
+%         'descr' is the file description ('' by default).
+%
+% notes: 
+%    - if fldName is not explicitly specified then the input variable 
+%      name (if ok) or file name (otherwise) is used as fldName.
+%    - netcdf dimensions are simply set to 'i1,i2,...'
+%
+% examples:
+%
+%    write2nctiles('test1',mygrid.RAC,1,{'fldName','RAC'});
+%    RAC=read_nctiles('test1','RAC');
+%
+%    write2nctiles('test2',mygrid.RAC);
+%    RAC=read_nctiles('test2','test2');
+%    RAC=read_nctiles('test2');
 
 gcmfaces_global;
 if ~(myenv.useNativeMatlabNetcdf);
@@ -30,21 +40,25 @@ end;
 
 doCheck=0;%set to one to print stuff to screen
 
-fldInIsaGcmfaces=isa(fldIn,'gcmfaces');
+if isempty(whos('fileOut')); error('fileOut must be specified'); end;
+if isempty(whos('fldIn')); error('fldIn must be specified'); end;
+if isempty(whos('doCreate')); doCreate=1; end;
 
+fldInIsaGcmfaces=isa(fldIn,'gcmfaces');
 if fldInIsaGcmfaces;
   fldInIsEmpty=isempty(fldIn{1});
 else;
   fldInIsEmpty=isempty(fldIn);
 end;
-
+    
 %set more optional paramaters to default values
-descr=''; 
-rdm='';
-fldName=inputname(2); longName=''; 
-units='(unknown)'; missval=NaN; fillval=NaN; dimIn=[];
+fldName=inputname(2); 
+if isempty(fldName); 
+    [tmp1,fldName,tmp2] = fileparts(fileOut); 
+end;
+longName=''; units='(unknown)'; missval=NaN; fillval=NaN; dimIn=[];
 tileNo=mygrid.XC; for ff=1:mygrid.nFaces; tileNo{ff}(:)=ff; end;
-coord=''; dimsize=[]; xtype='double';
+coord=''; dimsize=[]; xtype='double'; descr=''; rdm='';
 
 %set more optional paramaters to user defined values
 for ii=1:nargin-3;
