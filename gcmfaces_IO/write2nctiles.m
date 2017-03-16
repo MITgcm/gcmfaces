@@ -18,6 +18,10 @@ function [dimOut]=write2nctiles(fileOut,fldIn,doCreate,varargin);
 %               'dimsize' is the array size associated with 'coord'
 %               'xtype' is 'double' by default 
 %netcdf dimensions : array dimensions are simply set to 'i1,i2,...'
+%
+%example:
+%  write2nctiles('test1',mygrid.RAC,1,{'fldName','RAC'});
+%  RAC=read_nctiles('test1','RAC');
 
 gcmfaces_global;
 if ~(myenv.useNativeMatlabNetcdf);
@@ -182,7 +186,7 @@ if doCreate;
   netcdf.putAtt(ncid,nc_global,tmp1,rdm{pp});
   end;
   %append readme
-  pp=length(rdm)+1;
+  if length(rdm)>0; pp=length(rdm)+1; tmp1=char(pp+63); else; tmp1='A'; end;
   netcdf.putAtt(ncid,nc_global,tmp1,'file created using gcmfaces_IO/write2nctiles.m');
   ncputAtt(ncid,'','date',date);
   netcdf.putAtt(ncid,nc_global,'Conventions','CF-1.6')   
