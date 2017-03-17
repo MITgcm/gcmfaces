@@ -1,4 +1,4 @@
-function [fldOut]=rdmds2gcmfaces(varargin);
+function [fldOut,IT,M]=rdmds2gcmfaces(varargin);
 %object:    read with rmds then apply convert2gcmfaces
 %input:     varargin are the options to pass to rdmds (type help rdmds)
 %output:    fldOut is a gcmfaces object
@@ -8,7 +8,7 @@ function [fldOut]=rdmds2gcmfaces(varargin);
 
 gcmfaces_global;
 
-v0=rdmds(varargin{1:end});
+[v0,IT,M]=rdmds(varargin{1:end});
 
 nn=size(v0);
 test1=isfield(mygrid,'xtrct');
