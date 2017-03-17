@@ -208,7 +208,7 @@ if doCreate;
   ncputAtt(ncid,'','_FillValue',fillval);
   ncputAtt(ncid,'','missing_value',missval);
 
-  ncdefDim(ncid,'itxt',30);
+  %ncdefDim(ncid,'itxt',30);
   for dd=1:length(dimlist); ncdefDim(ncid,dimlist{dd},dimsize(dd)); end;
 
   for dd=1:length(dimlist);
