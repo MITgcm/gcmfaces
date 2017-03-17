@@ -2,9 +2,10 @@ function []=grid_load_native(dirGrid,nFaces,doWarn);
 %object:    load NATIVE FORMAT grid information, convert it to gcmfaces format
 %           and encapsulate it in the global mygrid structure.
 %inputs: EITHER
-%           dirGrid is the directory where the grid files (gcm output) can be found.
+%           dirGrid is the directory where the grid files (gcm input) can be found.
 %           nFaces is the number of faces in this gcm set-up of current interest.
-%           doWarn issue warning if grid is not complete (e.g. hFacC is missing)
+%           doWarn; if doWarn==1 then warn user that mygrid is not complete (e.g. hFacC, 
+%              etc. are missing); if doWarn==0 then initialize hFacC etc. to 1 instead. 
 %        OR
 %           [] if mygrid has already read by grid_load.m from XC.data, YC.data, etc.
 %           from which grid_load_native can get dirGrid and nFaces
@@ -25,6 +26,9 @@ if nargin>0;
   mygrid.dirGrid=dirGrid;
   mygrid.nFaces=nFaces;
   mygrid.fileFormat='native';
+  mygrid.gcm2facesFast=false;
+  mygrid.memoryLimit=0;
+  mygrid.facesExpand=[];
 end;
 
 %search for native grid files
@@ -102,8 +106,21 @@ for iFile=1:Nfaces;
    end;
 end;
 
-if doWarn;
-  list0={'hFacC','hFacS','hFacW','Depth','AngleCS','AngleSN'};
+if nargin>0;
+  mygrid.ioSize=size(convert2gcmfaces(mygrid.XC));
+  mygrid.facesSize=[]; 
+  for ii=1:mygrid.nFaces; mygrid.facesSize=[mygrid.facesSize; size(mygrid.XC{ii})]; end;
+end;
+
+if nargin>0&doWarn==0;
+  warning('initializing hFacC, Depth, DRF, etc. to 1');
+  list0={'hFacC','hFacS','hFacW','Depth','mskC','mskW','mskS'};
+  for ii=1:length(list0); mygrid.(list0{ii})=1+0*mygrid.XC; end;
+  mygrid.RC=-0.5; mygrid.RF=[0 -1]; mygrid.DRC=1; mygrid.DRF=1;
+end;
+
+if nargin>0&doWarn;
+  list0={'hFacC','hFacS','hFacW','mskC','mskW','mskS','Depth','AngleCS','AngleSN'};
   nWarn=0;
   for ff=1:length(list0); 
     if ~isfield(mygrid,list0{ff}); 
