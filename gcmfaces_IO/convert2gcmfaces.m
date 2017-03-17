@@ -54,9 +54,11 @@ elseif doGcm2Faces;
             i1=i1+nn*mm;
             v1{iFace}=reshape(v00(i0:i1,:),[nn mm n3 n4 n5]);
         end;
+    elseif strcmp(mygrid.fileFormat,'native');
+        v1=convert2array(v0);
     end;
     
-    v1=gcmfaces(v1);
+    if ~strcmp(mygrid.fileFormat,'native'); v1=gcmfaces(v1); end;
     
     if ~isempty(mygrid.facesExpand); v1=convert2widefaces(v1); end;
     
@@ -94,7 +96,9 @@ else;
         end;
         nn=mygrid.ioSize(1); mm=mygrid.ioSize(2);        
         v1=reshape(v11,[nn mm n3 n4 n5]);
-        
+
+    elseif strcmp(mygrid.fileFormat,'native');
+        v1=convert2array(v0);        
     end;
     
 end;
