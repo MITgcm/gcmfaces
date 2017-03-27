@@ -120,6 +120,10 @@ end;
 global myprofmyop; myprofmyop=myprof;
 for ii=fieldnames(myop)'; myprofmyop.(ii{1})=myop.(ii{1}); end;
 
+%store mask since it could be useful for plotting or other purposes
+myprofmyop.msk2D=msk2D;
+myprofmyop.msk3D=msk3D;
+
 %compute boostrap samples using MITprof_wrapper
 K=[1:myprofmyop.np]; N=100;
 myout = bootstrp(N, @MITprof_wrapper,K);
