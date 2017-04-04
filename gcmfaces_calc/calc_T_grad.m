@@ -1,13 +1,18 @@
 function [varargout]=calc_T_grad(fld,putGradOnTpoints);
-%object:    compute horizontal gradients
-%inputs:    fld is the 'tracer' field of interest
-%           putGradOnTpoints states wherther to return the gradients
-%               at velocity points (0) or on tracer points (1)
-%output:    [dFLDdx,dFLDdy] are the gradient fields
-%optional:  [...,dFLDdxdx,dFLDdydy] are the second order 
-%               derivatives at tracer points.
+% CALC_T_GRAD(fld) computes horizontal gradients of a 2D field (fld)
+%
+% inputs:      fld is the two-dimensional field (at grid cell centers)
+% [optional]   putGradOnTpoints states wherther to return the gradients
+%                  at velocity points (0; default) or on tracer points (1)
+% outputs:     [dFLDdx,dFLDdy] are the gradient fields
+% [optional]   [...,dFLDdxdx,dFLDdydy] are the second order 
+%                  derivatives at tracer points.
+%
 
-global mygrid;
+% development notes:
+% - should be extended to 3D case
+
+gcmfaces_global;
 
 msk=fld; msk(~isnan(fld))=1;
 
