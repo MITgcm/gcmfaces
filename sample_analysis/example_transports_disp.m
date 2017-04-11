@@ -38,7 +38,7 @@ cc=[[-50:10:-30] [-24:3:24] [30:10:50]];
 figureL; set(gca,'FontSize',14);
 pcolor(X,Y,FLD); axis([-90 90 -6000 0]); 
 set(gcf,'Renderer','zbuffer'); shading interp;
-gcmfaces_cmap_cbar(cc); title('Meridional Stream Function (in Sv)');
+gcmfaces_cmap_cbar(cc); title('Meridional Stream Function (in Sv; incl. bolus)');
 xlabel('latitude'); ylabel('depth');
 
 end;%if isfield(diags,'fldBAR');

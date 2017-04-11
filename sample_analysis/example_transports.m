@@ -26,6 +26,10 @@ end;
 myenv.nctilesdir=fullfile('release1',filesep,'nctiles_climatology',filesep);
 
 if ~isdir(myenv.nctilesdir);
+  myenv.nctilesdir=fullfile('release2_climatology',filesep,'nctiles_climatology',filesep);
+end;
+
+if ~isdir(myenv.nctilesdir);
     diags=[];
     help gcmfaces_demo;
     warning(['skipping example_transports (missing ' myenv.nctilesdir ')']);
@@ -33,14 +37,14 @@ if ~isdir(myenv.nctilesdir);
 end;
 
 if myenv.verbose>0;
-    gcmfaces_msg('* call gcmfaces_lines_zonal : determine grid lines that closely follow');
-    gcmfaces_msg('parallel lines and will be used in zonal mean and overturning computations','  ');
+    gcmfaces_msg('* call gcmfaces_lines_zonal : determine grid lines that closely follow lines of');
+    gcmfaces_msg('constant latitudes and will be used in zonal mean and meridional transport computations','  ');
 end;
 gcmfaces_lines_zonal;
 
 if myenv.verbose>0;
     gcmfaces_msg('* call gcmfaces_lines_transp : determine grid lines that closely follow');
-    gcmfaces_msg('great circles and will be used to compute transsects transports','  ');
+    gcmfaces_msg('great circles and will be used to compute transports through select sections','  ');
 end;
 % warning('skipping gcmfaces_lines_transp\n');
 [lonPairs,latPairs,names]=gcmfaces_lines_pairs;
@@ -57,7 +61,7 @@ diags.listTimes=1;
 
 %part 1:
 
-listVars={'UVELMASS','VVELMASS'};
+listVars={'UVELMASS','VVELMASS','GM_PsiX','GM_PsiY'};
 missingVars={};
 for vv=1:length(listVars);
   tmp1=[myenv.nctilesdir listVars{vv} filesep listVars{vv} '*nc'];
@@ -69,7 +73,7 @@ if ~isempty(missingVars);
     disp(missingVars');
 else;
 
-if myenv.verbose>0; gcmfaces_msg('* call read_nctiles : load velocity fields');end;
+if myenv.verbose>0; gcmfaces_msg('* call read_nctiles : load velocity GM streamfunction fields');end;
 
 for vvv=1:length(listVars);
     vv=listVars{vvv};
@@ -79,14 +83,23 @@ for vvv=1:length(listVars);
     eval([vv '=tmp1;']);
 end;
 
+%apply NaN-masks:
 UVELMASS=UVELMASS.*mygrid.mskW;
 VVELMASS=VVELMASS.*mygrid.mskS;
 
+if myenv.verbose>0; gcmfaces_msg('* call calc_bolus :  compute bolus component from GM streamfunction');end;
+
+%add bolus component from GM scheme:
+[UVELbol,VVELbol,fldWbolus]=calc_bolus(GM_PsiX,GM_PsiY);
+UVELbol=UVELbol.*mygrid.mskW; VVELbol=VVELbol.*mygrid.mskS;
+UVELtot=UVELMASS+UVELbol; VVELtot=VVELMASS+VVELbol;
+
+%compute transports:
 listDiags={listDiags{:},'fldBAR','gloOV','fldTRANSPORTS','gloMT_FW'};
 if myenv.verbose>0; gcmfaces_msg('* call calc_barostream : comp. barotropic stream function');end;
 [fldBAR]=calc_barostream(UVELMASS,VVELMASS);
-if myenv.verbose>0; gcmfaces_msg('* call calc_overturn : comp. overturning stream function');end;
-[gloOV]=calc_overturn(UVELMASS,VVELMASS);
+if myenv.verbose>0; gcmfaces_msg('* call calc_overturn : comp. residual overturning stream function');end;
+[gloOV]=calc_overturn(UVELtot,VVELtot);
 if myenv.verbose>0; gcmfaces_msg('* call calc_transports : comp. transects transports');end;
 [fldTRANSPORTS]=1e-6*calc_transports(UVELMASS,VVELMASS,mygrid.LINES_MASKS,{'dh','dz'});
 if myenv.verbose>0; gcmfaces_msg('* call calc_MeridionalTransport : comp. meridional seawater transport');end;
