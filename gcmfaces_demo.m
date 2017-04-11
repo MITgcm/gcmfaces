@@ -6,29 +6,29 @@ function []=gcmfaces_demo();
 %  gcmfaces     (codes)
 %  MITprof      (codes)
 %  nctiles_grid (ECCO v4 grid)
-%  release1     (ECCO v4 output)
+%  release2_climatology (ECCO v4 output)
 %  sample_input (additional demo material)
 %
 %the ECCO v4 grid can be obtained as follows:
 %
-%  wget --recursive ftp://mit.ecco-group.org/ecco_for_las/version_4/release1/nctiles_grid 
-%  mv mit.ecco-group.org/ecco_for_las/version_4/release1/nctiles_grid . 
+%  wget --recursive ftp://mit.ecco-group.org/ecco_for_las/version_4/release2/nctiles_grid 
+%  mv mit.ecco-group.org/ecco_for_las/version_4/release2/nctiles_grid . 
 %  rm -rf mit.ecco-group.org
 %
 %to activate example_transports:
 %
-%  mkdir release1
-%  wget --recursive ftp://mit.ecco-group.org/ecco_for_las/version_4/release1/nctiles_climatology
-%  mv mit.ecco-group.org/ecco_for_las/version_4/release1/nctiles_climatology release1/.
+%  mkdir release2_climatology
+%  wget --recursive ftp://mit.ecco-group.org/ecco_for_las/version_4/release2/nctiles_climatology
+%  mv mit.ecco-group.org/ecco_for_las/version_4/release2/nctiles_climatology release2_climatology/.
 %  rm -rf mit.ecco-group.org
 %
 %to activate example_MITprof:
 %
 %  mkdir release2_climatology
 %  wget --recursive ftp://mit.ecco-group.org/ecco_for_las/version_4/release2/nctiles_climatology
-%  mv mit.ecco-group.org/ecco_for_las/version_4/release1/nctiles_climatology release2_climatology/.
+%  mv mit.ecco-group.org/ecco_for_las/version_4/release2/nctiles_climatology release2_climatology/.
 %  wget --recursive ftp://mit.ecco-group.org/ecco_for_las/version_4/release2/profiles
-%  mv mit.ecco-group.org/ecco_for_las/version_4/release1/profiles release2_climatology/.
+%  mv mit.ecco-group.org/ecco_for_las/version_4/release2/profiles release2_climatology/.
 %  rm -rf mit.ecco-group.org
 %
 %to activate example_budget:
