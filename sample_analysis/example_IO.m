@@ -2,7 +2,8 @@ function []=example_IO();
 %
 % EXAMPLE_IO computes and displays a standard deviation field
 %
-% stand-alone call: addpath gcmfaces/sample_analysis/; example_IO;
+% stand-alone call:
+%   addpath gcmfaces/sample_analysis/; example_IO;
 %
 % needed input files:
 %   mkdir release2
