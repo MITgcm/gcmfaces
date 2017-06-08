@@ -5,7 +5,14 @@ aa=which('m_proj'); if isempty(aa); error('this function requires m_map that is 
 
 global mygrid;
 x=mygrid.XC; y=mygrid.YC; u=fldUe; v=fldVn;
-x(find(x>180))=x(find(x>180))-360;
+
+global MAP_VAR_LIST;
+if isfield(MAP_VAR_LIST,'ulongs');
+    lmin=MAP_VAR_LIST.ulongs(1);
+    lmax=MAP_VAR_LIST.ulongs(2);
+    x(find(x>lmax))=x(find(x>lmax))-360;
+    x(find(x<lmin))=x(find(x<lmin))+360;
+end;
 
 %compute direction:
 % eps=1e-3; %this value only works for a velocity field in m/s
