@@ -253,7 +253,7 @@ m_grid_opt=['''XaxisLocation'',xloc,''YaxisLocation'',yloc,''xtick'',xtic,''ytic
 if xticlab==0; m_grid_opt=[m_grid_opt ',''xticklabel'',[]']; end;
 if yticlab==0; m_grid_opt=[m_grid_opt ',''yticklabel'',[]']; end;
 
-if strcmp(param.myPlot,'pcolor')|strcmp(param.myPlot,'contour');
+if strcmp(param.myPlot,'pcolor')|strcmp(param.myPlot,'contour')||strcmp(param.myPlot,'contourf');
     x=mygrid.XC;
     %mask out the XC padded zeros
     if isfield(mygrid,'xtrct');
@@ -289,6 +289,13 @@ if strcmp(param.myPlot,'pcolor')|strcmp(param.myPlot,'contour');
         end;
         if length(fld)==2; fld{3}='k'; end;
         hold on; contour(x,y,z,fld{3:end});
+    elseif strcmp(param.myPlot,'contourf');
+        if ~param.doHold;
+            if param.do_m_coast; m_coast('patch',[1 1 1]*.7,'edgecolor','none'); end;
+            eval(['m_grid(' m_grid_opt ');']);
+        end;
+        if length(fld)==2; fld{3}='k'; end;
+        hold on; contourf(x,y,z,fld{3:end});
     end;
 elseif strcmp(param.myPlot,'plot');
     if ~param.doHold;
