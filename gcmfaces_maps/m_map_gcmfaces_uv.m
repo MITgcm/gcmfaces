@@ -19,12 +19,16 @@ m_proj('mollweide','lon',[-180 180],'lat',[-89 89]);
 [xx,yy,v]=convert2pcol(mygrid.XC,mygrid.YC,vv);
 [x,y]=m_ll2xy(xx,yy);
 
-%ger rid of nans and subsample:
-ii=find(~isnan(u.*v)); ii=ii(1:subFac:end);
+%subsample and discard NaNs:
+x=x(1:subFac:end,1:subFac:end);
+y=y(1:subFac:end,1:subFac:end);
+u=u(1:subFac:end,1:subFac:end);
+v=v(1:subFac:end,1:subFac:end);
+ii=find(~isnan(u.*v));
 x=x(ii); y=y(ii); u=u(ii); v=v(ii);
 m_coast('patch',[1 1 1]*.7,'edgecolor','none'); m_grid;
-hold on; if isempty(scaleFac); quiver(x,y,u,v); else; quiver(x,y,u,v,scaleFac); end;
-end;%if choicePlot==0|choicePlot==1; 
+hold on; if isempty(scaleFac); quiver(x,y,u,v); else; quiver(x,y,u,v,scaleFac,'k'); end;
+end;%if choicePlot==-1;
 
 if choicePlot==0; subplot(2,1,1); end;
 if choicePlot==0|choicePlot==1; 
@@ -35,12 +39,36 @@ m_proj('Mercator','lat',[-70 70]);
 [xx,yy,v]=convert2pcol(mygrid.XC,mygrid.YC,vv);
 [x,y]=m_ll2xy(xx,yy);
 
-%ger rid of nans and subsample:
-ii=find(~isnan(u.*v)); ii=ii(1:subFac:end);
+%subsample and discard NaNs:
+x=x(1:subFac:end,1:subFac:end);
+y=y(1:subFac:end,1:subFac:end);
+u=u(1:subFac:end,1:subFac:end);
+v=v(1:subFac:end,1:subFac:end);
+ii=find(~isnan(u.*v));
 x=x(ii); y=y(ii); u=u(ii); v=v(ii);
 m_coast('patch',[1 1 1]*.7,'edgecolor','none'); m_grid;
-hold on; if isempty(scaleFac); quiver(x,y,u,v); else; quiver(x,y,u,v,scaleFac); end;
+hold on; if isempty(scaleFac); quiver(x,y,u,v); else; quiver(x,y,u,v,scaleFac,'k'); end;
 end;%if choicePlot==0|choicePlot==1; 
+
+if choicePlot==1.2;
+
+m_proj('Equidistant cylindrical','lat',[-90 90],'lon',[0 360]+20);
+
+[uu,vv]=m_map_gcmfaces_uvrotate(fldUe,fldVn);
+[xx,yy,u]=convert2pcol(mygrid.XC,mygrid.YC,uu);
+[xx,yy,v]=convert2pcol(mygrid.XC,mygrid.YC,vv);
+[x,y]=m_ll2xy(xx,yy);
+
+%subsample and discard NaNs:
+x=x(1:subFac:end,1:subFac:end);
+y=y(1:subFac:end,1:subFac:end);
+u=u(1:subFac:end,1:subFac:end);
+v=v(1:subFac:end,1:subFac:end);
+ii=find(~isnan(u.*v));
+x=x(ii); y=y(ii); u=u(ii); v=v(ii);
+m_coast('patch',[1 1 1]*.7,'edgecolor','none'); m_grid;
+hold on; if isempty(scaleFac); quiver(x,y,u,v); else; quiver(x,y,u,v,scaleFac,'k'); end;
+end;%if choicePlot==1.2;
 
 if choicePlot==0; subplot(2,2,3); end;
 if choicePlot==0|choicePlot==2; 
@@ -53,11 +81,15 @@ u=convert2arctic(uu);
 v=convert2arctic(vv);
 [x,y]=m_ll2xy(xx,yy);
 
-%ger rid of nans and subsample:
-ii=find(~isnan(u.*v)); ii=ii(1:subFac:end);
+%subsample and discard NaNs:
+x=x(1:subFac:end,1:subFac:end);
+y=y(1:subFac:end,1:subFac:end);
+u=u(1:subFac:end,1:subFac:end);
+v=v(1:subFac:end,1:subFac:end);
+ii=find(~isnan(u.*v));
 x=x(ii); y=y(ii); u=u(ii); v=v(ii);
 m_coast('patch',[1 1 1]*.7,'edgecolor','none'); m_grid;
-hold on; if isempty(scaleFac); quiver(x,y,u,v); else; quiver(x,y,u,v,scaleFac); end;
+hold on; if isempty(scaleFac); quiver(x,y,u,v); else; quiver(x,y,u,v,scaleFac,'k'); end;
 end;%if choicePlot==0|choicePlot==1; 
 
 if choicePlot==0; subplot(2,2,4); end;
@@ -71,11 +103,15 @@ u=convert2southern(uu);
 v=convert2southern(vv);
 [x,y]=m_ll2xy(xx,yy);
 
-%ger rid of nans and subsample:
-ii=find(~isnan(u.*v)); ii=ii(1:subFac:end);
+%subsample and discard NaNs:
+x=x(1:subFac:end,1:subFac:end);
+y=y(1:subFac:end,1:subFac:end);
+u=u(1:subFac:end,1:subFac:end);
+v=v(1:subFac:end,1:subFac:end);
+ii=find(~isnan(u.*v));
 x=x(ii); y=y(ii); u=u(ii); v=v(ii);
 m_coast('patch',[1 1 1]*.7,'edgecolor','none'); m_grid;
-hold on; if isempty(scaleFac); quiver(x,y,u,v); else; quiver(x,y,u,v,scaleFac); end;
+hold on; if isempty(scaleFac); quiver(x,y,u,v); else; quiver(x,y,u,v,scaleFac,'k'); end;
 end;%if choicePlot==0|choicePlot==1; 
 
 
