@@ -14,6 +14,7 @@ function []=m_map_gcmfaces(fld,varargin);
 %               {'doLabl',1} indicates to include the axes labels (1 by default)
 %               {'doFit',1} indicates to exclude white space (0 by default)
 %               {'myShading','flat'} indicates to use flat shading instead of interp
+%               {'myFontSize',12} indicates font size for axis labels (10 by default)
 %
 %notes:     - for proj==0 (i.e. the default) three panels will be plotted :
 %           a mercator projection over mid-latitude, and two polar
@@ -51,7 +52,7 @@ end;
 %determine the type of plot
 if iscell(fld); myPlot=fld{1}; else; myPlot='pcolor'; fld={'pcolor',fld}; end;
 %set more optional paramaters to default values
-myCaxis=[]; myTitle=''; myShading='interp'; myCmap='jet';
+myCaxis=[]; myTitle=''; myShading='interp'; myCmap='jet'; myFontSize=10;
 do_m_coast=1; doHold=0; doCbar=1; doLabl=1; doFit=0;
 %set more optional paramaters to user defined values
 for ii=2:nargin-1;
@@ -72,6 +73,7 @@ for ii=2:nargin-1;
         if strcmp(varargin{ii}{1},'myCaxis')|...
                 strcmp(varargin{ii}{1},'myCmap')|...
                 strcmp(varargin{ii}{1},'myShading')|...
+                strcmp(varargin{ii}{1},'myFontSize')|...
                 strcmp(varargin{ii}{1},'myTitle')|...
                 strcmp(varargin{ii}{1},'doHold')|...
                 strcmp(varargin{ii}{1},'doCbar')|...
@@ -107,6 +109,7 @@ end;
 param.plotCBAR=plotCBAR;
 param.myCmap=myCmap;
 param.myCaxis=myCaxis;
+param.myFontSize=myFontSize;
 param.do_m_coast=do_m_coast;
 param.doHold=doHold;
 param.doCbar=doCbar;
@@ -249,9 +252,11 @@ end;
 
 if ~param.doLabl; xticlab=0; yticlab=0;end; %omit labels
 
-m_grid_opt=['''XaxisLocation'',xloc,''YaxisLocation'',yloc,''xtick'',xtic,''ytick'',ytic'];
+m_grid_opt=['''XaxisLocation'',xloc,''YaxisLocation'',yloc'];
+m_grid_opt=[m_grid_opt ',''xtick'',xtic,''ytick'',ytic'];
 if xticlab==0; m_grid_opt=[m_grid_opt ',''xticklabel'',[]']; end;
 if yticlab==0; m_grid_opt=[m_grid_opt ',''yticklabel'',[]']; end;
+m_grid_opt=[m_grid_opt ',''fontsize'',param.myFontSize'];
 
 if strcmp(param.myPlot,'pcolor')|strcmp(param.myPlot,'contour')||strcmp(param.myPlot,'contourf');
     x=mygrid.XC;
