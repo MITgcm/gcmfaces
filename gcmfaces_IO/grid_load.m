@@ -176,9 +176,11 @@ if (length(files)==mygrid.nFaces)&~omitNativeGrid;
   %replace NaNs with 0s if needed (blank tile only issue)
   list0={'hFacC','hFacS','hFacW','Depth','AngleCS','AngleSN'};
   for ii=1:length(list0); 
-    eval(['tmp1=mygrid.' list0{ii} ';']);
-    tmp1(isnan(tmp1))=0;
-    eval(['mygrid.' list0{ii} '=tmp1;']);
+      if isfield(mygrid,list0{ii});
+          eval(['tmp1=mygrid.' list0{ii} ';']);
+          tmp1(isnan(tmp1))=0;
+          eval(['mygrid.' list0{ii} '=tmp1;']);
+      end;
   end;
   %reset angles if needed (blank tile only issue)
   tmp1=mygrid.AngleCS.^2+mygrid.AngleSN.^2;
