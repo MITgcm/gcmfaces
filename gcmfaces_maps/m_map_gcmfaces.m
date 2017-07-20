@@ -307,14 +307,16 @@ elseif strcmp(param.myPlot,'plot');
         if param.do_m_coast; m_coast('patch',[1 1 1]*.7,'edgecolor','none'); end;
         eval(['m_grid(' m_grid_opt ');']);
     end;
-    [x,y]=m_ll2xy(fld{2},fld{3});
+    [x,y]=m_map_fix_range(fld{2},fld{3});
+    [x,y]=m_ll2xy(x,y);
     hold on; plot(x,y,fld{4:end});
 elseif strcmp(param.myPlot,'scatter');
     if ~param.doHold;
         if param.do_m_coast; m_coast('patch',[1 1 1]*.7,'edgecolor','none'); end;
         eval(['m_grid(' m_grid_opt ');']);
     end;
-    [x,y]=m_ll2xy(fld{2},fld{3});
+    [x,y]=m_map_fix_range(fld{2},fld{3});
+    [x,y]=m_ll2xy(x,y);
     hold on; scatter(x,y,fld{4:end});
 elseif strcmp(param.myPlot,'text');
     if ~param.doHold;
@@ -329,3 +331,4 @@ end;
 %add tag spec. to map & proj generated with this routine
 set(gca,'Tag',['gfMap' num2str(proj)]);
 
+  
