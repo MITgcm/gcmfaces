@@ -32,8 +32,11 @@ end;%if choicePlot==-1;
 
 if choicePlot==0; subplot(2,1,1); end;
 if choicePlot==0|choicePlot==1; 
-m_proj('Mercator','lat',[-70 70]);
-
+if mygrid.nFaces~=5&mygrid.nFaces~=6;
+    m_proj('Mercator','lat',[-70 70]);
+else;
+    m_proj('Mercator','lat',[-70 70],'lon',[0 360]+20);
+end;
 [uu,vv]=m_map_gcmfaces_uvrotate(fldUe,fldVn);
 [xx,yy,u]=convert2pcol(mygrid.XC,mygrid.YC,uu);
 [xx,yy,v]=convert2pcol(mygrid.XC,mygrid.YC,vv);
