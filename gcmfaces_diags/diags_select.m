@@ -158,11 +158,17 @@ if isempty(strfind(dirMat,['diags_set_' setDiags]));
  if isempty(dir(dirMat)); mkdir(dirMat); end;
 end;
 
+if isempty(listChunk);
+    fprintf('\n'); gcmfaces_msg('Nothing to compute based on current settings!','==== '); fprintf('\n');
+end;
+
 for iChunk=listChunk;
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %load records for computation:
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+    fprintf('\n'); gcmfaces_msg('Now reading variables from file...','==== '); fprintf('\n');
     
     lTot=length(listTimes);
     i0=min(lChunk*(iChunk-1),lTot);
@@ -199,7 +205,7 @@ for iChunk=listChunk;
     end;
     
     fprintf([num2str(i1-i0) ' records loaded in ' num2str(toc) '\n']);
-    
+
     %check that all fields were found, and otherwise reduce listFlds
     listFldsIsPresent=zeros(1,length(listFldsNames));
     for iFld=1:length(listFldsNames);
@@ -222,6 +228,11 @@ for iChunk=listChunk;
     %%%%%%%%%%%%%%%%%%%%
     %do the computation:
     %%%%%%%%%%%%%%%%%%%%
+
+    fprintf('\n');
+    gcmfaces_msg('Now starting computational loop...','==== ');
+    fprintf('\n');
+
     for ii=i0+1:i1;
         
         tic;

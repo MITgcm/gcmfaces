@@ -10,15 +10,22 @@ global myparms;
 
 if ~isfield(myparms,'dirGrid');
 
-if isempty(dir('GRID'))&isempty(dir('nctiles_grid'))&...
+if doInteractive|(isempty(dir('GRID'))&isempty(dir('nctiles_grid'))&...
    isempty(dir([dirModel filesep 'GRID']))&...
-   isempty(dir([dirModel filesep 'nctiles_grid']));
-    dirGrid=input('grid directory?\n');
-    fprintf('\nFor the ECCO v4 LLC90 grid, the following parameters\n');
-    fprintf('apply: nF=5; frmt=''compact''; memoryLimit=0; \n\n');
-    nF=input('Number of faces? (nF=1, 4, 5 or 6)\n');
-    frmt=input('File format? (frmt=''straight'', ''cube'' or ''compact'')\n');
-    memoryLimit=input('memoryLimit? (0=load full grid, 1=less, 2=even less)\n');
+   isempty(dir([dirModel filesep 'nctiles_grid'])));
+
+    fprintf('\n');
+    gcmfaces_msg('Please specify grid information.','=== ');
+    fprintf('\n');
+
+    dirGrid=input(' Step 1: specify grid directory (e.g. ''./'' with quotes).\n');
+    fprintf('\n Step 2: specify parameters for grid_load.m; \n');
+    fprintf('    e.g. nF=5; frmt=''nctiles''; memoryLimit=0; \n');
+    fprintf('    for the ECCO v4 LLC90 grid provided by ECCO.\n');
+    nF=input(' Specify the number of faces by typing 1, 4, 5 or 6\n');
+    frmt=input(' Specify the file format by typing ''nctiles'', ''straight'', ''cube'' or ''compact''\n');
+    memoryLimit=input(' Specify degree of memory limitation (type 0 -- or increase if issue occurs)\n');
+    fprintf('\n');
 elseif ~isempty(dir('GRID'));
     dirGrid=['GRID' filesep];
     nF=5;
@@ -41,12 +48,6 @@ elseif ~isempty(dir([dirModel filesep 'nctiles_grid']));
     memoryLimit=0;
 end;
 
-if doInteractive;
-    nF=input('number of faces? (1, 4, 5or 6)\n'); 
-    frmt=input('file format ? (''straight'', ''cube'' or ''compact'')\n');
-    memoryLimit=input('memoryLimit ? (0=load full grid, 1=load less, 2=load even less)\n');
-end;
-
 myparms.dirGrid=dirGrid; myparms.nF=nF;
 myparms.frmt=frmt; myparms.memoryLimit=memoryLimit;
 
@@ -58,17 +59,17 @@ if test1;
   test1=strcmp(mygrid.dirGrid,myparms.dirGrid);
 end;
 if ~test1; 
-  fprintf([' diags_grid.m now loading mygrid \n']);
+  fprintf('\n'); gcmfaces_msg('Now loading grid to mygrid ...','=== ');
   grid_load(myparms.dirGrid,myparms.nF,myparms.frmt,myparms.memoryLimit);
 end;
 
 %add definition of zonal and transport lines to mygrid
 if ~isfield(mygrid,'LATS_MASKS');
-  fprintf([' diags_grid.m now defining zonal lines\n']);
+  fprintf('\n'); gcmfaces_msg('Now defining zonal lines ...','=== ');
   gcmfaces_lines_zonal;
 end;
 if ~isfield(mygrid,'LINES_MASKS');
-  fprintf([' diags_grid.m now defining transport lines\n']);
+  fprintf('\n'); gcmfaces_msg('Now defining transport lines ...','=== ');
   [lonPairs,latPairs,names]=gcmfaces_lines_pairs;
   gcmfaces_lines_transp(lonPairs,latPairs,names);
 end;
