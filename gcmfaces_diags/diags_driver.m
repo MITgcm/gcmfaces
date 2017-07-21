@@ -74,6 +74,9 @@ for iDiag=1:length(setDiags);
       for myYear=years;
         diags_select(dirModel,dirMat,nmDiag,lChunk,myYear);
       end;
+      if isempty(years);
+        gcmfaces_msg('!! Nothing to compute for specified years !!','==== '); fprintf('\n');
+      end;
 
     elseif strcmp(nmDiag,'B');
       recInAve=[myparms.recInAve(1):myparms.recInAve(2)];
