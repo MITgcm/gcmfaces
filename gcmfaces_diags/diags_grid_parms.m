@@ -14,8 +14,9 @@ diags_grid(dirModel,doInteractive);
 
 %set default for model run parameters
 if doInteractive;
-    choiceParams=input(['choice of default parameters? (1=ecco v4, ' ...
-                 '2=core, 3=ecco2 adjoint, 4=ecco v3, 5=core-Jeff)\n']);
+    choiceParams=input(['\n Please select a set of default parameters. \n' ...
+        '     Either type  1   for ECCO V4 R1,R2,R3,etc over 1992-2011 \n' ...
+        '              or  2   for ECCO V4 R3,etc       over 1992-2015 \n']);
 else;
     choiceParams=1;
 end;
@@ -42,23 +43,30 @@ parms.rhosn    = 330; %snow density
 parms.flami    = 3.34e05; % latent heat of fusion of ice/snow (J/kg)
 parms.flamb    = 2.50e06; % latent heat of evaporation (J/kg)
 parms.SIsal0   =4;
+
 if choiceParams==2;
+  parms.yearFirst=1992; %first year covered by model integration
+  parms.yearLast =2015; %last year covered by model integration
+  parms.yearInAve = [1992 2015];
+end;
+
+if choiceParams==-1;
   parms.yearFirst=1948; %first year covered by model integration
   parms.yearLast =2007; %last year covered by model integration
   parms.yearInAve = [1948 2007];
 end;
-if choiceParams==4;
+if choiceParams==-2;
   parms.useRFWF  =0;%1=real fresh water flux 0=virtual salt flux
   parms.useNLFS  =0;%2=rstar 1=nlfs 0=linear free surface
 end;
-if choiceParams==5;
+if choiceParams==-3;
  parms.yearFirst=2006; %first year covered by model integration
  parms.yearLast =2305; %last year covered by model integration
  parms.yearInAve = [2006 2305];
 end;
 end;
 
-if choiceParams==3;
+if choiceParams==-4;
         parms.yearFirst=2004; %first year covered by model integration
         parms.yearLast =2005; %last year covered by model integration
         parms.yearInAve=[parms.yearFirst parms.yearLast]; %period for time averages and variance computations
@@ -88,8 +96,9 @@ function [parms]=review_parms(parms,listTimes,doInteractive);
 
 test1=1;%so that we print params at least once
 while test1;
-    fprintf('\n\n');
-    gcmfaces_msg('model parameters summary','==== ');
+    fprintf('\n');
+    gcmfaces_msg('Summary of parameters','=== ');
+    fprintf('\n');
     
     tmp1=sprintf('parms.yearFirst  = %i (first year covered by model integration)',parms.yearFirst); gcmfaces_msg(tmp1,'== ');
     tmp1=sprintf('parms.yearLast   = %i (first year covered by model integration)',parms.yearLast);  gcmfaces_msg(tmp1,'== ');
@@ -112,7 +121,9 @@ while test1;
     end;
     
     if doInteractive;
-      gcmfaces_msg('to change a param type e.g. ''parms.yearFirst=1;'' or hit return if all params are ok. Change a param?','==== ');
+      fprintf('\n');
+      gcmfaces_msg('Please either hit return if all parameters are ok as displayed.','=== ');
+      gcmfaces_msg('or change a parameter by typing a command between quotes (e.g. ''parms.yearFirst=1;'') ','=== ');
       tmp1=input('');
       test1=~isempty(tmp1); %so that we change param and iterate process
       if test1; eval(tmp1); end;
@@ -122,7 +133,7 @@ while test1;
 end;
 
 %determine a few more things about the diagnostic time axis
-fprintf('\n\n');
+fprintf('\n');
 parms.diagsNbRec=length(listTimes);
 test1=median(diff(listTimes)*parms.timeStep/86400);
 if abs(test1-30.5)<1; parms.diagsAreMonthly=1; else; parms.diagsAreMonthly=0; end;
@@ -131,7 +142,7 @@ if doInteractive;
    tmp1=sprintf('parms.diagsNbRec       = %i (number of records, based on model output files)',parms.diagsNbRec); gcmfaces_msg(tmp1,'== ');
    tmp1=sprintf('parms.diagsAreMonthly  = %i (0/1 = false/true; based on output frequency)',parms.diagsAreMonthly); gcmfaces_msg(tmp1,'== ');
    tmp1=sprintf('parms.diagsAreAnnual   = %i (0/1 = false/true; based on output frequency)',parms.diagsAreAnnual); gcmfaces_msg(tmp1,'== ');
-   gcmfaces_msg('hit return if this seems correct otherwise stop here','== '); test0=input(''); if ~isempty(test0); error('likely dir problem'); end;
+   gcmfaces_msg('Please hit return if all now seems correct -- or stop and start over.','== '); test0=input(''); if ~isempty(test0); error('likely dir problem'); end;
 end;
 
 listTimes2=parms.yearFirst+listTimes*parms.timeStep/86400/365.25;%this approximation of course makes things simpler
@@ -150,9 +161,8 @@ elseif ~isempty(ii);
 else;
     parms.recInAve=[1 1];
 end;
-if doInteractive; 
-  tmp1=sprintf('parms.recInAve  = [%i %i] (time mean and variance records)',parms.recInAve);  gcmfaces_msg(tmp1,'== ');
-end;
 
-fprintf('\n\n');
+tmp1=sprintf('parms.recInAve  = [%i %i] (records used for time averaging and variance computations)',parms.recInAve);  gcmfaces_msg(tmp1,'== ');
+
+fprintf('\n');
 
