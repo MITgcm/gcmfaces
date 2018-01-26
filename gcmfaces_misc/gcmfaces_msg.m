@@ -72,7 +72,7 @@ ii=strfind(msgIn,'\f'); for jj=ii; msgIn=[msgIn(1:jj-1) ' ' msgIn(jj+2:end)]; en
 %2.2) ANSI C control characters
 tmp1=msgIn; tmp2=double(tmp1);
 %substitute some with a space
-jj=find(tmp2>8&&tmp2<13); tmp1(jj)=32;
+jj=find(tmp2>8&tmp2<13); tmp1(jj)=32;
 %remove the others
 jj=find(tmp2>=32); tmp1=tmp1(jj);
 msgIn=char(tmp1);

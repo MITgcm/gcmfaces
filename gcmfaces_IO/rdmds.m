@@ -468,23 +468,23 @@ ieee='b';
 % Check optional arguments
 args=char(varargin);
 while (size(args,1) > 0)
- if deblank(args(1,:)) == 'real*4'
+ if strcmp(deblank(args(1,:)),'real*4')
   WORDLENGTH=4;
   rtype='real*4';
- elseif deblank(args(1,:)) == 'real*8'
+ elseif strcmp(deblank(args(1,:)),'real*8')
   WORDLENGTH=8;
   rtype='real*8';
- elseif deblank(args(1,:)) == 'n' || deblank(args(1,:)) == 'native'
+ elseif strcmp(deblank(args(1,:)),'n') || strcmp(deblank(args(1,:)),'native')
   ieee='n';
- elseif deblank(args(1,:)) == 'l' || deblank(args(1,:)) == 'ieee-le'
+ elseif strcmp(deblank(args(1,:)),'l') || strcmp(deblank(args(1,:)),'ieee-le')
   ieee='l';
- elseif deblank(args(1,:)) == 'b' || deblank(args(1,:)) == 'ieee-be'
+ elseif strcmp(deblank(args(1,:)),'b') || strcmp(deblank(args(1,:)),'ieee-be')
   ieee='b';
- elseif deblank(args(1,:)) == 'c' || deblank(args(1,:)) == 'cray'
+ elseif strcmp(deblank(args(1,:)),'c') || strcmp(deblank(args(1,:)),'cray')
   ieee='c';
- elseif deblank(args(1,:)) == 'a' || deblank(args(1,:)) == 'ieee-le.l64'
+ elseif strcmp(deblank(args(1,:)),'a') || strcmp(deblank(args(1,:)),'ieee-le.l64')
   ieee='a';
- elseif deblank(args(1,:)) == 's' || deblank(args(1,:)) == 'ieee-be.l64'
+ elseif strcmp(deblank(args(1,:)),'s') || strcmp(deblank(args(1,:)),'ieee-be.l64')
   ieee='s';
  else
   error(['Optional argument ' args(1,:) ' is unknown'])
