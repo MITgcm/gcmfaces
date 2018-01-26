@@ -16,7 +16,7 @@ case '{}'
 
    if length(index)>1; b=subsref(b,index(2:end)); end;
 case '.'
-   b = get(a,index(1).subs);
+   b = getfield(struct(a),index(1).subs);
 
    if length(index)>1; b=subsref(b,index(2:end)); end;
 case '()'

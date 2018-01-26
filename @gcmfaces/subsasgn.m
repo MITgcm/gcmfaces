@@ -22,7 +22,8 @@ case '.'
       aa=subsref(a,index(1)); val=subsasgn(aa,index(2:end),val);
    end;
 
-   a=set(a,index(1).subs,val);
+   a=setfield(struct(a),index(1).subs,val);
+   a = class(a,'gcmfaces');
 case '()'
    if length(index)>1; error('indexing not supported by gcmfaces objects'); end;   
 
