@@ -111,7 +111,7 @@ list1={list1{:},'profiles_prep_main','profiles_prep_select','MITprof_demo'};
 for jj=1:length(list1);
     test1=test1&isempty(find(strcmp(ST,list1{jj})));
 end;
-if test0&test1&myenv.issueWarnings;
+if test0&&test1&&myenv.issueWarnings;
     warning('mygrid has not yet been loaded to memory');
 end;
 

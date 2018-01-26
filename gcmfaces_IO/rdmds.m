@@ -80,17 +80,17 @@ recnum=[];
 for ind=1:size(varargin,2);
  arg=varargin{ind};
  if ischar(arg)
-  if strcmp(arg,'n') | strcmp(arg,'native')
+  if strcmp(arg,'n') || strcmp(arg,'native')
    ieee='n';
-  elseif strcmp(arg,'l') | strcmp(arg,'ieee-le')
+  elseif strcmp(arg,'l') || strcmp(arg,'ieee-le')
    ieee='l';
-  elseif strcmp(arg,'b') | strcmp(arg,'ieee-be')
+  elseif strcmp(arg,'b') || strcmp(arg,'ieee-be')
    ieee='b';
-  elseif strcmp(arg,'c') | strcmp(arg,'cray')
+  elseif strcmp(arg,'c') || strcmp(arg,'cray')
    ieee='c';
-  elseif strcmp(arg,'a') | strcmp(arg,'ieee-le.l64')
+  elseif strcmp(arg,'a') || strcmp(arg,'ieee-le.l64')
    ieee='a';
-  elseif strcmp(arg,'s') | strcmp(arg,'ieee-be.l64')
+  elseif strcmp(arg,'s') || strcmp(arg,'ieee-be.l64')
    ieee='s';
   elseif strcmp(arg,'rec')
    userecords=1;
@@ -111,14 +111,14 @@ for ind=1:size(varargin,2);
    end
    disp([ sprintf('Found %i time levels, reading %i',size(itrs,2),itrs(end)) ]);
    itrs=itrs(end);
-% elseif prod(double(arg>=0)) & prod(double(round(arg)==arg))
-% elseif prod(arg>=0) & prod(round(arg)==arg)
-  elseif min(arg)>=0 & isempty(find(round(arg)~=arg))
+% elseif prod(double(arg>=0)) && prod(double(round(arg)==arg))
+% elseif prod(arg>=0) && prod(round(arg)==arg)
+  elseif min(arg)>=0 && isempty(find(round(arg)~=arg))
    if arg>=9999999999
     error(sprintf('Argument %i > 9999999999',arg))
    end
    itrs=arg;
-  elseif length(arg) == 1 & arg == -1
+  elseif length(arg) == 1 && arg == -1
    itrs=arg;
   else
    error(sprintf('Argument %i must be a positive integer',arg))
@@ -167,7 +167,7 @@ for iter=1:size(itrs,2);
    ii=findstr(M,' timeInterval');
    if isempty(ii), jj1=0; jj2=0;
    else jj1=ii; jj2=ii+min(findstr(M(1+ii:end),'];')); end
-   if iter==1 & j==1,
+   if iter==1 && j==1,
     MM=M; ind1=0; ind2=0; is1=ii1; js1=jj1; M3='';
     if ii1*jj1 > 0,
      %ind1=min(ii1,jj1); ind2=max(ii2,jj2);
@@ -197,10 +197,10 @@ for iter=1:size(itrs,2);
          ind=order(1); ii3=order(2)+1; jj3=order(3)-1; ind2=order(4);
     else ind=max(ii1,jj1); ind2=ii2+jj2; end
     compar=(ind == ind1);    ii=0;
-    if compar & ind1 == 0,   ii=1; compar=strcmp (MM,M); end
-    if compar & ind1 > 0,    ii=2; compar=strncmp(MM,M,ind1) ; end
-    if compar & ind1 > 0,    ii=3; compar=strcmp(M5,M(1+ind2:end)); end
-    if compar & ii1*jj1 > 0, ii=4; compar=strcmp(M3,M(ii3:jj3)); end
+    if compar && ind1 == 0,   ii=1; compar=strcmp (MM,M); end
+    if compar && ind1 > 0,    ii=2; compar=strncmp(MM,M,ind1) ; end
+    if compar && ind1 > 0,    ii=3; compar=strcmp(M5,M(1+ind2:end)); end
+    if compar && ii1*jj1 > 0, ii=4; compar=strcmp(M3,M(ii3:jj3)); end
     if ~compar,
      fprintf('WARNING: Meta file (%s) is different (%i) from 1rst one:\n', ...
               allfiles(j).name,ii);
@@ -220,7 +220,7 @@ for iter=1:size(itrs,2);
     end
    end
 %  save modifications:
-   if ind1>0 & j==size(allfiles,1) & iter==size(itrs,2),
+   if ind1>0 && j==size(allfiles,1) && iter==size(itrs,2),
      if ii1 < jj1, MM=[MM(1:ind1-1),M2,M3,M4,M5];
      else          MM=[MM(1:ind1-1),M4,M3,M2,M5]; end
    end
@@ -231,8 +231,8 @@ for iter=1:size(itrs,2);
   r0=N(2,:);
   rN=N(3,:);
   ndims=prod(size(bdims));
-  if j==1 & iter==1, AA=zeros([bdims size(itrs,2)]); end
-  if mG(1)==0 & mG(2)==1,
+  if j==1 && iter==1, AA=zeros([bdims size(itrs,2)]); end
+  if mG(1)==0 && mG(2)==1,
     if     (ndims == 1)
      AA(r0(1):rN(1),iter)=A;
     elseif (ndims == 2)
@@ -304,7 +304,7 @@ while keepgoing > 0,
   end
 % Remove comments of form //
   line=[line,' //']; ind=findstr(line,'//'); line=line(1:ind(1)-1);
-% Add to total string (without starting & ending blanks)
+% Add to total string (without starting && ending blanks)
   while line(1:1) == ' ', line=line(2:end); end
   if strncmp(line,'map2glob',8), eval(line);
   else allstr=[allstr,deblank(line),' '];
@@ -344,13 +344,13 @@ eval(allstr);
 
 N=reshape( dimlist , 3 , prod(size(dimlist))/3 );
 rep=[' dimList = [ ',sprintf('%i ',N(1,:)),']'];
-if ~isnan(nrecords) & nrecords > 1 & isempty(recnum)
+if ~isnan(nrecords) && nrecords > 1 && isempty(recnum)
  N=[N,[nrecords 1 nrecords]'];
-elseif ~isempty(recnum) & recnum>nrecords
+elseif ~isempty(recnum) && recnum>nrecords
  error('Requested record number is higher than the number of available records')
 end
 
-%- make "dimList" shorter (& fit output array size) in output "M":
+%- make "dimList" shorter (&& fit output array size) in output "M":
  pat=' dimList = \[(\s*\d+\,?)*\s*\]';
  M=regexprep(M,pat,rep);
 %  and remove double space within sq.brakets:
@@ -474,17 +474,17 @@ while (size(args,1) > 0)
  elseif deblank(args(1,:)) == 'real*8'
   WORDLENGTH=8;
   rtype='real*8';
- elseif deblank(args(1,:)) == 'n' | deblank(args(1,:)) == 'native'
+ elseif deblank(args(1,:)) == 'n' || deblank(args(1,:)) == 'native'
   ieee='n';
- elseif deblank(args(1,:)) == 'l' | deblank(args(1,:)) == 'ieee-le'
+ elseif deblank(args(1,:)) == 'l' || deblank(args(1,:)) == 'ieee-le'
   ieee='l';
- elseif deblank(args(1,:)) == 'b' | deblank(args(1,:)) == 'ieee-be'
+ elseif deblank(args(1,:)) == 'b' || deblank(args(1,:)) == 'ieee-be'
   ieee='b';
- elseif deblank(args(1,:)) == 'c' | deblank(args(1,:)) == 'cray'
+ elseif deblank(args(1,:)) == 'c' || deblank(args(1,:)) == 'cray'
   ieee='c';
- elseif deblank(args(1,:)) == 'a' | deblank(args(1,:)) == 'ieee-le.l64'
+ elseif deblank(args(1,:)) == 'a' || deblank(args(1,:)) == 'ieee-le.l64'
   ieee='a';
- elseif deblank(args(1,:)) == 's' | deblank(args(1,:)) == 'ieee-be.l64'
+ elseif deblank(args(1,:)) == 's' || deblank(args(1,:)) == 'ieee-be.l64'
   ieee='s';
  else
   error(['Optional argument ' args(1,:) ' is unknown'])

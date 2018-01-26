@@ -14,9 +14,9 @@ function [msgOut]=gcmfaces_msg(msgIn,headerOut,widthOut);
 % gcmfaces_msg(msgIn,widthOut);
 
 gcmfaces_global;
-if isempty(who('headerOut'))&myenv.verbose<2;
+if isempty(who('headerOut'))&&myenv.verbose<2;
     headerOut='';
-elseif isempty(who('headerOut'))&myenv.verbose>=2;
+elseif isempty(who('headerOut'))&&myenv.verbose>=2;
     %pause before each event
     if myenv.verbose>=3; fprintf('\n > hit return to continue <\n'); pause; end;
     %
@@ -49,12 +49,12 @@ if isempty(who('widthOut')); widthOut=75; end;
 %=======
 
 %1.1) make cell array
-if ischar(msgIn)&size(msgIn,2)>1;
+if ischar(msgIn)&&size(msgIn,2)>1;
     nLinesIn=size(msgIn,1); tmpIn={};
     for ii=1:nLinesIn; tmpIn{ii}=msgIn(ii,:); end;
     msgIn=tmpIn;
 end;
-if iscell(msgIn)&size(msgIn,2)>1; msgIn=msgIn'; end;
+if iscell(msgIn)&&size(msgIn,2)>1; msgIn=msgIn'; end;
 
 %2.2) cat to one char line
 msgIn=strcat(cell2mat(msgIn'));
@@ -72,7 +72,7 @@ ii=strfind(msgIn,'\f'); for jj=ii; msgIn=[msgIn(1:jj-1) ' ' msgIn(jj+2:end)]; en
 %2.2) ANSI C control characters
 tmp1=msgIn; tmp2=double(tmp1);
 %substitute some with a space
-jj=find(tmp2>8&tmp2<13); tmp1(jj)=32;
+jj=find(tmp2>8&&tmp2<13); tmp1(jj)=32;
 %remove the others
 jj=find(tmp2>=32); tmp1=tmp1(jj);
 msgIn=char(tmp1);

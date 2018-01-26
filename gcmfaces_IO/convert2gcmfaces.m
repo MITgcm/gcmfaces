@@ -15,7 +15,7 @@ doGcm2Faces=strcmp(aa.class,'double');
 
 global mygrid;
 
-if doGcm2Faces&mygrid.gcm2facesFast;
+if doGcm2Faces&&mygrid.gcm2facesFast;
     
     [n1,n2,n3,n4,n5]=size(v0);
     
@@ -26,7 +26,7 @@ if doGcm2Faces&mygrid.gcm2facesFast;
     
     v1=gcmfaces(v1);
     
-elseif ~doGcm2Faces&mygrid.gcm2facesFast;
+elseif ~doGcm2Faces&&mygrid.gcm2facesFast;
     
     [n1,n2,n3,n4,n5]=size(v0{1});
     
@@ -45,7 +45,7 @@ elseif doGcm2Faces;
         v1={v0};
     elseif strcmp(mygrid.fileFormat,'cube');
         for ii=1:6; v1{ii}=v0(n2*(ii-1)+[1:n2],:,:,:,:); end;
-    elseif strcmp(mygrid.fileFormat,'compact')|strcmp(mygrid.fileFormat,'nctiles');
+    elseif strcmp(mygrid.fileFormat,'compact')||strcmp(mygrid.fileFormat,'nctiles');
         v00=reshape(v0,[n1*n2 n3*n4*n5]);
         i0=0; i1=0;
         for iFace=1:mygrid.nFaces;
@@ -71,7 +71,7 @@ else;
     elseif strcmp(mygrid.fileFormat,'cube');
         v1=zeros(n2*6,n2,n3,n4,n5);
         for ii=1:6; v1([1:n2]+(ii-1)*n2,:,:,:,:)=v0{ii}; end;
-    elseif strcmp(mygrid.fileFormat,'compact')|strcmp(mygrid.fileFormat,'nctiles');
+    elseif strcmp(mygrid.fileFormat,'compact')||strcmp(mygrid.fileFormat,'nctiles');
         
         %   is there a reason for this?
         %         v0_faces=v0; clear v0;

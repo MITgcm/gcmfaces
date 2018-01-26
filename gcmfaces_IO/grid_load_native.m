@@ -71,8 +71,8 @@ end;
 for iFile=1:Nfaces;
     tmp1=files(iFile).name;
     %get face dimensions
-    if ~isempty(strfind(mygrid.dirGrid,'cs32_tutorial_held_suarez_cs'))|...
-            ~isempty(strfind(mygrid.dirGrid,'GRIDcube'))|...
+    if ~isempty(strfind(mygrid.dirGrid,'cs32_tutorial_held_suarez_cs'))||...
+            ~isempty(strfind(mygrid.dirGrid,'GRIDcube'))||...
             ~isempty(strfind(tmp1,'cs32'));%special case of cs32
         ni=32; nj=32;
     elseif strcmp(tmp1(end-2:end),'bin');%get face dimension from file name
@@ -84,7 +84,7 @@ for iFile=1:Nfaces;
     else;
         error('could not determine face size');
     end;
-    if iFile==1&alsoDoTheOldWay; MM=ni; end;
+    if iFile==1&&alsoDoTheOldWay; MM=ni; end;
     fid=fopen([mygrid.dirGrid files(iFile).name],'r','b');
     for iFld=1:length(list_fields);
         eval(['nni=' list_ni{iFld} ';']);
@@ -112,14 +112,14 @@ if nargin>0;
   for ii=1:mygrid.nFaces; mygrid.facesSize=[mygrid.facesSize; size(mygrid.XC{ii})]; end;
 end;
 
-if nargin>0&doWarn==0;
+if nargin>0&&doWarn==0;
   warning('initializing hFacC, Depth, DRF, etc. to 1');
   list0={'hFacC','hFacS','hFacW','Depth','mskC','mskW','mskS'};
   for ii=1:length(list0); mygrid.(list0{ii})=1+0*mygrid.XC; end;
   mygrid.RC=-0.5; mygrid.RF=[0 -1]; mygrid.DRC=1; mygrid.DRF=1;
 end;
 
-if nargin>0&doWarn;
+if nargin>0&&doWarn;
   list0={'hFacC','hFacS','hFacW','mskC','mskW','mskS','Depth','AngleCS','AngleSN'};
   nWarn=0;
   for ff=1:length(list0); 
