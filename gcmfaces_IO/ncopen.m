@@ -3,7 +3,7 @@ function [nc] = ncopen(theNetCDFFile, varargin);
 %   mode: 'write','nowrite'
 
 global useNativeMatlabNetcdf; 
-if isempty(useNativeMatlabNetcdf); useNativeMatlabNetcdf = ~isempty(which('netcdf.open')); end;
+if isempty(useNativeMatlabNetcdf); useNativeMatlabNetcdf = ~isempty(which('netcdf_open')); end;
 
 mode=0;
 if nargin>1,
@@ -11,7 +11,7 @@ if nargin>1,
 end
 
 if useNativeMatlabNetcdf;
-    nc=netcdf.open(theNetCDFFile,mode);
+    nc=netcdf_open(theNetCDFFile,mode);
 else;%try to use old mex stuff
     if mode==0,
         nc=netcdf(theNetCDFFile);

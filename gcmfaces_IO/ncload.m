@@ -7,7 +7,7 @@ function [] = ncload(fileIn, varargin);
 %   are given, all variables are loaded.
 
 global useNativeMatlabNetcdf; 
-if isempty(useNativeMatlabNetcdf); useNativeMatlabNetcdf = ~isempty(which('netcdf.open')); end;
+if isempty(useNativeMatlabNetcdf); useNativeMatlabNetcdf = ~isempty(which('netcdf_open')); end;
 
 f = ncopen(fileIn, 'nowrite');
 if isempty(f), return, end
@@ -19,16 +19,16 @@ if (useNativeMatlabNetcdf);
     for i = 1:length(varargin)
         if sum(strcmp(vars,varargin{i}))>0;
             %get variable
-            varid = netcdf.inqVarID(f,varargin{i});
-            aa=netcdf.getVar(f,varid);
+            varid = netcdf_inqVarID(f,varargin{i});
+            aa=netcdf_getVar(f,varid);
             %inverse the order of dimensions
             bb=length(size(aa)); aa=permute(aa,[bb:-1:1]);
             %replace missing value with NaN
             [atts]=ncatts(f,varid);
             if strcmp(atts,'missing_value')&isreal(aa);
-                spval = double(netcdf.getAtt(f,varid,'missing_value'));
+                spval = double(netcdf_getAtt(f,varid,'missing_value'));
             elseif strcmp(atts,'_FillValue')&isreal(aa);
-                spval = double(netcdf.getAtt(f,varid,'_FillValue'));
+                spval = double(netcdf_getAtt(f,varid,'_FillValue'));
             else;
                 spval=[];
             end;
