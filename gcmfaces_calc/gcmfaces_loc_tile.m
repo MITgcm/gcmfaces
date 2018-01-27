@@ -111,7 +111,15 @@ if ~isempty(XC);
   zz=cos(pi/2-YC*pi/180);
   kk=find(~isnan(x));
   if size(xx,1)==1; xx=xx'; yy=yy'; zz=zz'; end;
-  ik = knnsearch([x(kk) y(kk) z(kk)],[xx yy zz]);
+  if ~isempty(which('knnsearch'));
+      ik = knnsearch([x(kk) y(kk) z(kk)],[xx yy zz]);
+  else;
+      %this would correspond to the old bindata method: 
+      % X=[XCgrid(kk) YCgrid(kk)]; Y=[XC YC];
+      %this corresponds to the knnsearch method:
+      X=[x(kk) y(kk) z(kk)]; Y=[xx yy zz];
+      TRI=delaunayn(X); ik=dsearchn(X,TRI,Y);
+  end;
   ik=kk(ik);
   %
   %(old method that uses longitude, latitude directly)

@@ -28,6 +28,10 @@ lon=[-179.75:0.5:179.75]; lat=[-89.75:0.5:89.75];
 m=mygrid.mskC(:,:,1);
 fld=m.*mygrid.Depth;
 
+%test whether octave is being used
+isOctave=0;
+if exist('octave_config_info'); isOctave=1; end;
+
 %%%%%%%%%%%%%%%%%%%%%%%
 %interpolate mygrid.Depth to lon-lat grid:
 
@@ -35,8 +39,18 @@ if myenv.verbose>0;
     gcmfaces_msg('* interpolate mygrid.Depth to lon-lat grid');
 end;
 
-fld_interp=gcmfaces_interp_2d(fld,lon,lat);
+if ~isOctave;
+    fld_interp=gcmfaces_interp_2d(fld,lon,lat);
+else;
+    if myenv.verbose>0;
+      gcmfaces_msg(['* Switching to tsearch method  since octave lacks ' ...
+        'knnsearch, DelaunayTri, and TriScatteredInterp.']);
+    end;
+    fld_interp=gcmfaces_interp_2d(fld,lon,lat,'tsearch');
+end;
 
+%The following should be equivalent to the above gcmfaces_interp_2d call
+%and can potentially speed up the serial processing of many fields:
 if 0;
 %use sparse matrix method:
 interp=gcmfaces_interp_coeffs(lon(:),lat(:));
@@ -58,8 +72,14 @@ if myenv.verbose>0;
     gcmfaces_msg('* interpolate back to gcmfaces grid');
 end;
 
-fld_reinterp=gcmfaces_interp_2d(fld_interp,lon,lat,'linear');
-
+if ~isOctave;
+    fld_reinterp=gcmfaces_interp_2d(fld_interp,lon,lat,'linear');
+else;
+    if myenv.verbose>0;
+      gcmfaces_msg(['* Skipping since octave lacks DelaunayTri and TriScatteredInterp.']);
+    end;
+    fld_reinterp=NaN*mygrid.Depth;
+end;
 %%%%%%%%%%%%%%%%%%%%%%%
 %remap to gcmfaces grid using extrapolation:
 

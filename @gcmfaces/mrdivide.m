@@ -1,4 +1,4 @@
-function r = rdivide(p,q)
+function r = mrdivide(p,q)
 %overloaded gcmfaces mrdivide function :
 %  simply calls double mrdivide function for each face data
 %  if any of the two arguments is a gcmfaces object
