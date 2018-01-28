@@ -1,5 +1,5 @@
 function []=example_budget();
-%EXAMPLE_TRANSPORTS illustrates ECCO v4 budgets
+%EXAMPLE_BUDGET illustrates ECCO v4 budgets
 %
 %stand-alone call: addpath gcmfaces/sample_analysis/; example_budget;
 %
@@ -7,7 +7,7 @@ function []=example_budget();
 %  wget --recursive ftp://mit.ecco-group.org/gforget/nctiles_budget_2d
 %  mv mit.ecco-group.org/gforget/nctiles_budget_2d sample_input/.
 %  rm -rf mit.ecco-group.org
-%
+ 
 %note: in the nctiles_budget_2d files from 03-Feb-2015 the sign convention 
 %   for trWtop and trWbot was positive downward; this sign convention was
 %   reversed in later versions for consistency with MITgcm convention.

@@ -1,5 +1,5 @@
-function [FLD]=exch_Z_cub(fld);
-%[FLD]=exch_Z_cub(fld, [flag]);
+function [FLD]=exch_Z_cube(fld);
+%[FLD]=exch_Z_cube(fld, [flag]);
 %adds vorticity points (to north and east of center points) for
 %cubed-sphere grid
 

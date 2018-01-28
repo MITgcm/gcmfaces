@@ -1,4 +1,4 @@
-function [FLDU,FLDV]=exch_UV_N_llc(fldU,fldV,varargin);
+function [FLDU,FLDV]=exch_UV_N_cube(fldU,fldV,varargin);
 
 if nargin==3; N=varargin{1}; else; N=1; end;
 
