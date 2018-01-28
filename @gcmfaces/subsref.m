@@ -8,7 +8,7 @@ switch index(1).type
 case '{}'
    nFaces=get(a,'nFaces');
    iFace=index(1).subs{:};
-   if iFace<=nFaces&iFace>0;
+   if iFace<=nFaces&&iFace>0;
       eval(['b=a.f' num2str(iFace) ';']);
    else
       error('Index out of range')

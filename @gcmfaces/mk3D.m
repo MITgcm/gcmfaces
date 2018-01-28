@@ -20,7 +20,7 @@ if isa(b,'gcmfaces');
          eval(['a.f' iF '=tmp1;']);
       end;
 elseif isa(b,'double');
-      if length(b)~=1&length(b)~=n3; fprintf('     mk3D warning: b(1) is used \n'); end;
+      if length(b)~=1&&length(b)~=n3; fprintf('     mk3D warning: b(1) is used \n'); end;
       if length(b)~=n3; b=b(1)*ones(1,n3); end;
       if size(b,1)~=1; b=b'; end;
       for iFace=1:a.nFaces;   
