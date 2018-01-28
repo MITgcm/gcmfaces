@@ -118,7 +118,7 @@ if strcmp(method,'tsearch');
     x=convert2array(mygrid.XC); x=x(mytri.kk);
     y=convert2array(mygrid.YC); y=y(mytri.kk);
     VEC=convert2array(fld); VEC=VEC(mytri.kk);
-    t = tsearch(x,y,mytri.TRI,lon',lat')';%the order of dims matters!!
+    t = tsearch(x,y,mytri.TRI,lon,lat);%the order of dims matters!!
     
     % Only keep the relevant triangles.
     out = find(isnan(t));
