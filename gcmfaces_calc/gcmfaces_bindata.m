@@ -31,7 +31,7 @@ test1=strcmp(mytri.dirGrid,mygrid.dirGrid)&(mytri.nFaces==mygrid.nFaces)&...
 test2=isfield(mytri,'TRI');
 
 %2) update triangulation if not up to date
-if (~test1|~test2)&(nargin~=0); gcmfaces_bindata; end;
+if (~test1|~test2)&&(nargin~=0); gcmfaces_bindata; end;
 
 %3) carry on depending on inputs list
 if (nargin==0);

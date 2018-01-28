@@ -30,9 +30,9 @@ for ii=1:nargin-3;
             '         Argument no. ' num2str(ii+1) ' was ignored \n'...
             '         Type ''help disp_transport'' for details.']);
     else;
-        if strcmp(varargin{ii}{1},'nmean')|...
-                strcmp(varargin{ii}{1},'ylim')|...
-                strcmp(varargin{ii}{1},'choicePlot')|...
+        if strcmp(varargin{ii}{1},'nmean')||...
+                strcmp(varargin{ii}{1},'ylim')||...
+                strcmp(varargin{ii}{1},'choicePlot')||...
                 strcmp(varargin{ii}{1},'myUnit');
             eval([varargin{ii}{1} '=varargin{ii}{2};']);
         else;
@@ -43,9 +43,9 @@ for ii=1:nargin-3;
 end;
 
 nt=length(myTimes);
-if nt==1&size(myTransports,1)==1; myTransports=myTransports'; end;
+if nt==1&&size(myTransports,1)==1; myTransports=myTransports'; end;
 
-if choicePlot==2|choicePlot==4;%compute cumulative sum from bottom
+if choicePlot==2||choicePlot==4;%compute cumulative sum from bottom
     if size(myTransports,1)>1;
         fld=[flipdim(cumsum(flipdim(myTransports,1)),1);zeros(1,nt)];
     else;
@@ -60,7 +60,7 @@ if choicePlot==2;  fld=nanmax(abs(fld),[],1); end;
 if choicePlot==3;  fld=nanmean(fld,2); z=squeeze(mygrid.RC); end;
 if choicePlot==4;  fld=[nanmean(fld,2);0]; z=squeeze(mygrid.RF); end;
 
-if choicePlot==1|choicePlot==2;%time series
+if choicePlot==1||choicePlot==2;%time series
  fldmean=1e-2*round(mean(fld)*1e2);
  if ~isempty(myUnit); unit=[' ' myUnit]; else; unit=' Sv'; end;
  if nt>1;
@@ -74,7 +74,7 @@ if choicePlot==1|choicePlot==2;%time series
  else;
    fprintf([myTitle '-- mean: ' num2str(fldmean) ' Sv\n']);
  end; 
-elseif choicePlot==3|choicePlot==4;%time mean profile
+elseif choicePlot==3||choicePlot==4;%time mean profile
  nr=length(z);
  kk=find(fld==0); if length(kk)>0; kk=[1:min(min(kk)+2,nr)]; else; kk=[1:nr]; end;
  myplot=plot(fld(kk),z(kk),'LineWidth',2); title(myTitle); set(gca,'FontSize',14); grid on;

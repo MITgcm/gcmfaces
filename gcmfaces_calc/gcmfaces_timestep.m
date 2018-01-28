@@ -24,8 +24,8 @@ if isempty(who('fldRelax'));   fldRelax=[]; end;
 if isempty(who('fldForcing')); fldForcing=[]; end;
 
 %rotated diffusion:
-if isfield(myOp,'Kuy')&isfield(myOp,'Kvx');
-    if ~isempty(myOp.Kuy)&~isempty(myOp.Kvx);
+if isfield(myOp,'Kuy')&&isfield(myOp,'Kvx');
+    if ~isempty(myOp.Kuy)&&~isempty(myOp.Kvx);
         doExtraDiag=1;
         if myenv.verbose;
             gcmfaces_msg(['* extra-diagonal diffusion included.']);
@@ -43,7 +43,7 @@ if isfield(myOp,'tau');
     if isempty(fldRelax);
         error('relaxation field must be specified');
     end;
-    if ~isa(myOp.tau,'double')&~isa(myOp.tau,'gcmfaces');
+    if ~isa(myOp.tau,'double')&&~isa(myOp.tau,'gcmfaces');
         error('mispecified relaxation time scale (must be doule or gcmfaces)');
     end;
     
@@ -148,7 +148,7 @@ while ~doStop;
     doStop=((nrm(it)<nrmRef*eps)|(it==nbt));
     
     %monitor convergence
-    if mod(it,50)==0|it==1|doStop;
+    if mod(it,50)==0||it==1||doStop;
         tmp1=sprintf('it=%04i  100*nrm/nrmRef=%4.4g.',it,100*nrm(it)/nrmRef);
         if myenv.verbose;
             gcmfaces_msg(['* convergence monitor : ' tmp1]);
@@ -156,7 +156,7 @@ while ~doStop;
     end;
     
     if 0;%monitor convergence
-        if mod(it,1000)==0|doStop;
+        if mod(it,1000)==0||doStop;
             figure; plot(log10(nrm)); ylabel('log10(increment)');
             eval(['FLD_' num2str(it) '=FLD;']);
         end;
