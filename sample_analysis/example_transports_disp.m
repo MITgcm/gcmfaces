@@ -16,6 +16,10 @@ if ~isfield(mygrid,'LATS_MASKS');
     fprintf('one-time initialization of gcmfaces_lines_zonal: end\n');
 end;
 
+%test whether octave is being used
+isOctave=0;
+if exist('octave_config_info'); isOctave=1; end;
+
 %%%%%%%%%%%%%%%
 %display diags:
 %%%%%%%%%%%%%%%
@@ -27,7 +31,7 @@ if isfield(diags,'fldBAR');
 cc=[[-80:10:30] [40:40:200]];
 figureL; set(gca,'FontSize',14);
 pcolor(X,Y,FLD); axis([-180 180 -90 90]); 
-set(gcf,'Renderer','zbuffer'); shading interp; 
+if ~isOctave; set(gcf,'Renderer','zbuffer'); shading interp; else; shading flat; end;
 gcmfaces_cmap_cbar(cc); title('Horizontal Stream Function (in Sv)');
 xlabel('longitude'); ylabel('latitude');
 
@@ -37,7 +41,7 @@ FLD=diags.gloOV; FLD(FLD==0)=NaN;
 cc=[[-50:10:-30] [-24:3:24] [30:10:50]];
 figureL; set(gca,'FontSize',14);
 pcolor(X,Y,FLD); axis([-90 90 -6000 0]); 
-set(gcf,'Renderer','zbuffer'); shading interp;
+if ~isOctave; set(gcf,'Renderer','zbuffer'); shading interp; else; shading flat; end;
 gcmfaces_cmap_cbar(cc); title('Meridional Stream Function (in Sv; incl. bolus)');
 xlabel('latitude'); ylabel('depth');
 
@@ -85,7 +89,7 @@ FLD=diags.fldTzonmean; FLD(FLD==0)=NaN;
 cc=[-3:2:30];
 figureL; set(gca,'FontSize',14);
 pcolor(X,Y,FLD); axis([-90 90 -6000 0]); 
-set(gcf,'Renderer','zbuffer'); shading interp;
+if ~isOctave; set(gcf,'Renderer','zbuffer'); shading interp; else; shading flat; end;
 gcmfaces_cmap_cbar(cc); title('zonal mean temperature (in degree C)');
 xlabel('latitude'); ylabel('depth');
 
@@ -94,7 +98,7 @@ xlabel('latitude'); ylabel('depth');
 %cc=[32:0.2:36];
 %figureL; set(gca,'FontSize',14);
 %pcolor(X,Y,FLD); axis([-90 90 -6000 0]); 
-%set(gcf,'Renderer','zbuffer'); shading interp;
+%if ~isOctave; set(gcf,'Renderer','zbuffer'); shading interp; else; shading flat; end;
 %gcmfaces_cmap_cbar(cc); title('zonal mean salinity (in psu)');
 %xlabel('latitude'); ylabel('depth');
 
