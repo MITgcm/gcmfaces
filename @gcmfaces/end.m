@@ -4,5 +4,9 @@ function ind = end(self,k,n);
 %  Note: is only valid for dimensions>=3
 
 if k<3; error('@gcmfaces/end.m is only valid for dimensions>=3'); end;
-ind = builtin('end', self.f1, k, n);
+
+%not sure why but the following leads to perpetual loop in octave: 
+%ind = builtin('end', self.f1, k, n);
+f1=getfield(struct(self),'f1'); 
+ind=size(f1,k);
 
