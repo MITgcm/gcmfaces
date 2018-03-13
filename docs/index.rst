@@ -8,19 +8,33 @@ Welcome to gcmfaces' documentation!
 
 .. A Generic Treatment Of Gridded Earth Variables In Matlab And Octave.
 
-Here, you will learn about the `gcmfaces` toolbox that provides a generic treatment of gridded Earth variables in Matlab and Octave. It was developed as part of the `ECCO version 4` framework, please refer to :cite:`for-eta:15` and can be used to analyze MITgcm output on `any grid <ftp://mit.ecco-group.org/ecco_for_las/version_4/grids/>`__.
+Here, you will learn about the `gcmfaces` toolbox that provides a generic treatment of gridded Earth variables in Matlab and Octave. 
+
+`gcmfaces` was originally developed as part the `ECCO version 4` framework :cite:`for-eta:15` and designed to permit analysis of MITgcm output on `any known grid <ftp://mit.ecco-group.org/ecco_for_las/version_4/grids/>`__. It handles gridded earth variables in generic fashion so that users can write compact analysis codes that readily become applicable to a wide variety of grids (e.g., those in :numref:`sphere_all`). `MITprof` is a companion toolbox that handles unevenly distributed in-situ ocean observations :cite:`for-eta:15`. 
+
+This user manual provides an installation guide for `gcmfaces` and `MITprof` (:numref:`install`), a documentation of the basic features in `gcmfaces` (:numref:`features`), and provides examples of higher-level functionalities associated with mapping operations, transport computations, etc. (:numref:`demo` and :numref:`standard`).
 
 .. toctree::
    :maxdepth: 3
-   :caption: Contents:
+   :caption: Contents
    :numbered: 4
 
-   prep_fig1.rst
    prep_install.rst
    prep_basic.rst
    prep_demo.rst
    prep_diags.rst
    biblirefs.rst
+
+Sample grids
+============
+
+.. figure:: figs/sphere_all.pdf
+   :width: 95%
+   :align: center
+   :alt: TBD
+   :name: sphere_all
+
+   Four approaches to gridding the Earth which are all commonly used in numerical models. Top left: lat-lon grid; mapping the Earth to a single rectangular array (`face'). Top right: cube-sphere grid; mapping the earth to the six faces of a cube. Bottom right: lat-lon-cap, `LLC', grid (five faces). Bottom left: quadripolar grid (four faces). In this depiction, faces are color-coded, only grid line subsets are shown, and gaps are introduced between faces to highlight the defining characteristics of each grid.
 
 Indices and tables
 ==================

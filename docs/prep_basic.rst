@@ -18,11 +18,11 @@ sections that are accessible within Matlab.
 The gcmfaces Class
 ------------------
 
-Fig. \ `[faces] <#faces>`__ illustrates four types of grids that are
+:numref:`sphere_all` illustrates four types of grids that are
 commonly used in general circulation models (GCMs). Despite evident
 design differences, these grids can all be represented as sets of
 connected arrays (‘faces’) as illustrated in
-Fig. \ `[plot_one_field_FACES] <#plot_one_field_FACES>`__ for the LLC90
+:numref:`plot_one_field_FACES` for the LLC90
 grid. simply takes advantage of this fact by defining an additional
 Matlab class, within @gcmfaces/, to represent gridded earth variables
 generically as sets of connected arrays.
@@ -31,29 +31,26 @@ Grid specifics, such as the number of faces and grid points, are
 embedded within objects as illustrated in Table \ `[fld] <#fld>`__.
 Objects of the class can thus be manipulated simply through compact and
 generic expressions such as ‘a+b’ that are robust to changes in grid
-design (Fig. `[faces] <#faces>`__). The class inherits many of its basic
+design (:numref:`sphere_all`). The class inherits many of its basic
 operations (see section \ `1.4 <#overload>`__ for details) from the
 ‘double’ class as illustrated in Table \ `[plus] <#plus>`__ for .
 
-.. figure:: figures_GMD/fig12-eccov4.eps
-   :alt: Ocean topography on the LLC90 grid (Fig. `[faces] <#faces>`__,
-   bottom right) displayed face by face (going from 1 to 5). This plot
-   generated using example_display(1) illustrates how gcmfaces organizes
-   data in memory (Tab. `[fld] <#fld>`__). Within each face, grid point
-   indices increase from left to right and bottom to top.
+.. figure:: figs/fig12-eccov4.pdf
+   :width: 95%
+   :align: center
+   :alt: Ocean topography on the LLC90 grid displayed face by face
+   :name: plot_one_field_FACES
 
-   Ocean topography on the LLC90 grid (Fig. `[faces] <#faces>`__, bottom
+   Ocean topography on the LLC90 grid (:numref:`sphere_all`, bottom
    right) displayed face by face (going from 1 to 5). This plot
    generated using example_display(1) illustrates how gcmfaces organizes
    data in memory (Tab. `[fld] <#fld>`__). Within each face, grid point
    indices increase from left to right and bottom to top.
 
-[plot_one_field_FACES]
-
-.. table:: Earth variable on the LLC90 grid (Fig. `[faces] <#faces>`__,
+.. table:: Earth variable on the LLC90 grid (:numref:`sphere_all`,
 bottom right) represented as an object of the gcmfaces class
 (@gcmfaces/). The five face arrays (going from f1 to f5) are depicted in
-Fig. \ `[plot_one_field_FACES] <#plot_one_field_FACES>`__ accordingly.
+:numref:`plot_one_field_FACES` accordingly.
 
    +-------+---------+-----------------+
    | fld = |         |                 |
@@ -181,7 +178,7 @@ staggered in a C-grid approach\ :sup:``[manual] <#manual>`__`.
 
 Indexing and vector orientation conventions also derive from the
 :sup:``[manual] <#manual>`__`. The indexing convention is illustrated in
-Fig. \ `[plot_one_field_FACES] <#plot_one_field_FACES>`__. For vector
+:numref:`plot_one_field_FACES`. For vector
 fields, the first component (U) is directed toward the right of the page
 and the second component (V) toward the top of the page. As compared
 with tracers, velocity variable locations are shifted by half a grid
@@ -199,7 +196,7 @@ involve values from contiguous grid points on neighboring faces. In
 practice rows and columns need to be appended at each face edge that are
 ‘exchanged’ between neighboring faces – e.g., rows and columns from
 faces #2, #3, and #5 at the face #1 edges in
-Fig. \ `[plot_one_field_FACES] <#plot_one_field_FACES>`__. Exchanges are
+:numref:`plot_one_field_FACES`. Exchanges are
 operated by exch_T_N.m for tracer-type variables and by exch_UV_N.m for
 velocity-type variables. They are used to compute gradients
 (calc_T_grad.m and flow convergences (calc_UV_conv.m) in
