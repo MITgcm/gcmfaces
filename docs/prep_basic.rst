@@ -1,17 +1,16 @@
 
 .. _features:
 
-The Basic gcmfaces Features
-===========================
+Basic Features
+==============
 
-The core of lies in its handling of connected arrays / faces via a new
-Matlab class / type (section `1.1 <#class>`__) and its handling
-of C-Grid specifications via the global variable
-(section `1.2 <#grid_load.m>`__). Basic features of also include
-functions that `exchange` data between faces (section `1.3 <#exch>`__),
-`overloaded` operations (section `1.4 <#overload>`__), and I/O functions
-(section `1.5 <#formats>`__). functions are normally documented via help
-sections that are accessible within Matlab or Octave.
+The core of `gcmfaces` lies in (1) its representation of connected arrays, or faces, as 
+objects of the class defined in the ``@gcmfaces/`` directory (see :numref:`class`)
+and (2) its handling of C-Grid specifications via the `mygrid` global structure
+(:numref:`Cgrid`). Other basic features include functions that `exchange` data 
+between faces (:numref:`exch`), or `overload` common operations (:numref:`overload`),
+as well as I/O routines (:numref:`formats`). These and other `gcmfaces` functions are generally 
+documented through help sections that are readily accessible via the Matlab or Octave command window.
 
 .. _class:
 
@@ -19,24 +18,23 @@ The gcmfaces Class
 ------------------
 
 :numref:`sphere_all` illustrates four types of grids that are
-commonly used in general circulation models (GCMs). Despite evident
+have been used in ocean general circulation models. Despite evident
 design differences, these grids can all be represented as sets of
-connected arrays (`faces`) as illustrated in
-:numref:`plot_one_field_FACES` for the LLC90
-grid. simply takes advantage of this fact by defining an additional
-Matlab class, within ``@gcmfaces/``, to represent gridded earth variables
-generically as sets of connected arrays.
+connected arrays, or faces, as shown in :numref:`plot_one_field_FACES` 
+in the case of the LLC90 grid. `gcmfaces` simply takes advantage of this fact 
+by defining a class for these objects, within ``@gcmfaces/``, that represents 
+gridded earth variables generically as sets of connected arrays.
 
-Grid specifics, such as the number of faces and grid points, are
-embedded within objects as illustrated in :numref:`gcmfaces_object`.
-Objects of the class can thus be manipulated simply through compact and
-generic expressions such as `a+b` that are robust to changes in grid
-design (:numref:`sphere_all`). The class inherits many of its basic
-operations (see section \ `1.4 <#overload>`__ for details) from the
-`double` class as illustrated in :ref:`plus_function` for ``+``.
+Grid specifics, such as the number of faces and the size of each face, 
+are embedded within the `gcmfaces` objects (see :ref:`gcmfaces_object`).
+Objects of the `gcmfaces` class can thus be manipulated simply through compact 
+and generic expressions such as `a+b` that are robust to changes in grid
+design (:numref:`sphere_all`). The `gcmfaces` class inherits many of its
+basic operations from the `double` class as illustrated for the
+:ref:`plus_function` (see :numref:`overload` for details).
 
 .. figure:: figs/fig12-eccov4.pdf
-   :width: 95%
+   :width: 85%
    :align: center
    :alt: Ocean topography on the LLC90 grid displayed face by face
    :name: plot_one_field_FACES
@@ -44,79 +42,51 @@ operations (see section \ `1.4 <#overload>`__ for details) from the
    Ocean topography on the LLC90 grid (:numref:`sphere_all`, bottom
    right) displayed face by face (going from 1 to 5). This plot
    generated using example_display(1) illustrates how gcmfaces organizes
-   data in memory (:numref:`gcmfaces_object`). Within each face, grid point
+   data in memory (see :ref:`gcmfaces_object`). Within each face, grid point
    indices increase from left to right and bottom to top.
 
-.. table:: Earth variable on the LLC90 grid (:numref:`sphere_all`,
-           bottom right) represented as an object of the gcmfaces class
-           (``@gcmfaces/``). The five face arrays (going from f1 to f5) are
-           depicted in :numref:`plot_one_field_FACES` accordingly.
-  :name: gcmfaces_object
+.. _gcmfaces_object:
 
-  +--------------------+--------------------+--------------------+
-  | fld =              |                    |                    |
-  +--------------------+--------------------+--------------------+
-  |                    | nFaces:            | 5                  |
-  +--------------------+--------------------+--------------------+
-  |                    | f1:                | [90x270 double]    |
-  +--------------------+--------------------+--------------------+
-  |                    | f2:                | [90x270 double]    |
-  +--------------------+--------------------+--------------------+
-  |                    | f3:                | [90x90 double]     |
-  +--------------------+--------------------+--------------------+
-  |                    | f4:                | [270x90 double]    |
-  +--------------------+--------------------+--------------------+
-  |                    | f5:                | [270x90 double]    |
-  +--------------------+--------------------+--------------------+
+.. rubric:: Gcmfaces object structure
 
-.. _plus_function:
-
-.. rubric:: The Overloaded Plus Function
+An Earth variable on the LLC90 grid (:numref:`sphere_all`, bottom right) stored as a `gcmfaces` 
+object called `fld` has the data structure depicted below. In this example, `fld` is a two dimensional field, and
+the five face arrays plotted in :numref:`plot_one_field_FACES` are denoted as f1 to f5.
 
 ::
 
-    function r = plus(p,q)
-    %overloaded gcmfaces `+' function :
-    %  simply calls double `+' function for each face data
-    %  if any of the two arguments is a gcmfaces object
-    if isa(p,'gcmfaces'); r=p; else; r=q; end;
-    for iFace=1:r.nFaces;
-       iF=num2str(iFace);
-       if isa(p,'gcmfaces')&isa(q,'gcmfaces');
-           eval(['r.f' iF '=p.f' iF '+q.f' iF ';']);
-       elseif isa(p,'gcmfaces')&isa(q,'double');
-           eval(['r.f' iF '=p.f' iF '+q;']);
-       elseif isa(p,'double')&isa(q,'gcmfaces');
-           eval(['r.f' iF '=p+q.f' iF ';']);
-       else;
-          error('gcmfaces plus: types are incompatible')
-       end;
-    end;
+    fld
+      nFaces: 5
+      f1: [90x270 double]
+      f2: [90x270 double]
+      f3: [90x90 double]
+      f4: [270x90 double]
+      f5: [270x90 double]
+ 
+.. _Cgrid:
 
-.. _grid_load.m:
-
-C-Grid Variables
+Handling C-Grids
 ----------------
 
-In practice the gcmfaces framework gets activated by adding, to the
+In practice `gcmfaces` gets activated by adding, to the
 least, the ``@gcmfaces/`` directory to the Matlab path and then loading a
-grid to memory as done in :numref:`getting_started`. The default, LLC90,
-grid can be loaded to memory by calling ``grid_load.m`` without any
-argument. ``help grid_load;`` and section \ `1.5 <#formats>`__ provide
-additional information regarding, respectively ``grid_load.m`` arguments and
-supported file formats. Alternatively, grids can be read from `MITgcm`
-input files using ``grid_load_native.m`` as shown in `this
-webpage <http://mit.ecco-group.org/opendap/ecco_for_las/version_4/grids/grids_input/>`__
+grid to memory (:numref:`getting_started`). The default grid is LLC90, 
+which can be loaded to memory by calling ``grid_load.m`` without any
+argument. :numref:`formats` and ``help grid_load;`` provide
+additional information regarding, respectively, and supported file 
+formats and ``grid_load.m`` arguments. As an alternative to 
+``grid_load.m``, `MITgcm` input grid files can be read ``grid_load_native.m`` 
+as shown `here <http://mit.ecco-group.org/opendap/ecco_for_las/version_4/grids/grids_input/>`__
 (see README and ``demo_grids.m``).
 
-``grid_load.m`` and ``grid_load_native.m`` store all C-grid variables at once in
-a global variable named mygrid (:numref:`mygrid`). gcmfaces
-functions often rely on mygrid that they access via a call to
-``gcmfaces_global.m`` which also provides system information via myenv. If
-these global variables get deleted, typically by a ``clear all;``, then
-another call to ``grid_load.m`` is generally needed. ``gcmfaces_global.m`` will
-indicate this situation to the user by issuing warnings that `mygrid has
-not yet been loaded to memory`.
+Both ``grid_load.m`` and ``grid_load_native.m`` store all C-grid variables 
+at once in a global variable named `mygrid` (:numref:`mygrid`). `gcmfaces`
+functions then rely on `mygrid` that they get access to by calling
+``gcmfaces_global.m`` which also returns system information via `myenv`. If
+these global variables get deleted at some point, for example by a call to 
+``clear all;``, user may need to rerun ``grid_load.m`` or ``grid_load_native.m``. 
+In such situtations, any call to ``gcmfaces_global.m`` will generate a warning 
+that `mygrid has not yet been loaded to memory`.
 
 .. table:: List of grid variables available via the mygrid global
            variable. The naming convention is directly inherited from the `MITgcm`
@@ -188,23 +158,22 @@ Exchange Functions
 ------------------
 
 Many computations of interest (e.g., gradients and flow convergences)
-involve values from contiguous grid points on neighboring faces. In
+involve values from nearby grid points on neighboring faces. In
 practice rows and columns need to be appended at each face edge that are
 `exchanged` between neighboring faces – e.g., rows and columns from
-faces #2, #3, and #5 at the face #1 edges in
+faces #2, #3, and #5 need to be appended at the face #1 edges in
 :numref:`plot_one_field_FACES`. Exchanges are
 operated by ``exch_T_N.m`` for tracer-type variables and by ``exch_UV_N.m`` for
-velocity-type variables. They are used to compute gradients
-(``calc_T_grad.m`` and flow convergences (``calc_UV_conv.m``) in
-:numref:`demo` and :numref:`standard`.
+velocity-type variables. These are notably used to compute gradients
+(``calc_T_grad.m``) and flow convergences (``calc_UV_conv.m``).
 
 .. _overload:
 
 Overloaded Functions
 --------------------
 
-As illustrated for the ``+`` operation in :ref:`plus_function`.
-common functions are overloaded as part of the gcmfaces class definition
+As in the case of the :ref:`plus_function`, common operations and functions 
+are overloaded as part of the gcmfaces class definition
 within the ``@gcmfaces/`` directory:
 
 #. Logical operators: and, eq, ge, gt, isnan, le, lt, ne, not, or.
@@ -231,30 +200,53 @@ gcmfaces class then ``@gcmfaces/subsref.m`` behaves as follows:
 
 and ``@gcmfaces/subsasgn.m`` behaves similarly but for assignments.
 
+.. _plus_function:
+
+.. rubric:: Overloaded + function
+
+::
+
+    function r = plus(p,q)
+    %overloaded gcmfaces `+' function :
+    %  simply calls double `+' function for each face data
+    %  if any of the two arguments is a gcmfaces object
+    if isa(p,'gcmfaces'); r=p; else; r=q; end;
+    for iFace=1:r.nFaces;
+       iF=num2str(iFace);
+       if isa(p,'gcmfaces')&isa(q,'gcmfaces');
+           eval(['r.f' iF '=p.f' iF '+q.f' iF ';']);
+       elseif isa(p,'gcmfaces')&isa(q,'double');
+           eval(['r.f' iF '=p.f' iF '+q;']);
+       elseif isa(p,'double')&isa(q,'gcmfaces');
+           eval(['r.f' iF '=p+q.f' iF ';']);
+       else;
+          error('gcmfaces plus: types are incompatible')
+       end;
+    end;
+
 .. _formats:
 
-I/O Functions
--------------
+Input / Output Files
+--------------------
 
-Objects of the gcmfaces class can readily be saved to file using
+Objects of the `gcmfaces` class can readily be saved to file using
 Matlab’s proprietary I/O format (`.mat` files). Reloading them in a
-later Matlab session works seamlessly as long as the gcmfaces class has
-been defined by including ``@gcmfaces/`` to the Matlab path.
+later Matlab session works seamlessly as long as the gcmfaces class 
+has been defined by including ``@gcmfaces/`` to the Matlab path.
 
 Alternatively, gcmfaces variables can be written to files in the
 `nctiles` format :cite:`for-eta:15`. Illustrations in
-this user guide rely upon ECCO v4 fields which are distributed in this
+this user guide rely upon ECCO version 4 fields which are distributed in this
 format (see :numref:`data`; :ref:`gcmfaces_demo_dirtree` and :ref:`downloads`).
-The I/O functions provided as part of gcmfaces (``write2nctiles.m`` and
+The associated I/O functions provided in `gcmfaces` (``write2nctiles.m`` and
 ``read_nctiles.m``) reformat data on the fly.
 
-gcmfaces can also read MITgcm binary output in the `mds` format [2]_.
+Finally, `gcmfaces` can read MITgcm binary output in the `mds` format [2]_.
 The provided I/O functions (``rdmds2gcmfaces.m`` and ``read_bin.m``) rely on
-``convert2gcmfaces.m`` to reformat data on the fly. gcmfaces thus readily
-provides a common tool to analyze any of the `ECCO
-solutions <http://ecco-group.org/products.htm>`__ as illustrated in
-`this
-webpage <http://mit.ecco-group.org/opendap/ecco_for_las/version_4/grids/grids_output/contents.html>`__
+``convert2gcmfaces.m`` to convert `mds` output to `gcmfaces` objects on the fly.
+The reverse conversion occurs when ``convert2gcmfaces.m`` is called with a `gcmfaces`
+input argument. This approach provides a unified framework to analyze MITgcm output or 
+prepare MITgcm input for `all known grids <http://mit.ecco-group.org/opendap/ecco_for_las/version_4/grids/grids_output/contents.html>`__
 (see README and ``demo_grids.m``).
 
 .. [1]

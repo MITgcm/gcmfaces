@@ -1,13 +1,12 @@
 .. _demo:
 
-The `gcmfaces_demo.m` Tutorial
-==============================
+Tutorial Examples
+=================
 
-To proceed further, user should have completed the installation
-procedure in :numref:`getting_started`
-including for nctiles_climatology/ and m_map/. To illustrate gcmfaces
-capabilities, ``gcmfaces_demo.m`` can then be executed by opening Matlab and
-typing
+To proceed with the tutorial examples, user is expected to have completed the software 
+installation and data downloads from :numref:`install` (including  
+``nctiles_climatology/`` and ``m_map/``). The full suite of tutorial examples
+can then be executed via ``gcmfaces_demo.m`` by opening Matlab and typing
 
 ::
 
@@ -15,19 +14,16 @@ typing
     p = genpath('m_map/'); addpath(p);
     gcmfaces_demo;
 
-As prompted by , users specify the desired amount of explanatory text
-output. then proceeds various the examples while displaying comments in
-the Matlab command window. The Matlab GUI and debugger can also be used
-to run the examples line by line to learn more about the inner workings
-of functions.
+As prompted by ``gcmfaces_demo.m``, specify the desired amount of explanatory 
+text output. Various examples then proceed and display comments in
+the Matlab or Octave command window. The Matlab GUI and debugger can also 
+be used to run each example line by line. This can be useful to learn more 
+about the inner workings of `gcmfaces` functions.
 
 The first section in ``gcmfaces_demo.m`` illustrates I/O and plotting
-capabilities (``grid_load.m`` and ``example_display.m``). relies on
-`m_map <https://www.eoas.ubc.ca/~rich/map.html>`__) for map projections
-via the m_map_gcmfaces front-end that typically produces
-:numref:`plot_one_field_M_MAP`. The second
-section in ``gcmfaces_demo.m`` focuses on data processing capabilities such
-as interpolation (``example_interp.m``) and smoothing (``example_smooth.m``).
+capabilities (``grid_load.m`` and ``example_display.m``). The second
+section focuses on data processing capabilities such
+as interpolation and smoothing.
 ``example_interp.m`` interpolates fields to a lat-lon grid and vice versa.
 ``example_smooth.m`` integrates a diffusion equation which involves tracer
 gradient and flux convergence computations. The final section in
