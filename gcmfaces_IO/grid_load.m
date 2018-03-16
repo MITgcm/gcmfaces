@@ -65,8 +65,9 @@ if mygrid.memoryLimit>1;
 end;
 
 if strcmp(mygrid.fileFormat,'nctiles');
-    mygrid.ioSize=[90 1170];
-    mygrid.facesSize=[[90 270];[90 270];[90 90];[270 90];[270 90];[90 90]];
+    ncload([mygrid.dirGrid 'GRID.0001.nc'],'i2'); 
+    nn=length(i2); mygrid.ioSize=[nn nn*13];
+    mygrid.facesSize=[[nn nn*3];[nn nn*3];[nn nn];[nn*3 nn];[nn*3 nn];[nn nn]];
     mygrid.facesExpand=[];
 elseif ~isempty(dir([mygrid.dirGrid 'grid.specs.mat']));
     specs=open([mygrid.dirGrid 'grid.specs.mat']);
@@ -110,9 +111,9 @@ end;
 
 if strcmp(mygrid.fileFormat,'nctiles');
   %place holders (needed for read_nctiles)
-  tmp1=NaN*zeros(90,270);
-  tmp2=NaN*zeros(90,90);
-  tmp3=NaN*zeros(270,90);
+  tmp1=NaN*zeros(nn,nn*3);
+  tmp2=NaN*zeros(nn,nn);
+  tmp3=NaN*zeros(nn*3,nn);
   mygrid.XC=gcmfaces({tmp1,tmp1,tmp2,tmp3,tmp3});
   mygrid.YC=gcmfaces({tmp1,tmp1,tmp2,tmp3,tmp3});
   mygrid.RC=NaN*zeros(50,1);
