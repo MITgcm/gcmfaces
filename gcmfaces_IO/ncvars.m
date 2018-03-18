@@ -2,13 +2,13 @@ function [vars]=ncvars(ncid);
 %input:     ncid is a netcdf file id
 %output:    vars is the list of its variables name (in cell)
 
-global useNativeMatlabNetcdf; if isempty(useNativeMatlabNetcdf); useNativeMatlabNetcdf = ~isempty(which('netcdf_open')); end;
+gcmfaces_global; if myenv.usingOctave; import_netcdf; end;
 
-if useNativeMatlabNetcdf;
+if myenv.useNativeMatlabNetcdf;
     
-    [numdims, numvars, numglobalatts, unlimdimID] = netcdf_inq(ncid);
+    [numdims, numvars, numglobalatts, unlimdimID] = netcdf.inq(ncid);
     for ii=1:numvars;
-        aa=netcdf_inqVar(ncid,ii-1);
+        aa=netcdf.inqVar(ncid,ii-1);
         if ii==1; vars={aa}; else; vars=[vars aa]; end;
     end;
     

@@ -1,12 +1,10 @@
 function [] = ncclose(ncid);
 % close a netcdf file.
 
-global useNativeMatlabNetcdf; 
-if isempty(useNativeMatlabNetcdf); useNativeMatlabNetcdf = ~isempty(which('netcdf_open')); end;
+gcmfaces_global; if myenv.usingOctave; import_netcdf; end;
 
-
-if useNativeMatlabNetcdf;
-    netcdf_close(ncid);
+if myenv.useNativeMatlabNetcdf;
+    netcdf.close(ncid);
 else;%try to use old mex stuff
     close(ncid);
 end;

@@ -3,10 +3,12 @@ function [atts]=ncatts(ncid,varid);
 %           varid is a netcdf variable id
 %output:    atts is the list of its attributes name (in cell)
 
-[varname,xtype,dimids,natts] = netcdf_inqVar(ncid,varid);
+gcmfaces_global; if myenv.usingOctave; import_netcdf; end;
+
+[varname,xtype,dimids,natts] = netcdf.inqVar(ncid,varid);
 
 for ii=1:natts;
-    aa=netcdf_inqAttName(ncid,varid,ii-1);
+    aa=netcdf.inqAttName(ncid,varid,ii-1);
     if ii==1; atts={aa}; else; atts=[atts aa]; end;
 end;
 

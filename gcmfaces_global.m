@@ -74,7 +74,9 @@ if isempty(myenv);
     myenv.verbose=0;
     myenv.lessplot=0;
     myenv.lesstest=0;
+    myenv.usingOctave=exist('octave_config_info');
     myenv.useNativeMatlabNetcdf = ~isempty(which('netcdf.open'));
+    if myenv.usingOctave; myenv.useNativeMatlabNetcdf = ~isempty(which('netcdf_open')); end;
     myenv.issueWarnings=1;
     %... check m_map and netcdf
 end;
