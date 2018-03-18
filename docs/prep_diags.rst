@@ -6,15 +6,15 @@ Standard Analysis
 
 The `gcmfaces standard analysis` consists of an extensive set of
 physical diagnostics that are routinely computed to monitor and compare
-MITgcm simulations and ECCO state estimates :cite:`for-eta:15`, :cite:`dspace-eccov4r2`. 
-The computational loop is operated by ``diags_driver.m`` which stores intermediate 
+MITgcm simulations and ECCO state estimates :cite:`for-eta:15`, :cite:`dspace-eccov4r2`.
+The computational loop is operated by ``diags_driver.m`` which stores intermediate
 results in a dedicated directory (``mat/`` in :ref:`gcmfaces_demo_dirtree`). Afterwards,
 the display phase is operated via ``diags_display.m`` or
 ``diags_driver_tex.m`` as explained below.
 
 In order to proceed, user should have completed the installation procedure in
-:numref:`install` and organized directories as shown in :ref:`gcmfaces_demo_dirtree`. 
-They can then, for example, generate and display variance maps from the ECCO v4 
+:numref:`install` and organized directories as shown in :ref:`gcmfaces_demo_dirtree`.
+They can then, for example, generate and display variance maps from the ECCO v4
 monthly mean climatology (12 monthly fields) by opening Matlab
 and executing ``diags_set_B.m`` as follows:
 
@@ -26,7 +26,7 @@ and executing ``diags_set_B.m`` as follows:
     p = genpath('m_map/'); addpath(p);
 
     %set parameters:
-    dirModel='release2_climatology/'; 
+    dirModel='release2_climatology/';
     dirMat=[dirModel 'mat/'];
     setDiags='B';
 
@@ -52,12 +52,12 @@ modifying the `setDiags` specification: oceanic transports (`A`), mean
 and variance maps (`B`), sections and time series (`C`), and mixed layer
 depths (`MLD`). Each set of diagnostics (computation and display) is
 encoded in one routine named as `diags_set_XX.m` where `XX` stands for
-e.g., `A`, `B`, `C`, or `MLD`. 
+e.g., `A`, `B`, `C`, or `MLD`.
 
 These routines can be found in the ``gcmfaces_diags/`` subdirectory.
 Computing all four diagnostic sets from ECCO v4 r2 climatology takes
 :math:`\approx`\ 1/2 hour. Computing them from the 1992-2011 monthly
-time series (``nctiles_monthly/`` in :ref:`gcmfaces_demo_dirtree`) 
+time series (``nctiles_monthly/`` in :ref:`gcmfaces_demo_dirtree`)
 by typing
 
 ::
@@ -68,3 +68,11 @@ by typing
 takes :math:`\approx20` times longer and typically runs overnight.
 However, to speed up the process, computation can be distributed over
 multiple processors by splitting [1992:2011] into subsets.
+
+.. note::
+
+   The above ``diags_driver`` calls rely on default parameters that are
+   adequate for the :numref:`install` solution, but yours may differ.
+   Using the ``doInteractive`` option (see ``help diags_driver``) is
+   therefore the generally recommended method, since it gives you the
+   opportunity to review and, if needed, edit the relevant parameters.
