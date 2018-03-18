@@ -2,10 +2,9 @@ function [VARvalue]=ncgetvar(nc,VARname,varargin)
 % function [VARvalue]=ncgetvar(nc,VARname, [index_prof, index_depth] )
 %   get data to MITprof netcdf file
 
-global useNativeMatlabNetcdf; 
-if isempty(useNativeMatlabNetcdf); useNativeMatlabNetcdf = ~isempty(which('netcdf.open')); end;
+gcmfaces_global; if myenv.usingOctave; import_netcdf; end;
 
-if useNativeMatlabNetcdf
+if myenv.useNativeMatlabNetcdf
     
     %get variable id:
     vv = netcdf.inqVarID(nc,VARname);

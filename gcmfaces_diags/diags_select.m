@@ -240,7 +240,7 @@ for iChunk=listChunk;
         
         %get data from buffer
         for jj=1:length(listFldsNames);
-            if lChunk==1|length(listTimes)==1;
+            if lChunk==1||length(listTimes)==1;
                 eval([listFldsNames{jj} '=fldsIn.' listFldsNames{jj} ';']);
             else;
                 eval(['tmp1=size(fldsIn.' listFldsNames{jj} '{1});']);

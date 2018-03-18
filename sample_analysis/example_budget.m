@@ -12,7 +12,7 @@ function []=example_budget();
 %   for trWtop and trWbot was positive downward; this sign convention was
 %   reversed in later versions for consistency with MITgcm convention.
 
-gcmfaces_global;
+gcmfaces_global; if myenv.usingOctave; import_netcdf; end;
 
 if myenv.verbose>0;
     gcmfaces_msg('===============================================');

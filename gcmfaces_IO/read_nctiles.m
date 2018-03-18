@@ -5,6 +5,10 @@ function [fld]=read_nctiles(fileName,fldName,varargin);
 %usage: fld=read_nctiles(fileName,fldName,tt,kk);  reads 3D field, at depth index(es) kk, at time index tt 
 
 gcmfaces_global; if myenv.usingOctave; import_netcdf; end;
+if ~(myenv.useNativeMatlabNetcdf);
+  error('only native matlab nectdf is supported in write2nctiles');
+end;
+
 nz=length(mygrid.RC);
 
 if nargin==1; 

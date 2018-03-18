@@ -1,11 +1,10 @@
 function ncaddAtt(ncid,varname,attrname,attrvalue);
 % add an attribute to a variable in an existing netcdf file.
 
-global useNativeMatlabNetcdf; 
-if isempty(useNativeMatlabNetcdf); useNativeMatlabNetcdf = ~isempty(which('netcdf.open')); end;
+gcmfaces_global; if myenv.usingOctave; import_netcdf; end;
 
 if isempty(varname),
-    if useNativeMatlabNetcdf;
+    if myenv.useNativeMatlabNetcdf;
         netcdf.reDef(ncid);
         netcdf.putAtt(ncid,-1,attrname,attrvalue);
         netcdf.endDef(ncid);
@@ -18,7 +17,7 @@ if isempty(varname),
         end
     end;
 else
-    if useNativeMatlabNetcdf;
+    if myenv.useNativeMatlabNetcdf;
         varid=netcdf.inqVarID(ncid,varname);
         netcdf.reDef(ncid);
         netcdf.putAtt(ncid,varid,attrname,attrvalue);

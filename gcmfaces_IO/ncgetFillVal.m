@@ -3,11 +3,10 @@ function [FillVal]=ncgetFillVal(ncid,varname);
 %           return the missing_value or _FillValue of varname
 %  return an error if varname does not exist
 
-global useNativeMatlabNetcdf; 
-if isempty(useNativeMatlabNetcdf); useNativeMatlabNetcdf = ~isempty(which('netcdf.open')); end;
+gcmfaces_global; if myenv.usingOctave; import_netcdf; end;
 
 FillVal=[];
-if useNativeMatlabNetcdf;
+if myenv.useNativeMatlabNetcdf;
     varid = netcdf.inqVarID(ncid,varname);
     [varname,xtype,dimids,natts] = netcdf.inqVar(ncid,varid);
     [atts]=ncatts(ncid,varid);

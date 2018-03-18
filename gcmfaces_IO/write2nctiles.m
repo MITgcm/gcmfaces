@@ -33,7 +33,7 @@ function [dimOut]=write2nctiles(fileOut,fldIn,doCreate,varargin);
 %    RAC=read_nctiles('test2','test2');
 %    RAC=read_nctiles('test2');
 
-gcmfaces_global;
+gcmfaces_global; if myenv.usingOctave; import_netcdf; end;
 if ~(myenv.useNativeMatlabNetcdf);
   error('only native matlab nectdf is supported in write2nctiles');
 end;

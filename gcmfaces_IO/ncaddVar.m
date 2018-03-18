@@ -3,10 +3,9 @@ function ncaddVar(ncid,varname,xtype,dimlist);
 %   add a variable in an existing netcdf file.
 %   The netcdf file must be open in 'write' mode.
 
-global useNativeMatlabNetcdf; 
-if isempty(useNativeMatlabNetcdf); useNativeMatlabNetcdf = ~isempty(which('netcdf.open')); end;
+gcmfaces_global; if myenv.usingOctave; import_netcdf; end;
 
-if useNativeMatlabNetcdf;
+if myenv.useNativeMatlabNetcdf;
     if isempty(dimlist), error('ncaddVar error: no dimension allocated'); end
     iDim=[];
     for ii=1:length(dimlist),

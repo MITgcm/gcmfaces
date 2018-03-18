@@ -35,7 +35,7 @@ end;
 function [parms]=default_parms(parms,choiceParams);
 %set model parameters to default (ecco_v4)
 
-if choiceParams==1|choiceParams==2|choiceParams==4|choiceParams==5;
+if choiceParams==1||choiceParams==2||choiceParams==4||choiceParams==5;
 parms.yearFirst=1992; %first year covered by model integration
 parms.yearLast =2011; %last year covered by model integration
 parms.yearInAve=[parms.yearFirst parms.yearLast]; %period for time averages and variance computations
@@ -155,7 +155,7 @@ end;
 listTimes2=parms.yearFirst+listTimes*parms.timeStep/86400/365.25;%this approximation of course makes things simpler
 tmp1=-0.5*diff(listTimes,1,1)*parms.timeStep/86400/365.25; tmp1=[median(tmp1);tmp1];
 listTimes2=listTimes2+tmp1;%this converts the enddate to the middate of pkg/diags
-ii=find(listTimes2>=parms.yearInAve(1)&listTimes2<=parms.yearInAve(2)+1);
+ii=find(listTimes2>=parms.yearInAve(1)&&listTimes2<=parms.yearInAve(2)+1);
 if parms.diagsAreMonthly;%then restrict to full years
     ni=floor(length(ii)/12)*12; 
     if ni>0; 

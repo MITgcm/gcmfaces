@@ -1,11 +1,10 @@
 function [nc] = ncputAtt(ncid,varname,attrname,attrvalue);
 % add an attribute to a variable in a netcdf file.
 
-global useNativeMatlabNetcdf; 
-if isempty(useNativeMatlabNetcdf); useNativeMatlabNetcdf = ~isempty(which('netcdf.open')); end;
+gcmfaces_global; if myenv.usingOctave; import_netcdf; end;
 
 if isempty(varname),
-    if useNativeMatlabNetcdf;
+    if myenv.useNativeMatlabNetcdf;
         netcdf.putAtt(ncid,-1,attrname,attrvalue);
     else;%try to use old mex stuff
         if ischar(attrvalue)
@@ -16,7 +15,7 @@ if isempty(varname),
         end
     end;
 else
-    if useNativeMatlabNetcdf;
+    if myenv.useNativeMatlabNetcdf;
         varid=netcdf.inqVarID(ncid,varname);
         netcdf.putAtt(ncid,varid,attrname,attrvalue);
     else;%try to use old mex stuff

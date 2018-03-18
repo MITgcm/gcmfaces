@@ -11,8 +11,8 @@ if nargin==2; msk0=varargin{1}; else; msk0=0; end;
 
 gcmfaces_global;
 
-if ~isempty(which('v4_basin.bin'));
-  msk=read_bin('v4_basin.bin',0,1);
+if ~isempty(dir([myenv.gcmfaces_dir 'ecco_v4/v4_basin.bin']));
+  msk=read_bin([myenv.gcmfaces_dir 'ecco_v4/v4_basin.bin'],0,1);
 else;%try old name and location
   dir0=which('gcmfaces_demo');
   tmp1=strfind(dir0,filesep); 

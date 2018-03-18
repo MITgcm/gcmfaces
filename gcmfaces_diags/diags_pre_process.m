@@ -19,15 +19,15 @@ if isempty(who('doInteractive')); doInteractive=0; end;
 fprintf('\n'); gcmfaces_msg('Setting up computational loop: begins now...','==== '); fprintf('\n');
 
 %detect which types of files are avaiable
-test0=isdir([dirModel 'diags'])|~isempty(dir([dirModel 'state_2d_set1*']));
-test1=~isempty(dir([dirModel 'nctiles']))|...
-  ~isempty(dir([dirModel 'nctiles_climatology']))|...
+test0=isdir([dirModel 'diags'])||~isempty(dir([dirModel 'state_2d_set1*']));
+test1=~isempty(dir([dirModel 'nctiles']))||...
+  ~isempty(dir([dirModel 'nctiles_climatology']))||...
   ~isempty(dir([dirModel 'nctiles_monthly']));
-if test0&test1&doInteractive;
+if test0&&test1&&doInteractive;
     myenv.nctiles=input(['\n Please select a file type. \n' ...
         '     Either type  0   to use binary output files \n' ...
         '              or  1   to use nctiles output files \n']);
-    if myenv.nctiles~=0&myenv.nctiles~=1; error('unknown file type specification'); end; 
+    if myenv.nctiles~=0&&myenv.nctiles~=1; error('unknown file type specification'); end; 
 elseif test1;
     myenv.nctiles=1;
 elseif test0;
@@ -48,7 +48,7 @@ if ~myenv.nctiles;%only works with binaries
       doBudget=~isempty(dir([dirSnap 'budg2d_snap_set1*']));
     end;
     doCtrl=~isempty(dir([dirModel 'xx_atemp.effective.*']));
-    doCtrl=doCtrl&~isempty(dir([dirModel 'cap_sigma_tmp2m_degC_eccollc.bin']));
+    doCtrl=doCtrl&&~isempty(dir([dirModel 'cap_sigma_tmp2m_degC_eccollc.bin']));
 else;
     dirSnap=fullfile(dirModel,'diags',filesep);
     doBudget=0;
@@ -57,8 +57,8 @@ else;
 end;
 
 doCost=~isempty(dir([dirModel 'barfiles' filesep 'm_eta_day.*.data']));
-doCost=doCost|~isempty(dir([dirModel 'm_eta_day.*.data']));
-doCost=doCost|~isempty(dir([dirModel 'nctiles_remotesensing']));
+doCost=doCost||~isempty(dir([dirModel 'm_eta_day.*.data']));
+doCost=doCost||~isempty(dir([dirModel 'nctiles_remotesensing']));
 
 doProfiles=~isempty(dir([dirModel 'MITprof' filesep]));
 preprocessProfiles=0;
@@ -115,7 +115,7 @@ if myenv.nctiles;
     myenv.diagsdir='';
 else;
     myenv.diagsdir=fullfile(dirModel,['diags' filesep]);
-    if isempty(dir([myenv.diagsdir '*.data']))&...
+    if isempty(dir([myenv.diagsdir '*.data']))&&...
        isempty(dir([myenv.diagsdir 'STATE' filesep '*.data']));
       myenv.diagsdir=fullfile(dirModel);
     end;
@@ -132,7 +132,7 @@ if isempty(dir(dirMat)); mkdir(dirMat); end;
 test0=isempty(dir([dirMat 'diags_grid_parms.mat']));
 test1=isempty(dir([dirMat 'lock_mygrid']));
 
-if test0&test1;%this process will do the pre-processing
+if test0&&test1;%this process will do the pre-processing
     fprintf('\n'); gcmfaces_msg('Processing grid and parameters: begins now ...','=== '); fprintf('\n');
     write2file([dirMat 'lock_mygrid'],1);
     %set the list of diags times
@@ -164,7 +164,7 @@ eval(['load ' dirMat 'diags_grid_parms.mat;']);
 test0=isempty(dir([dirMat 'profiles/']));
 test1=isempty(dir([dirMat 'lock_profiles']));
 
-if test0&test1&doProfiles&preprocessProfiles;%this process will do the pre-processing
+if test0&&test1&&doProfiles&&preprocessProfiles;%this process will do the pre-processing
     fprintf('\n'); gcmfaces_msg('Processing pkg/profiles output: begins now ...','=== '); fprintf('\n');
     write2file([dirMat 'lock_profiles'],1);
     mkdir([dirMat 'profiles/']);
@@ -184,7 +184,7 @@ if test0&test1&doProfiles&preprocessProfiles;%this process will do the pre-proce
     fprintf('\n'); gcmfaces_msg('Processing pkg/profiles output: has been completed.','=== '); fprintf('\n');
 end;
 
-while ~test1&doProfiles;%this process will wait for pre-processing to complete
+while ~test1&&doProfiles;%this process will wait for pre-processing to complete
     fprintf(['waiting 30s for removal of ' dirMat 'lock_profiles \n']);
     fprintf(['- That should happen automatically after pre-processing is complete \n']);
     fprintf(['- But if a previous session was interupted, you may need to stop this one, \n ']);
@@ -197,7 +197,7 @@ end;
 test0=isempty(dir([dirMat 'BUDG']));
 test1=isempty(dir([dirMat 'lock_budg']));%this aims at having only one process do the
 
-if (test0&test1&doBudget);
+if (test0&&test1&&doBudget);
     fprintf('\n'); gcmfaces_msg('Processing budget output: begins now ...','=== '); fprintf('\n');
     write2file([dirMat 'lock_budg'],1);
     mkdir([dirMat 'BUDG']);
@@ -206,7 +206,7 @@ if (test0&test1&doBudget);
     tmp1=fullfile(dirSnap,'budg3d_snap_set1*meta');
     test3d=~isempty(dir(tmp1));
     tmp1=fullfile(dirSnap,'budg3d_snap_set1*meta');
-    test3d=test3d|~isempty(dir(tmp1));
+    test3d=test3d||~isempty(dir(tmp1));
     tmp1=fullfile(dirSnap,'geothermalFlux.bin');
     testGeothermalFlux=~isempty(dir(tmp1));
     diags_diff_snapshots(dirSnap,dirMat,'budg2d_snap_set1');
@@ -234,7 +234,7 @@ if (test0&test1&doBudget);
     fprintf('\n'); gcmfaces_msg('Processing budget output: has been completed.','=== '); fprintf('\n');
 end;
 
-while ~test1&doBudget;%this process will wait for pre-processing to complete
+while ~test1&&doBudget;%this process will wait for pre-processing to complete
     fprintf(['waiting 30s more for removal of ' dirMat 'lock_budg \n']);
     fprintf(['- That should happen automatically after pre-processing is complete \n']);
     fprintf(['- But if a previous session was interupted, you may need to stop this one, \n ']);

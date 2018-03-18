@@ -6,7 +6,7 @@ function [listTimes]=diags_list_times(listSubdirs,listFiles);
 %                      [dirModel 'diags/STATE/' ],[dirModel 'diags/TRSP/'],[dirModel 'diags/' ]};
 %         listFiles={'state_2d_set1.','diags_2d_set1.','monthly_2d_set1.'};
 
-gcmfaces_global; global myparms;
+gcmfaces_global; global myparms; if myenv.usingOctave; import_netcdf; end;
 
 if isfield(myenv,'nctiles');
     use_nctiles=myenv.nctiles;
