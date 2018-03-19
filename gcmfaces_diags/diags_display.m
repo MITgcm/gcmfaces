@@ -56,7 +56,7 @@ end;
 gcmfaces_global; global myparms;
 test1=~isempty(dir([dirMat 'basic_diags_ecco_mygrid.mat']));
 test2=~isempty(dir([dirMat 'diags_grid_parms.mat']));
-if ~test1&~test2;
+if ~test1&&~test2;
   error('missing diags_grid_parms.mat')
 elseif test2;
   nameGrid='diags_grid_parms.mat';
@@ -146,7 +146,7 @@ if isempty(who('fileMat')); fileMat=[suffDiag setDiags]; end;
 
 test1=isempty(dir([dirMat '/' fileMat '_*.mat']));
 tmp1=[dirMat '/' fileMat '_*.mat']; tmp2=strfind(tmp1,'_'); tmp1(tmp2)=' ';
-if test1&addToTex;
+if test1&&addToTex;
     eval(['load ' dirTex nameTex '.mat;']);
     write2tex(fileTex,3,{'[ ',mySection,' ]'},1);
     write2tex(fileTex,3,{'abort : did not find any'},1);
@@ -219,7 +219,7 @@ if doAnomalies;
     %compute anomalies:
     for ii=1:length(alldiag.listDiags);
         tmp0=alldiag.listDiags{ii};
-        if ~strcmp(tmp0,'listTimes')&~strcmp(tmp0,'listSteps')
+        if ~strcmp(tmp0,'listTimes')&&~strcmp(tmp0,'listSteps')
         if isfield(alldiagRef,tmp0);%compute difference
             tmp1=getfield(alldiag,tmp0)-getfield(alldiagRef,tmp0);
             alldiag=setfield(alldiag,tmp0,tmp1);
@@ -237,7 +237,7 @@ end;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %number of months for runmean
-if myparms.diagsAreMonthly&myparms.diagsNbRec>12;
+if myparms.diagsAreMonthly&&myparms.diagsNbRec>12;
   myNmean=6; %half window
   myNmeanTxt=[' -- ' num2str(myNmean*2) ' months low pass filtered'];
 else;

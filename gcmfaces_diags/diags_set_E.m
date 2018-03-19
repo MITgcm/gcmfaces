@@ -48,16 +48,16 @@ elseif userStep==3;%computational part;
 
     %preliminary tests
     test1=isempty(dir([dirModel 'diags/BUDG/budg2d_snap_set1*']));
-    test2=isempty(dir([dirMat 'BUDG/rate_budg2d_snap_set1*']))&...
+    test2=isempty(dir([dirMat 'BUDG/rate_budg2d_snap_set1*']))&&...
           isempty(dir([dirMat '../BUDG/rate_budg2d_snap_set1*']));
 
-    if (strcmp(setDiags,'E')&test1&test2);
+    if (strcmp(setDiags,'E')&&test1&&test2);
         fprintf('\n abort : global and regional budgets, due to missing \n');
         fprintf(['\n   ' dirModel 'diags/BUDG/budg2d_snap_set1* \n']);
         return;
     end;
 
-    if (strcmp(setDiags,'E')&test2);
+    if (strcmp(setDiags,'E')&&test2);
         fprintf('\n abort : global and regional budgets, due to missing \n');
         fprintf(['\n   ' dirModel 'diags/BUDG/rate_budg2d_snap_set1* \n']);
         return;
@@ -140,7 +140,7 @@ elseif userStep==-1;%plotting
 
     if isempty(setDiagsParams);
       choicePlot={'all'};
-    elseif isnumeric(setDiagsParams{1})&length(setDiagsParams)==1;
+    elseif isnumeric(setDiagsParams{1})&&length(setDiagsParams)==1;
       choicePlot={'all'};
     elseif isnumeric(setDiagsParams{1});
       choicePlot={setDiagsParams{2:end}};
@@ -152,7 +152,7 @@ elseif userStep==-1;%plotting
     TT=alldiag.listTimes(tt);
     nt=length(TT);
 
-    if (kBudget==1)&(sum(strcmp(choicePlot,'all'))|sum(strcmp(choicePlot,'mass')));
+    if (kBudget==1)&&(sum(strcmp(choicePlot,'all'))||sum(strcmp(choicePlot,'mass')));
 
         %1.1) ocean+seaice mass budgets
         %------------------------------
@@ -165,7 +165,7 @@ elseif userStep==-1;%plotting
         subplot(2,1,2); disp_budget_mean_zonal(mygrid.LATS,cumbudg,'kg','Mass (incl. ice)');
         %add to tex file
         myCaption={myYmeanTxt,'mass budget (ocean+ice) at each latitude in kg/m2 (upper) and integrated from South (lower).'};
-        if addToTex&multiTimes; write2tex(fileTex,2,myCaption,gcf); end;
+        if addToTex&&multiTimes; write2tex(fileTex,2,myCaption,gcf); end;
 
         %1.2) ice mass budgets
         %---------------------
@@ -178,10 +178,10 @@ elseif userStep==-1;%plotting
         subplot(2,1,2); disp_budget_mean_zonal(mygrid.LATS,cumbudg,'kg','Mass (only ice)');
         %add to tex file
         myCaption={myYmeanTxt,'mass budget (only ice) at each latitude in kg/m2 (upper) and integrated from South (lower).'};
-        if addToTex&multiTimes; write2tex(fileTex,2,myCaption,gcf); end;
+        if addToTex&&multiTimes; write2tex(fileTex,2,myCaption,gcf); end;
     end;
 
-    if (sum(strcmp(choicePlot,'all'))|sum(strcmp(choicePlot,'mass')));
+    if (sum(strcmp(choicePlot,'all'))||sum(strcmp(choicePlot,'mass')));
 
     %1.3) ocean mass budgets
     %-----------------------
@@ -194,11 +194,11 @@ elseif userStep==-1;%plotting
         subplot(2,1,2); disp_budget_mean_zonal(mygrid.LATS,cumbudg,'kg','Mass (ocean only)');
         %add to tex file
         myCaption={myYmeanTxt,'mass budget (ocean only) at each latitude in kg/m2 (upper) and integrated from South (lower).'};
-        if addToTex&multiTimes; write2tex(fileTex,2,myCaption,gcf); end;
+        if addToTex&&multiTimes; write2tex(fileTex,2,myCaption,gcf); end;
 
     end;
 
-    if (kBudget==1)&(sum(strcmp(choicePlot,'all'))|sum(strcmp(choicePlot,'heat')));
+    if (kBudget==1)&&(sum(strcmp(choicePlot,'all'))||sum(strcmp(choicePlot,'heat')));
 
         %1.1) ocean+seaice heat budgets
         %------------------------------
@@ -211,7 +211,7 @@ elseif userStep==-1;%plotting
         subplot(2,1,2); disp_budget_mean_zonal(mygrid.LATS,cumbudg,'J','Heat (incl. ice)');
         %add to tex file
         myCaption={myYmeanTxt,'heat budget (ocean+ice) at each latitude in J/m2 (upper) and integrated from South (lower).'};
-        if addToTex&multiTimes; write2tex(fileTex,2,myCaption,gcf); end;
+        if addToTex&&multiTimes; write2tex(fileTex,2,myCaption,gcf); end;
 
         %1.2) ice heat budgets
         %---------------------
@@ -224,10 +224,10 @@ elseif userStep==-1;%plotting
         subplot(2,1,2); disp_budget_mean_zonal(mygrid.LATS,cumbudg,'J','Heat (only ice)');
         %add to tex file
         myCaption={myYmeanTxt,'heat budget (only ice) at each latitude in J/m2 (upper) and integrated from South (lower).'};
-        if addToTex&multiTimes; write2tex(fileTex,2,myCaption,gcf); end;
+        if addToTex&&multiTimes; write2tex(fileTex,2,myCaption,gcf); end;
     end;
 
-    if (sum(strcmp(choicePlot,'all'))|sum(strcmp(choicePlot,'heat')));
+    if (sum(strcmp(choicePlot,'all'))||sum(strcmp(choicePlot,'heat')));
 
     %1.3) ocean heat budgets
     %-----------------------
@@ -240,11 +240,11 @@ elseif userStep==-1;%plotting
         subplot(2,1,2); disp_budget_mean_zonal(mygrid.LATS,cumbudg,'J','Heat (ocean only)');
         %add to tex file
         myCaption={myYmeanTxt,'heat budget (ocean only) at each latitude in J/m2 (upper) and integrated from South (lower).'};
-        if addToTex&multiTimes; write2tex(fileTex,2,myCaption,gcf); end;
+        if addToTex&&multiTimes; write2tex(fileTex,2,myCaption,gcf); end;
 
     end;
 
-    if (kBudget==1)&(sum(strcmp(choicePlot,'all'))|sum(strcmp(choicePlot,'salt')));
+    if (kBudget==1)&&(sum(strcmp(choicePlot,'all'))||sum(strcmp(choicePlot,'salt')));
 
         %1.1) ocean+seaice salt budgets
         %------------------------------
@@ -257,7 +257,7 @@ elseif userStep==-1;%plotting
         subplot(2,1,2); disp_budget_mean_zonal(mygrid.LATS,cumbudg,'g','Salt (incl. ice)');
         %add to tex file
         myCaption={myYmeanTxt,'salt budget (ocean+ice) at each latitude in g/m2 (upper) and integrated from South (lower).'};
-        if addToTex&multiTimes; write2tex(fileTex,2,myCaption,gcf); end;
+        if addToTex&&multiTimes; write2tex(fileTex,2,myCaption,gcf); end;
 
         %1.2) ice salt budgets
         %---------------------
@@ -270,10 +270,10 @@ elseif userStep==-1;%plotting
         subplot(2,1,2); disp_budget_mean_zonal(mygrid.LATS,cumbudg,'g','Salt (only ice)');
         %add to tex file
         myCaption={myYmeanTxt,'salt budget (only ice) at each latitude in g/m2 (upper) and integrated from South (lower).'};
-        if addToTex&multiTimes; write2tex(fileTex,2,myCaption,gcf); end;
+        if addToTex&&multiTimes; write2tex(fileTex,2,myCaption,gcf); end;
     end;
 
-    if (sum(strcmp(choicePlot,'all'))|sum(strcmp(choicePlot,'salt')));
+    if (sum(strcmp(choicePlot,'all'))||sum(strcmp(choicePlot,'salt')));
 
     %1.3) ocean salt budgets
     %-----------------------
@@ -286,7 +286,7 @@ elseif userStep==-1;%plotting
         subplot(2,1,2); disp_budget_mean_zonal(mygrid.LATS,cumbudg,'g','Salt (ocean only)');
         %add to tex file
         myCaption={myYmeanTxt,'salt budget (ocean only) at each latitude in g/m2 (upper) and integrated from South (lower).'};
-        if addToTex&multiTimes; write2tex(fileTex,2,myCaption,gcf); end;
+        if addToTex&&multiTimes; write2tex(fileTex,2,myCaption,gcf); end;
 
     end;
 

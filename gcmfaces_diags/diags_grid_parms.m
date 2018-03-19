@@ -155,7 +155,7 @@ end;
 listTimes2=parms.yearFirst+listTimes*parms.timeStep/86400/365.25;%this approximation of course makes things simpler
 tmp1=-0.5*diff(listTimes,1,1)*parms.timeStep/86400/365.25; tmp1=[median(tmp1);tmp1];
 listTimes2=listTimes2+tmp1;%this converts the enddate to the middate of pkg/diags
-ii=find(listTimes2>=parms.yearInAve(1)&&listTimes2<=parms.yearInAve(2)+1);
+ii=find(listTimes2>=parms.yearInAve(1)&listTimes2<=parms.yearInAve(2)+1);
 if parms.diagsAreMonthly;%then restrict to full years
     ni=floor(length(ii)/12)*12; 
     if ni>0; 

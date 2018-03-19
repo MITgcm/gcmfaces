@@ -200,7 +200,7 @@ elseif userStep==-1;%plotting
     %meridional streamfunction (Eulerian) :
     fld=mean(alldiag.gloOV(:,:,tt),3); fld(fld==0)=NaN; title0='Meridional Stream Function';
     if doAnomalies; cc=scaleAnom*[-1:0.1:1]; end;
-    figureL; set(gcf,'Renderer','zbuffer'); %set(gcf,'Units','Normalized','Position',[0.05 0.1 0.4 0.8]);
+    figureL; if ~myenv.usingOctave; set(gcf,'Renderer','zbuffer'); end; %set(gcf,'Units','Normalized','Position',[0.05 0.1 0.4 0.8]);
     pcolor(X,Y,fld); shading interp; cbar=gcmfaces_cmap_cbar(cc); title(title0); set(gca,'YDir','reverse');
     myCaption={myYmeanTxt,'mean -- overturning streamfunction (Sv)'};
     if addToTex; write2tex(fileTex,2,myCaption,gcf); end;
@@ -210,7 +210,7 @@ elseif userStep==-1;%plotting
     %meridional streamfunction in Atlantic:
     fld=mean(alldiag.atlOV(:,:,tt),3); fld(fld==0)=NaN; title0='Atlantic Meridional Stream Function';
     if doAnomalies; cc=scaleAnom*[-1:0.1:1]; end;
-    figureL; set(gcf,'Renderer','zbuffer'); %set(gcf,'Units','Normalized','Position',[0.05 0.1 0.4 0.8]);
+    figureL; if ~myenv.usingOctave; set(gcf,'Renderer','zbuffer'); end; %set(gcf,'Units','Normalized','Position',[0.05 0.1 0.4 0.8]);
     pcolor(X,Y,fld); shading interp; cbar=gcmfaces_cmap_cbar(cc); title(title0); set(gca,'YDir','reverse');
     myCaption={myYmeanTxt,'mean -- Atlantic overturning streamfunction (Sv)'};
     if addToTex; write2tex(fileTex,2,myCaption,gcf); end;
@@ -218,7 +218,7 @@ elseif userStep==-1;%plotting
     %meridional streamfunction Pacific+Indian:
     fld=mean(alldiag.pacindOV(:,:,tt),3); fld(fld==0)=NaN; title0='Pac+Ind Meridional Stream Function';
     if doAnomalies; cc=scaleAnom*[-1:0.1:1]; end;
-    figureL; set(gcf,'Renderer','zbuffer'); %set(gcf,'Units','Normalized','Position',[0.05 0.1 0.4 0.8]);
+    figureL; if ~myenv.usingOctave; set(gcf,'Renderer','zbuffer'); end; %set(gcf,'Units','Normalized','Position',[0.05 0.1 0.4 0.8]);
     pcolor(X,Y,fld); shading interp; cbar=gcmfaces_cmap_cbar(cc); title(title0); set(gca,'YDir','reverse');
     myCaption={myYmeanTxt,'mean -- Pac+Ind overturning streamfunction (Sv)'};
     if addToTex; write2tex(fileTex,2,myCaption,gcf); end;

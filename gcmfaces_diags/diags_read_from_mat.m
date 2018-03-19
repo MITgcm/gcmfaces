@@ -52,8 +52,11 @@ for tt=2:length(listSteps);
    for ii=1:length(listDiags);
      %get data: 
      eval(['tmp1=tmpdiag.' listDiags{ii} '; tmp2=alldiag.' listDiags{ii} ';']); 
+     %fix loaded objects if needed:
+     if isa(tmp1,'gcmfaces'); tmp1=matLoadFix(tmp1); end;
+     if isa(tmp2,'gcmfaces'); tmp2=matLoadFix(tmp2); end;
      %determine the time dimension:
-     if strcmp(class(tmp1),'gcmfaces'); nDim=size(tmp1{1}); else; nDim=size(tmp1); end; 
+     if isa(tmp1,'gcmfaces'); nDim=size(tmp1{1}); else; nDim=size(tmp1); end; 
      if ~isempty(find(nDim==0)); nDim=0;
      elseif nDim(end)==1; nDim=length(nDim)-1;
      else; nDim=length(nDim);

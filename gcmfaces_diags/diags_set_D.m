@@ -38,7 +38,7 @@ elseif userStep==2;%input files and variables
     listFlds={listFlds{:},'SIatmFW ','oceFWflx','SItflux','TFLUX','SFLUX','oceSPflx','SRELAX'};
     listFlds={listFlds{:},'oceQnet ','SIatmQnt','SIaaflux','SIsnPrcp','SIacSubl'};
     listFlds={listFlds{:},'TRELAX','WTHMASS','WSLTMASS','oceSflux','oceQsw','oceSPtnd'};
-    if kBudget>1|test3d;
+    if kBudget>1||test3d;
         listFlds={listFlds{:},'ADVr_TH','DFrE_TH','DFrI_TH','ADVr_SLT','DFrE_SLT','DFrI_SLT','WVELMASS'};
     end;
     listFlds={listFlds{:},'SDIAG1','SDIAG2','SDIAG3'};
@@ -67,15 +67,15 @@ elseif userStep==3;%computational part;
 
     %preliminary tests
     test1=isempty(dir([dirModel 'diags/BUDG/budg2d_snap_set1*']));
-    test2=isempty(dir([dirMat 'BUDG/rate_budg2d_snap_set1*']))&...
+    test2=isempty(dir([dirMat 'BUDG/rate_budg2d_snap_set1*']))&&...
           isempty(dir([dirMat '../BUDG/rate_budg2d_snap_set1*']));
-    if (strcmp(setDiags,'D')&test1&test2);
+    if (strcmp(setDiags,'D')&&test1&&test2);
         fprintf('\n abort : global and regional budgets, due to missing \n');
         fprintf(['\n   ' dirModel 'diags/BUDG/budg2d_snap_set1* \n']);
         return;
     end;
 
-    if (strcmp(setDiags,'D')&test2);
+    if (strcmp(setDiags,'D')&&test2);
         fprintf('\n abort : global and regional budgets, due to missing \n');
         fprintf(['\n   ' dirModel 'diags/BUDG/rate_budg2d_snap_set1* \n']);
         return;
@@ -281,7 +281,7 @@ elseif userStep==-1;%plotting
 
     if isempty(setDiagsParams);
       choicePlot={'all'};
-    elseif isnumeric(setDiagsParams{1})&length(setDiagsParams)==1;
+    elseif isnumeric(setDiagsParams{1})&&length(setDiagsParams)==1;
       choicePlot={'all'};
     elseif isnumeric(setDiagsParams{1});
       choicePlot={setDiagsParams{2:end}};
@@ -293,7 +293,7 @@ elseif userStep==-1;%plotting
     TT=alldiag.listTimes(tt);
     nt=length(TT);
 
-    if (kBudget==1)&(sum(strcmp(choicePlot,'all'))|sum(strcmp(choicePlot,'mass')));
+    if (kBudget==1)&&(sum(strcmp(choicePlot,'all'))||sum(strcmp(choicePlot,'mass')));
 
         %1.1) ocean+seaice mass budgets
         %------------------------------
@@ -316,7 +316,7 @@ elseif userStep==-1;%plotting
         %add to tex file
         myCaption={myYmeanTxt,' global (upper) north (mid) and south (lower), '};
         myCaption={myCaption{:},'mass budget (ocean+ice) in kg/m$^2$.'};
-        if addToTex&multiTimes; write2tex(fileTex,2,myCaption,gcf); elseif ~multiTimes; close; end;
+        if addToTex&&multiTimes; write2tex(fileTex,2,myCaption,gcf); elseif ~multiTimes; close; end;
 
         %1.2) ice mass budgets
         %---------------------
@@ -333,11 +333,11 @@ elseif userStep==-1;%plotting
         %add to tex file
         myCaption={myYmeanTxt,' global (upper) north (mid) and south (lower), '};
         myCaption={myCaption{:},'mass budget (ice only) in kg/m$^2$.'};
-        if addToTex&multiTimes; write2tex(fileTex,2,myCaption,gcf); elseif ~multiTimes; close; end;
+        if addToTex&&multiTimes; write2tex(fileTex,2,myCaption,gcf); elseif ~multiTimes; close; end;
 
     end;
 
-    if (sum(strcmp(choicePlot,'all'))|sum(strcmp(choicePlot,'mass')));
+    if (sum(strcmp(choicePlot,'all'))||sum(strcmp(choicePlot,'mass')));
 
     %1.3) ocean mass budgets
     %-----------------------
@@ -355,11 +355,11 @@ elseif userStep==-1;%plotting
     %add to tex file
     myCaption={myYmeanTxt,' global (upper) north (mid) and south (lower), '};
     myCaption={myCaption{:},'mass budget (ocean only) in kg/m$^2$.'};
-    if addToTex&multiTimes; write2tex(fileTex,2,myCaption,gcf); elseif ~multiTimes; close; end;
+    if addToTex&&multiTimes; write2tex(fileTex,2,myCaption,gcf); elseif ~multiTimes; close; end;
 
     end;
 
-    if (kBudget==1)&(sum(strcmp(choicePlot,'all'))|sum(strcmp(choicePlot,'heat')));
+    if (kBudget==1)&&(sum(strcmp(choicePlot,'all'))||sum(strcmp(choicePlot,'heat')));
 
         %2.1) ocean+seaice heat budgets
         %------------------------------
@@ -370,7 +370,7 @@ elseif userStep==-1;%plotting
         %add to tex file
         myCaption={myYmeanTxt,' global (upper) north (mid) and south (lower), '};
         myCaption={myCaption{:},'heat budget (ocean+ice) in J/m$^2$.'};
-        if addToTex&multiTimes; write2tex(fileTex,2,myCaption,gcf); elseif ~multiTimes; close; end;
+        if addToTex&&multiTimes; write2tex(fileTex,2,myCaption,gcf); elseif ~multiTimes; close; end;
 
         %2.2) ice heat budgets
         %---------------------
@@ -381,11 +381,11 @@ elseif userStep==-1;%plotting
         %add to tex file
         myCaption={myYmeanTxt,' global (upper) north (mid) and south (lower), '};
         myCaption={myCaption{:},'heat budget (ice only) in J/m$^2$.'};
-        if addToTex&multiTimes; write2tex(fileTex,2,myCaption,gcf); elseif ~multiTimes; close; end;
+        if addToTex&&multiTimes; write2tex(fileTex,2,myCaption,gcf); elseif ~multiTimes; close; end;
 
     end;
 
-    if (sum(strcmp(choicePlot,'all'))|sum(strcmp(choicePlot,'heat')));
+    if (sum(strcmp(choicePlot,'all'))||sum(strcmp(choicePlot,'heat')));
 
     %2.3) ocean heat budgets
     %-----------------------
@@ -396,11 +396,11 @@ elseif userStep==-1;%plotting
     %add to tex file
     myCaption={myYmeanTxt,' global (upper) north (mid) and south (lower), '};
     myCaption={myCaption{:},'heat budget (ocean only) in J/m$^2$.'};
-    if addToTex&multiTimes; write2tex(fileTex,2,myCaption,gcf); elseif ~multiTimes; close; end;
+    if addToTex&&multiTimes; write2tex(fileTex,2,myCaption,gcf); elseif ~multiTimes; close; end;
 
     end;
 
-    if (kBudget==1)&(sum(strcmp(choicePlot,'all'))|sum(strcmp(choicePlot,'salt')));
+    if (kBudget==1)&&(sum(strcmp(choicePlot,'all'))||sum(strcmp(choicePlot,'salt')));
 
         %3.1) ocean+seaice salt budgets
         %------------------------------
@@ -411,7 +411,7 @@ elseif userStep==-1;%plotting
         %add to tex file
         myCaption={myYmeanTxt,' global (upper) north (mid) and south (lower), '};
         myCaption={myCaption{:},'salt budget (ocean+ice) in g/m$^2$.'};
-        if addToTex&multiTimes; write2tex(fileTex,2,myCaption,gcf); elseif ~multiTimes; close; end;
+        if addToTex&&multiTimes; write2tex(fileTex,2,myCaption,gcf); elseif ~multiTimes; close; end;
 
         %2.2) ice salt budgets
         %---------------------
@@ -422,12 +422,12 @@ elseif userStep==-1;%plotting
         %add to tex file
         myCaption={myYmeanTxt,' global (upper) north (mid) and south (lower), '};
         myCaption={myCaption{:},'salt budget (ice only) in g/m$^2$.'};
-        if addToTex&multiTimes; write2tex(fileTex,2,myCaption,gcf); elseif ~multiTimes; close; end;
+        if addToTex&&multiTimes; write2tex(fileTex,2,myCaption,gcf); elseif ~multiTimes; close; end;
 
     end;
 
 
-    if (sum(strcmp(choicePlot,'all'))|sum(strcmp(choicePlot,'salt')));
+    if (sum(strcmp(choicePlot,'all'))||sum(strcmp(choicePlot,'salt')));
 
     %3.3) ocean salt budgets
     %-----------------------
@@ -438,7 +438,7 @@ elseif userStep==-1;%plotting
     %add to tex file
     myCaption={myYmeanTxt,' global (upper) north (mid) and south (lower), '};
     myCaption={myCaption{:},'salt budget (ocean only) in g/m$^2$.'};
-    if addToTex&multiTimes; write2tex(fileTex,2,myCaption,gcf); elseif ~multiTimes; close; end;
+    if addToTex&&multiTimes; write2tex(fileTex,2,myCaption,gcf); elseif ~multiTimes; close; end;
 
     end;
 

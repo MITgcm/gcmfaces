@@ -81,7 +81,7 @@ elseif userStep==-1;%plotting;
     %plot
     cc=[[0:20:100] [150:50:300] 400 [500:200:1100] [1500:500:2000]];
     if doAnomalies; cc=scaleAnom*[-5:0.5:5]; end;
-    figureL; set(gcf,'Renderer','zbuffer');
+    figureL; if ~myenv.usingOctave; set(gcf,'Renderer','zbuffer'); end;
     m_map_gcmfaces(fld_seas,0,{'myCaxis',cc});
     myCaption={myYmeanTxt,mon,' mean -- ',list_tit{vv}};
     if addToTex; write2tex(fileTex,2,myCaption,gcf); end;

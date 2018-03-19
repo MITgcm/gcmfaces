@@ -80,11 +80,11 @@ elseif userStep==-1;%plotting
     %determine the number of full years (nYears)
     nYears=floor(length(myTimes)/lYear);
 
-    if nYears>1&(sum(strcmp(choicePlot,'all'))|sum(strcmp(choicePlot,'zmtend')));
+    if nYears>1&&(sum(strcmp(choicePlot,'all'))||sum(strcmp(choicePlot,'zmtend')));
 
     if addToTex; write2tex(fileTex,1,'zonal mean tendencies',2); end;
 
-    figureL; set(gcf,'Renderer','zbuffer');
+    figureL; if ~myenv.usingOctave; set(gcf,'Renderer','zbuffer'); end;
     %cc=[-2:0.25:2];
     cc=1/100*[[-200:50:-100] [-75 -50] [-35:10:35] [50 75] [100:50:200]];
     if doAnomalies; cc=scaleAnom/10*cc; end;
@@ -105,12 +105,12 @@ elseif userStep==-1;%plotting
 
     end;
    
-    if sum(strcmp(choicePlot,'all'))|sum(strcmp(choicePlot,'eq'));
+    if sum(strcmp(choicePlot,'all'))||sum(strcmp(choicePlot,'eq'));
 
     if addToTex; write2tex(fileTex,1,'equatorial sections',2); end;
 
     %time mean equator sections :
-    figureL; set(gcf,'Renderer','zbuffer'); cc0=[-2:0.25:2];
+    figureL; if ~myenv.usingOctave; set(gcf,'Renderer','zbuffer'); end; cc0=[-2:0.25:2];
     [secX,secY,LONeq]=gcmfaces_section([],0,mygrid.XC,1);
     X=LONeq*ones(1,length(mygrid.RC)); Y=ones(length(LONeq),1)*mygrid.RC';
     X=circshift(X,[-180 0]); X(X<0)=X(X<0)+360;
@@ -132,7 +132,7 @@ elseif userStep==-1;%plotting
 
     end;
 
-    if multiTimes&(sum(strcmp(choicePlot,'all'))|sum(strcmp(choicePlot,'gmtime')));
+    if multiTimes&&(sum(strcmp(choicePlot,'all'))||sum(strcmp(choicePlot,'gmtime')));
 
     if addToTex; write2tex(fileTex,1,'global mean properties',2); end;
 
@@ -154,7 +154,7 @@ elseif userStep==-1;%plotting
     if addToTex; write2tex(fileTex,2,myCaption,gcf); end;
    
     %global mean T/S profiles:
-    figureL; set(gcf,'Renderer','zbuffer'); cc0=[-2:0.25:2];
+    figureL; if ~myenv.usingOctave; set(gcf,'Renderer','zbuffer'); end; cc0=[-2:0.25:2];
     X=TT*ones(1,length(mygrid.RC)); Y=ones(length(TT),1)*(mygrid.RC'); X=X'; Y=Y';
     %T
     subplot(2,1,1);
@@ -175,7 +175,7 @@ elseif userStep==-1;%plotting
     end;
 
 
-    if multiTimes&(sum(strcmp(choicePlot,'all'))|sum(strcmp(choicePlot,'lzmtime')));
+    if multiTimes&&(sum(strcmp(choicePlot,'all'))||sum(strcmp(choicePlot,'lzmtime')));
 
     if addToTex; write2tex(fileTex,1,'zonal mean properties',2); end;
 
@@ -184,7 +184,7 @@ elseif userStep==-1;%plotting
     for iLatPlot=1:length(listLatPlot);
         tmp1=abs(mygrid.LATS-listLatPlot(iLatPlot));
         iLat=find(tmp1==min(tmp1)); iLat=iLat(1);
-        figureL; set(gcf,'Renderer','zbuffer'); cc=[-2:0.25:2];
+        figureL; if ~myenv.usingOctave; set(gcf,'Renderer','zbuffer'); end; cc=[-2:0.25:2];
         if doAnomalies; cc=scaleAnom/10*cc; end;
         %T
         subplot(2,1,1);
@@ -207,12 +207,12 @@ elseif userStep==-1;%plotting
     end;
 
 
-    if multiTimes&(sum(strcmp(choicePlot,'all'))|sum(strcmp(choicePlot,'szmtime')));
+    if multiTimes&&(sum(strcmp(choicePlot,'all'))||sum(strcmp(choicePlot,'szmtime')));
 
     if addToTex; write2tex(fileTex,1,'zonal mean properties (surface)',2); end;
 
     %zonal mean SST/SSS:
-    figureL; set(gcf,'Renderer','zbuffer'); cc0=[-2:0.25:2]; kk=1;
+    figureL; if ~myenv.usingOctave; set(gcf,'Renderer','zbuffer'); end; cc0=[-2:0.25:2]; kk=1;
     x=TT*ones(1,length(mygrid.LATS)); y=ones(nt,1)*mygrid.LATS'; x=x'; y=y';
     %T
     subplot(2,1,1);
@@ -231,7 +231,7 @@ elseif userStep==-1;%plotting
         '(psu; bottom) minus first year (psu)',[' at ' num2str(-mygrid.RC(kk)) 'm depth']};
     if addToTex; write2tex(fileTex,2,myCaption,gcf); end;
 
-    figureL; set(gcf,'Renderer','zbuffer'); cc=[-2:0.25:2]; kk=1;
+    figureL; if ~myenv.usingOctave; set(gcf,'Renderer','zbuffer'); end; cc=[-2:0.25:2]; kk=1;
     if doAnomalies; cc=scaleAnom/10*cc/2; end;
     x=TT*ones(1,length(mygrid.LATS)); y=ones(nt,1)*mygrid.LATS'; x=x'; y=y';
     %SSH
@@ -248,7 +248,7 @@ elseif userStep==-1;%plotting
     myCaption={'zonal mean SSH (m, uncorrected free surface) minus first year, including ice (top) and below ice (bottom) '};
     if addToTex; write2tex(fileTex,2,myCaption,gcf); end;
 
-    figureL; set(gcf,'Renderer','zbuffer'); cc=[-2:0.25:2]; kk=1;
+    figureL; if ~myenv.usingOctave; set(gcf,'Renderer','zbuffer'); end; cc=[-2:0.25:2]; kk=1;
     if doAnomalies; cc=scaleAnom/10*cc; end;
     x=TT*ones(1,length(mygrid.LATS)); y=ones(nt,1)*mygrid.LATS'; x=x'; y=y';
     %SSH
@@ -270,7 +270,7 @@ elseif userStep==-1;%plotting
     end;
 
 
-    if multiTimes&(sum(strcmp(choicePlot,'all'))|sum(strcmp(choicePlot,'icetime')));
+    if multiTimes&&(sum(strcmp(choicePlot,'all'))||sum(strcmp(choicePlot,'icetime')));
 
     if addToTex; write2tex(fileTex,1,'seaice time series',2); end;
 

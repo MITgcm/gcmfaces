@@ -51,6 +51,10 @@ elseif userStep==3;%computation
       listTimesBak=listTimes;
       load([dirMat fileMatPrev]);
       listTimes=listTimesBak;
+      for jj=1:length(listDiags);
+        eval(['tmp1=' listDiags{jj} ';']);
+        if isa(tmp1,'gcmfaces'); eval([listDiags{jj} '=matLoadFix(tmp1);']); end;
+      end;
     end;
     for jj=1:length(listDiags)/2;
         myDiag=listDiags{1+2*(jj-1)}(1:end-2);
@@ -83,9 +87,11 @@ elseif userStep==0;%loading / post-processing of mat files
     tmpdiag=diags_read_from_mat(dirMat,[fileMat '_*.mat'],'',ifile0);
     for ii=1:length(alldiag.listDiags);
          tmp0=alldiag.listDiags{ii};
-         if ~strcmp(tmp0,'listTimes')&~strcmp(tmp0,'listSteps');
+         if ~strcmp(tmp0,'listTimes')&&~strcmp(tmp0,'listSteps');
            tmp1=getfield(alldiag,alldiag.listDiags{ii});
            tmp2=getfield(tmpdiag,alldiag.listDiags{ii});
+           if isa(tmp1,'gcmfaces'); tmp1=matLoadFix(tmp1); end;
+           if isa(tmp2,'gcmfaces'); tmp2=matLoadFix(tmp2); end;
            alldiag=setfield(alldiag,tmp0,tmp1-tmp2);
          end;
     end;
@@ -105,9 +111,12 @@ elseif userStep==0;%loading / post-processing of mat files
   n=diff(myparms.recInAve)+1;
   for jj=1:length(alldiag.listDiags)/2;
      tmp0=alldiag.listDiags{1+2*(jj-1)};
-     if ~strcmp(tmp0,'listTimes')&~strcmp(tmp0,'listSteps');
-       tmp1=1/n*getfield(alldiag,tmp0);
-       tmp2=1/n*getfield(alldiag,[tmp0(1:end-1) '2s']);
+     if ~strcmp(tmp0,'listTimes')&&~strcmp(tmp0,'listSteps');
+       tmp1=getfield(alldiag,tmp0);
+       tmp2=getfield(alldiag,[tmp0(1:end-1) '2s']);
+       if isa(tmp1,'gcmfaces'); tmp1=matLoadFix(tmp1); end;
+       if isa(tmp2,'gcmfaces'); tmp2=matLoadFix(tmp2); end;
+       tmp1=1/n*tmp1; tmp2=1/n*tmp2;
        tmp2=(tmp2-tmp1.^2);
        tmp2=n/(n-1)*tmp2;
        %tmp2(tmp2<0)=0;
@@ -130,7 +139,7 @@ elseif userStep==-1;%plotting
 
 %===== start with state variables
 
-  if sum(strcmp(choicePlot,'all'))|sum(strcmp(choicePlot,'surface'));
+  if sum(strcmp(choicePlot,'all'))||sum(strcmp(choicePlot,'surface'));
 
     if addToTex; write2tex(fileTex,1,'sea surface height',2); end;
 
@@ -170,7 +179,7 @@ elseif userStep==-1;%plotting
 
     end;
 
-  if ( sum(strcmp(choicePlot,'all'))|sum(strcmp(choicePlot,'subsrfc')) )&(~doOmit3Dfields);
+  if ( sum(strcmp(choicePlot,'all'))||sum(strcmp(choicePlot,'subsrfc')) )&&(~doOmit3Dfields);
 
     if addToTex; write2tex(fileTex,1,'3D state variables',2); end;
 
@@ -188,7 +197,7 @@ elseif userStep==-1;%plotting
            fld_std=fld_std*86400*365/1e3;
       end;
       for kk=kkList;
-        if strcmp(vvtxt,'WVELMASS')&kk==1; kk=2; end;
+        if strcmp(vvtxt,'WVELMASS')&&kk==1; kk=2; end;
         if mygrid.RC(kk)>=-50; facD=0.5;
         elseif mygrid.RC(kk)>=-150; facD=1;
         elseif mygrid.RC(kk)>=-500; facD=2.5;
@@ -251,7 +260,7 @@ elseif userStep==-1;%plotting
 
 %now do surface fluxes and forcing fields
 
-    if sum(strcmp(choicePlot,'all'))|sum(strcmp(choicePlot,'qnet'));
+    if sum(strcmp(choicePlot,'all'))||sum(strcmp(choicePlot,'qnet'));
 
     if addToTex; write2tex(fileTex,1,'air-sea heat flux',2); end;
 
@@ -292,7 +301,7 @@ elseif userStep==-1;%plotting
     end;
 
 
-    if sum(strcmp(choicePlot,'all'))|sum(strcmp(choicePlot,'fwf'));
+    if sum(strcmp(choicePlot,'all'))||sum(strcmp(choicePlot,'fwf'));
 
     if addToTex; write2tex(fileTex,1,'air-sea freshwater flux',2); end;
 
@@ -334,7 +343,7 @@ elseif userStep==-1;%plotting
 
     end;
 
-    if sum(strcmp(choicePlot,'all'))|sum(strcmp(choicePlot,'tau'));
+    if sum(strcmp(choicePlot,'all'))||sum(strcmp(choicePlot,'tau'));
 
     if addToTex; write2tex(fileTex,1,'surface wind stress',2); end;
 

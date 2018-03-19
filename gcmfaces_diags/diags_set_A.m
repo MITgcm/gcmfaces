@@ -113,7 +113,7 @@ elseif userStep==-1;%plotting
 
     if ~sum(strcmp(listDiags,'atlOV')); multiBasins=0; end;
 
-    if sum(strcmp(choicePlot,'all'))|sum(strcmp(choicePlot,'bf'));
+    if sum(strcmp(choicePlot,'all'))||sum(strcmp(choicePlot,'bf'));
 
     if addToTex; write2tex(fileTex,1,'barotropic streamfunction',2); end;
 
@@ -136,7 +136,7 @@ elseif userStep==-1;%plotting
 
     end;
 
-    if sum(strcmp(choicePlot,'all'))|sum(strcmp(choicePlot,'ov'));
+    if sum(strcmp(choicePlot,'all'))||sum(strcmp(choicePlot,'ov'));
 
     if addToTex; write2tex(fileTex,1,'meridional streamfunction',2); end;
 
@@ -145,7 +145,7 @@ elseif userStep==-1;%plotting
     X=mygrid.LATS*ones(1,length(mygrid.RF)); Y=ones(length(mygrid.LATS),1)*(mygrid.RF');
     cc=[[-50:10:-30] [-24:3:24] [30:10:50]]; title0='Meridional Stream Function';
     if doAnomalies; cc=scaleAnom*[-1:0.1:1]; end;
-    figureL; set(gcf,'Renderer','zbuffer'); %set(gcf,'Units','Normalized','Position',[0.05 0.1 0.4 0.8]);
+    figureL; if ~myenv.usingOctave; set(gcf,'Renderer','zbuffer'); end; %set(gcf,'Units','Normalized','Position',[0.05 0.1 0.4 0.8]);
     depthStretchPlot('pcolor',{X,Y,fld}); shading interp; cbar=gcmfaces_cmap_cbar(cc); title(title0);
     myCaption={myYmeanTxt,'mean -- overturning streamfunction (Sv)'};
     if addToTex; write2tex(fileTex,2,myCaption,gcf); end;
@@ -155,7 +155,7 @@ elseif userStep==-1;%plotting
     X=mygrid.LATS*ones(1,length(mygrid.RF)); Y=ones(length(mygrid.LATS),1)*(mygrid.RF');
     cc=[[-50:10:-30] [-24:3:24] [30:10:50]]; title0='Meridional Stream Function (incl. GM)';
     if doAnomalies; cc=scaleAnom*[-1:0.1:1]; end;
-    figureL; set(gcf,'Renderer','zbuffer'); %set(gcf,'Units','Normalized','Position',[0.05 0.1 0.4 0.8]);
+    figureL; if ~myenv.usingOctave; set(gcf,'Renderer','zbuffer'); end; %set(gcf,'Units','Normalized','Position',[0.05 0.1 0.4 0.8]);
     depthStretchPlot('pcolor',{X,Y,fld}); shading interp; cbar=gcmfaces_cmap_cbar(cc); title(title0);
     myCaption={myYmeanTxt,'mean -- overturning streamfunction incl. GM (Sv)'};
     if addToTex; write2tex(fileTex,2,myCaption,gcf); end;
@@ -166,7 +166,7 @@ elseif userStep==-1;%plotting
     X=mygrid.LATS*ones(1,length(mygrid.RF)); Y=ones(length(mygrid.LATS),1)*(mygrid.RF');
     cc=[[-50:10:-30] [-24:3:24] [30:10:50]]; title0='Atlantic Meridional Stream Function';
     if doAnomalies; cc=scaleAnom*[-1:0.1:1]; end;
-    figureL; set(gcf,'Renderer','zbuffer'); %set(gcf,'Units','Normalized','Position',[0.05 0.1 0.4 0.8]);
+    figureL; if ~myenv.usingOctave; set(gcf,'Renderer','zbuffer'); end; %set(gcf,'Units','Normalized','Position',[0.05 0.1 0.4 0.8]);
     depthStretchPlot('pcolor',{X,Y,fld}); shading interp; cbar=gcmfaces_cmap_cbar(cc); title(title0);
     myCaption={myYmeanTxt,'mean -- Atlantic overturning streamfunction (Sv)'};
     if addToTex; write2tex(fileTex,2,myCaption,gcf); end;
@@ -175,7 +175,7 @@ elseif userStep==-1;%plotting
     X=mygrid.LATS*ones(1,length(mygrid.RF)); Y=ones(length(mygrid.LATS),1)*(mygrid.RF');
     cc=[[-50:10:-30] [-24:3:24] [30:10:50]]; title0='Pac+Ind Meridional Stream Function';
     if doAnomalies; cc=scaleAnom*[-1:0.1:1]; end;
-    figureL; set(gcf,'Renderer','zbuffer'); %set(gcf,'Units','Normalized','Position',[0.05 0.1 0.4 0.8]);
+    figureL; if ~myenv.usingOctave; set(gcf,'Renderer','zbuffer'); end; %set(gcf,'Units','Normalized','Position',[0.05 0.1 0.4 0.8]);
     depthStretchPlot('pcolor',{X,Y,fld}); shading interp; cbar=gcmfaces_cmap_cbar(cc); title(title0);
     myCaption={myYmeanTxt,'mean -- Pac+Ind overturning streamfunction (Sv)'};
     if addToTex; write2tex(fileTex,2,myCaption,gcf); end;
@@ -187,19 +187,19 @@ elseif userStep==-1;%plotting
     X=mygrid.LATS*ones(1,length(mygrid.RF)); Y=ones(length(mygrid.LATS),1)*(mygrid.RF');
     cc=[0:0.5:3 4 5 7 10 15:5:25 35 50]; title0='Meridional Stream Function';
     if doAnomalies; cc=scaleAnom*[0:0.1:1]; end;
-    figureL; set(gcf,'Renderer','zbuffer'); %set(gcf,'Units','Normalized','Position',[0.05 0.1 0.4 0.8]);
+    figureL; if ~myenv.usingOctave; set(gcf,'Renderer','zbuffer'); end; %set(gcf,'Units','Normalized','Position',[0.05 0.1 0.4 0.8]);
     depthStretchPlot('pcolor',{X,Y,fld}); shading interp; cbar=gcmfaces_cmap_cbar(cc); title(title0);
     myCaption={myYmeanTxt,' standard deviation -- overturning streamfunction (Sv)'};
     if addToTex; write2tex(fileTex,2,myCaption,gcf); end;
     end;
 
-    if multiTimes&multiBasins;
+    if multiTimes&&multiBasins;
     %and the corresponding standard deviation:
     fld=std(alldiag.atlOV(:,:,tt),[],3); fld(fld==0)=NaN;
     X=mygrid.LATS*ones(1,length(mygrid.RF)); Y=ones(length(mygrid.LATS),1)*(mygrid.RF');
     cc=[0:0.5:3 4 5 7 10 15:5:25 35 50]; title0='Atlantic Meridional Stream Function';
     if doAnomalies; cc=scaleAnom*[0:0.1:1]; end;
-    figureL; set(gcf,'Renderer','zbuffer'); %set(gcf,'Units','Normalized','Position',[0.05 0.1 0.4 0.8]);
+    figureL; if ~myenv.usingOctave; set(gcf,'Renderer','zbuffer'); end; %set(gcf,'Units','Normalized','Position',[0.05 0.1 0.4 0.8]);
     depthStretchPlot('pcolor',{X,Y,fld}); shading interp; cbar=gcmfaces_cmap_cbar(cc); title(title0);
     myCaption={myYmeanTxt,' standard deviation -- Atlantic overturning streamfunction (Sv)'};
     if addToTex; write2tex(fileTex,2,myCaption,gcf); end;
@@ -207,7 +207,7 @@ elseif userStep==-1;%plotting
 
     end;
 
-    if sum(strcmp(choicePlot,'all'))|sum(strcmp(choicePlot,'ovtime'));
+    if sum(strcmp(choicePlot,'all'))||sum(strcmp(choicePlot,'ovtime'));
 
     if addToTex; write2tex(fileTex,1,'meridional streamfunction (time series)',2); end;
 
@@ -226,7 +226,7 @@ elseif userStep==-1;%plotting
     if addToTex; write2tex(fileTex,2,myCaption,gcf); end;
     end;
 
-    if multiTimes&multiBasins;
+    if multiTimes&&multiBasins;
     figureL;
     tmp1=abs(-mygrid.RC-1000); kk=find(tmp1==min(tmp1)); kk=kk(1);
     atlOV1000=squeeze(alldiag.atlOV(:,kk,:)); atlOV1000=runmean(atlOV1000,myNmean,2);
@@ -242,7 +242,7 @@ elseif userStep==-1;%plotting
 
     end;
 
-    if sum(strcmp(choicePlot,'all'))|sum(strcmp(choicePlot,'mht'));
+    if sum(strcmp(choicePlot,'all'))||sum(strcmp(choicePlot,'mht'));
 
     if addToTex; write2tex(fileTex,1,'meridional heat transport',2); end;
 
@@ -283,7 +283,7 @@ elseif userStep==-1;%plotting
 
     end;
 
-    if sum(strcmp(choicePlot,'all'))|sum(strcmp(choicePlot,'mfwt'));
+    if sum(strcmp(choicePlot,'all'))||sum(strcmp(choicePlot,'mfwt'));
 
     if addToTex; write2tex(fileTex,1,'meridional freshwater transport',2); end;
 
@@ -323,7 +323,7 @@ elseif userStep==-1;%plotting
 
     end;
 
-    if sum(strcmp(choicePlot,'all'))|sum(strcmp(choicePlot,'mslt'));
+    if sum(strcmp(choicePlot,'all'))||sum(strcmp(choicePlot,'mslt'));
 
     if addToTex; write2tex(fileTex,1,'meridional salt transport',2); end;
 
@@ -363,7 +363,7 @@ elseif userStep==-1;%plotting
 
     end;
 
-    if multiTimes&(sum(strcmp(choicePlot,'all'))|sum(strcmp(choicePlot,'mttime')));
+    if multiTimes&&(sum(strcmp(choicePlot,'all'))||sum(strcmp(choicePlot,'mttime')));
 
     if addToTex; write2tex(fileTex,1,'meridional transports (time series)',2); end;
 
@@ -403,7 +403,7 @@ elseif userStep==-1;%plotting
     end;
 
 
-    if (sum(strcmp(choicePlot,'all'))|sum(strcmp(choicePlot,'sectime')));
+    if (sum(strcmp(choicePlot,'all'))||sum(strcmp(choicePlot,'sectime')));
 
     if addToTex; write2tex(fileTex,1,'transects transport',2); end;
 
@@ -420,7 +420,7 @@ elseif userStep==-1;%plotting
         disp_transport(trsp,TT,txt,{'ylim',ylim},{'nmean',myNmean});
     end;
     myCaption={'volume transports entering the Arctic (Sv, annual mean)'};
-    if addToTex&multiTimes; write2tex(fileTex,2,myCaption,gcf); end;
+    if addToTex&&multiTimes; write2tex(fileTex,2,myCaption,gcf); end;
    
     %Florida Strait:
     if multiTimes; figureL; end;
@@ -435,7 +435,7 @@ elseif userStep==-1;%plotting
         disp_transport(trsp,TT,txt,{'ylim',ylim},{'nmean',myNmean});
     end;
     myCaption={'volume transports entering the Atlantic (Sv, annual mean)'};
-    if addToTex&multiTimes; write2tex(fileTex,2,myCaption,gcf); end;
+    if addToTex&&multiTimes; write2tex(fileTex,2,myCaption,gcf); end;
 
     %Gibraltar special case:
     if multiTimes; figureL; end;
@@ -445,7 +445,7 @@ elseif userStep==-1;%plotting
     if doAnomalies; ylim=scaleAnom*[-1 1]*0.05; end;
     disp_transport(trsp,TT,txt,{'ylim',ylim},{'nmean',myNmean},{'choicePlot',2});
     myCaption={'Gibraltar Overturn (Sv, annual mean)'};
-    if addToTex&multiTimes; write2tex(fileTex,2,myCaption,gcf); end;
+    if addToTex&&multiTimes; write2tex(fileTex,2,myCaption,gcf); end;
 
     %Drake, ACC etc:
     if multiTimes; figureL; end;
@@ -460,7 +460,7 @@ elseif userStep==-1;%plotting
         disp_transport(trsp,TT,txt,{'ylim',ylim},{'nmean',myNmean});
     end;
     myCaption={'ACC volume transports (Sv, annual mean)'};
-    if addToTex&multiTimes; write2tex(fileTex,2,myCaption,gcf); end;
+    if addToTex&&multiTimes; write2tex(fileTex,2,myCaption,gcf); end;
 
     %Indonesian Throughflow special case:
     if multiTimes; figureL; end;
@@ -471,7 +471,7 @@ elseif userStep==-1;%plotting
     if doAnomalies; ylim=scaleAnom*[-1 1]*0.5; end;
     disp_transport(trsp,TT,txt,{'ylim',ylim},{'nmean',myNmean});
     myCaption={'Indonesian Throughflow (Sv, annual mean)'};
-    if addToTex&multiTimes; write2tex(fileTex,2,myCaption,gcf); end;
+    if addToTex&&multiTimes; write2tex(fileTex,2,myCaption,gcf); end;
 
     end;
 

@@ -105,7 +105,7 @@ snowSouth(~isfinite(snowSouth))=NaN;
 %now display seasonal cycle
 x=[x x+12]-0.5; y=[y y]; z=[iceNorth iceNorth];
 
-figureL; set(gcf,'Renderer','zbuffer'); 
+figureL; if ~myenv.usingOctave; set(gcf,'Renderer','zbuffer'); end; 
 subplot(2,1,1);
 z=[iceNorth iceNorth]; pcolor(x,y,z); shading interp; 
 axis([1 13 0 6]); grid on; caxis([9.5 12]); colormap(jet(25));
@@ -122,7 +122,7 @@ myCaption={myYmeanTxt,'Northern Hemisphere :',...
            ' thickness distribution (in log(m$^2$))'};
 if addToTex; write2tex(fileTex,2,myCaption,gcf); end;
 
-figureL; set(gcf,'Renderer','zbuffer');
+figureL; if ~myenv.usingOctave; set(gcf,'Renderer','zbuffer'); end;
 subplot(2,1,1);
 z=[iceSouth iceSouth]; pcolor(x,y,z); shading interp;
 axis([1 13 0 4]); grid on; caxis([9.5 12]); colormap(jet(25));
@@ -201,7 +201,7 @@ end;
 fld_seas(fld_seas==0)=NaN;
 
 %ice concentration
-figureL; set(gcf,'Renderer','zbuffer');
+figureL; if ~myenv.usingOctave; set(gcf,'Renderer','zbuffer'); end;
 cc=list_cc{vv}; if doAnomalies; cc=list_ccAno{vv}; end;
 caxi={'myCaxis',cc}; docb={'doCbar',1};
 m_map_gcmfaces(fld_seas,pp,caxi,docb);
