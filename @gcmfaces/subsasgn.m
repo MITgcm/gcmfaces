@@ -22,8 +22,13 @@ case '.'
       aa=subsref(a,index(1)); val=subsasgn(aa,index(2:end),val);
    end;
 
-   a=setfield(struct(a),index(1).subs,val);
-   a = class(a,'gcmfaces');
+   %not sure why but the following distinction is not needed in Matlab:
+   if isa(a,'gcmfaces');
+     a=setfield(struct(a),index(1).subs,val);
+     a = class(a,'gcmfaces');
+   elseif isa(a,'struct');;
+     a = builtin('subsasgn',a,index,val);
+   end;
 case '()'
    if length(index)>1; error('indexing not supported by gcmfaces objects'); end;   
 
