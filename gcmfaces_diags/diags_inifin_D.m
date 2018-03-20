@@ -5,10 +5,10 @@ gcmfaces_global; global myparms;
 
 [listTimes]=diags_list_times({dirSnap},{'budg2d_snap_set1'});
 
-if kBudget==1&~test3d; 
+if kBudget==1&&~test3d; 
 nmSnap='budg2d_snap_set2';
 listBudgs={'budgMo','budgHo','budgSo','budgMi','budgHi','budgSi'};
-elseif kBudget==1&test3d;
+elseif kBudget==1&&test3d;
 nmSnap='budg3d_snap_set1';
 listBudgs={'budgMo','budgHo','budgSo','budgMi','budgHi','budgSi'};
 else;

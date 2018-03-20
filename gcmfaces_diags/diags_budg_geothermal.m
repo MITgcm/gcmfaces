@@ -68,7 +68,7 @@ tmp1=fgetl(fidMetaOld);
 test1=isempty(strfind(tmp1,'fldList'));
 test2=isempty(strfind(tmp1,'nrecords'));
 test3=isempty(strfind(tmp1,'nFlds'));
-if test1&test2&test3;
+if test1&&test2&&test3;
   fprintf(fidMetaNew,[tmp1 '\n']);
 elseif ~test3;
   fprintf(fidMetaNew,' nFlds = [    1 ];\n');

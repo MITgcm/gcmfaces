@@ -54,7 +54,7 @@ if isempty(dir(dirTex)); mkdir(dirTex); end;
 gcmfaces_global; global myparms;
 test1=~isempty(dir([dirMat 'basic_diags_ecco_mygrid.mat']));
 test2=~isempty(dir([dirMat 'diags_grid_parms.mat']));
-if ~test1&~test2;
+if ~test1&&~test2;
   error('missing diags_grid_parms.mat')
 elseif test2;
   nameGrid='diags_grid_parms.mat';
@@ -123,11 +123,11 @@ doDiags=ones(1,length(setDiags));
 %
 for ii=1:length(setDiags);
   if iscell(setDiags{ii});
-    if ~doBudget&strcmp(setDiags{ii}{1},'D'); doDiags(ii)=0; end;
-  elseif ~doBudget&strcmp(setDiags{ii},'D'); doDiags(ii)=0; 
-  elseif ~doProfiles&strcmp(setDiags{ii},'profiles'); doDiags(ii)=0;   
-  elseif ~doCost&strcmp(setDiags{ii},'cost'); doDiags(ii)=0;   
-  elseif ~doCtrl&strcmp(setDiags{ii},'controls'); doDiags(ii)=0;   
+    if ~doBudget&&strcmp(setDiags{ii}{1},'D'); doDiags(ii)=0; end;
+  elseif ~doBudget&&strcmp(setDiags{ii},'D'); doDiags(ii)=0; 
+  elseif ~doProfiles&&strcmp(setDiags{ii},'profiles'); doDiags(ii)=0;   
+  elseif ~doCost&&strcmp(setDiags{ii},'cost'); doDiags(ii)=0;   
+  elseif ~doCtrl&&strcmp(setDiags{ii},'controls'); doDiags(ii)=0;   
   end;
 end;
 %
@@ -144,7 +144,7 @@ if ~isempty(dirMatRef);
     myTitle={myTitle{:},' minus ',tmp1};
 end;
 
-if isempty(dirMatRef)&~isempty(dir([dirMat '../README']));
+if isempty(dirMatRef)&&~isempty(dir([dirMat '../README']));
   [rdm]=read_readme([dirMat '../README']);
 else;
   rdm=[];

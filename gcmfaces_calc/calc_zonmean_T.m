@@ -92,11 +92,11 @@ for iy=1:ny;
   end;
 
   if strcmp(fldType,'intensive');
-    tmp1=nansum(fldIn(mm,:).*weight(mm,:),1)./nansum(weight(mm,:),1);
-    tmp2=nansum(weight(mm,:),1);
+    tmp2=nansum(weight(mm,:),1); tmp2(tmp2==0)=NaN;
+    tmp1=nansum(fldIn(mm,:).*weight(mm,:),1)./tmp2;
   else;
-    tmp1=nansum(fldIn(mm,:).*mask(mm,:),1)./nansum(weight(mm,:),1);
-    tmp2=nansum(weight(mm,:),1);
+    tmp2=nansum(weight(mm,:),1); tmp2(tmp2==0)=NaN;
+    tmp1=nansum(fldIn(mm,:).*mask(mm,:),1)./tmp2;
   end;
 
   %store:

@@ -89,11 +89,11 @@ for iDiag=1:length(setDiags);
       end;
       end;
 
-    elseif strcmp(nmDiag,'profiles')&myswitch.doProfiles;
+    elseif strcmp(nmDiag,'profiles')&&myswitch.doProfiles;
         fprintf('> starting insitu_diags\n');
         insitu_diags(dirMat,1);
 
-    elseif strcmp(nmDiag,'ecco')&myswitch.doCost;
+    elseif strcmp(nmDiag,'ecco')&&myswitch.doCost;
         fprintf('!cost_altimeter is commented out because it requires >32G and >30min\n');
         fprintf('! User may uncomment the following line if enough memory is available\n\n');
         %cost_altimeter(dirModel,dirMat);
@@ -102,7 +102,7 @@ for iDiag=1:length(setDiags);
         fprintf('> starting cost_seaice\n');
         cost_seaicearea(dirModel,dirMat,1);
 
-    elseif strcmp(nmDiag,'ctrl')&myswitch.doCtrl;
+    elseif strcmp(nmDiag,'ctrl')&&myswitch.doCtrl;
         cost_xx(dirModel,dirMat,1);
         
     end;

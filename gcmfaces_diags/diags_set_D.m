@@ -67,7 +67,7 @@ elseif userStep==3;%computational part;
 
     %preliminary tests
     test1=isempty(dir([dirModel 'diags/BUDG/budg2d_snap_set1*']));
-    test2=isempty(dir([dirMat 'BUDG/rate_budg2d_snap_set1*']))&&...
+    test2=isempty(dir([dirMat 'BUDG/rate_budg2d_snap_set1*']))&...
           isempty(dir([dirMat '../BUDG/rate_budg2d_snap_set1*']));
     if (strcmp(setDiags,'D')&&test1&&test2);
         fprintf('\n abort : global and regional budgets, due to missing \n');

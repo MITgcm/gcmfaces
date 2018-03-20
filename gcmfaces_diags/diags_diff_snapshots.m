@@ -25,7 +25,7 @@ fld0=rdmds(fileName0);
 fld1=rdmds(fileName1);
 
 test3d=(length(size(fld0))==4);
-if test3d&(myparms.useNLFS==2);
+if test3d&&(myparms.useNLFS==2);
 %3D diagnostics are multiplied by DRF*hFac*ETAN
 %(2D diagnostics are expectedly vertically integrated by MITgcm)
   for jj=0:1;

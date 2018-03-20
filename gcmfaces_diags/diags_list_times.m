@@ -27,7 +27,7 @@ if ~use_nctiles;
         if isempty(listTimes);
             for jj=1:length(listSubdirs);
                 tmp1=dir([listSubdirs{jj} '/' listFiles{kk} '.*meta']);
-                if ~isempty(tmp1)&isempty(listTimes);
+                if ~isempty(tmp1)&&isempty(listTimes);
                     for tt=1:length(tmp1); listTimes=[listTimes;str2num(tmp1(tt).name(end-14:end-5))]; end;
                 end;
             end;

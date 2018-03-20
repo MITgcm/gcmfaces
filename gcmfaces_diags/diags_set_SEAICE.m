@@ -68,7 +68,7 @@ snowThickSouth=x(:,2); snowAreaSouth=z(:,2);
 
 end;
 
-if userStep==-1&myparms.diagsAreMonthly==1;%plotting
+if userStep==-1&&myparms.diagsAreMonthly==1;%plotting
 
 if ~doAnomalies;
 

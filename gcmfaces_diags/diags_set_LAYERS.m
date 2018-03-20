@@ -38,7 +38,7 @@ if userStep==1;%diags to be computed
       listDiags=[listDiags ' atlOV atlThick atlDelThick atlBAR atlMT atlD'];
       listDiags=[listDiags ' pacindOV pacindThick pacindDelThick pacindBAR pacindMT pacindD'];
     end;
-elseif userStep==2&~layersOffline;%input files and variables
+elseif userStep==2&&~layersOffline;%input files and variables
     listFlds={    ['LaUH' layersName],['LaVH' layersName],...
         ['LaHw' layersName],['LaHs' layersName]};
     listFldsNames=deblank(listFlds);
@@ -46,7 +46,7 @@ elseif userStep==2&~layersOffline;%input files and variables
     listSubdirs={[dirModel 'diags/LAYERS/' ],[dirModel 'diags/']};
     %load layersLims consistent with online MITgcmpkg/layers
     layersLims=squeeze(rdmds([dirModel 'diags/LAYERS/layers' layersName]));
-elseif userStep==2&layersOffline;%input files and variables
+elseif userStep==2&&layersOffline;%input files and variables
     listFlds={'THETA','SALT','UVELMASS','VVELMASS','GM_PsiX','GM_PsiY'};
     listFldsNames=deblank(listFlds);
     listFiles={'state_3d_set1','trsp_3d_set1','trsp_3d_set2'};

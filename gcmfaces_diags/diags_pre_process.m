@@ -19,9 +19,9 @@ if isempty(who('doInteractive')); doInteractive=0; end;
 fprintf('\n'); gcmfaces_msg('Setting up computational loop: begins now...','==== '); fprintf('\n');
 
 %detect which types of files are avaiable
-test0=isdir([dirModel 'diags'])||~isempty(dir([dirModel 'state_2d_set1*']));
-test1=~isempty(dir([dirModel 'nctiles']))||...
-  ~isempty(dir([dirModel 'nctiles_climatology']))||...
+test0=isdir([dirModel 'diags'])|~isempty(dir([dirModel 'state_2d_set1*']));
+test1=~isempty(dir([dirModel 'nctiles']))|...
+  ~isempty(dir([dirModel 'nctiles_climatology']))|...
   ~isempty(dir([dirModel 'nctiles_monthly']));
 if test0&&test1&&doInteractive;
     myenv.nctiles=input(['\n Please select a file type. \n' ...
@@ -48,7 +48,7 @@ if ~myenv.nctiles;%only works with binaries
       doBudget=~isempty(dir([dirSnap 'budg2d_snap_set1*']));
     end;
     doCtrl=~isempty(dir([dirModel 'xx_atemp.effective.*']));
-    doCtrl=doCtrl&&~isempty(dir([dirModel 'cap_sigma_tmp2m_degC_eccollc.bin']));
+    doCtrl=doCtrl&~isempty(dir([dirModel 'cap_sigma_tmp2m_degC_eccollc.bin']));
 else;
     dirSnap=fullfile(dirModel,'diags',filesep);
     doBudget=0;
@@ -57,8 +57,8 @@ else;
 end;
 
 doCost=~isempty(dir([dirModel 'barfiles' filesep 'm_eta_day.*.data']));
-doCost=doCost||~isempty(dir([dirModel 'm_eta_day.*.data']));
-doCost=doCost||~isempty(dir([dirModel 'nctiles_remotesensing']));
+doCost=doCost|~isempty(dir([dirModel 'm_eta_day.*.data']));
+doCost=doCost|~isempty(dir([dirModel 'nctiles_remotesensing']));
 
 doProfiles=~isempty(dir([dirModel 'MITprof' filesep]));
 preprocessProfiles=0;
@@ -206,7 +206,7 @@ if (test0&&test1&&doBudget);
     tmp1=fullfile(dirSnap,'budg3d_snap_set1*meta');
     test3d=~isempty(dir(tmp1));
     tmp1=fullfile(dirSnap,'budg3d_snap_set1*meta');
-    test3d=test3d||~isempty(dir(tmp1));
+    test3d=test3d|~isempty(dir(tmp1));
     tmp1=fullfile(dirSnap,'geothermalFlux.bin');
     testGeothermalFlux=~isempty(dir(tmp1));
     diags_diff_snapshots(dirSnap,dirMat,'budg2d_snap_set1');
