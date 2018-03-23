@@ -14,7 +14,9 @@ function []=write2tex(myFile,myStep,varargin);
 %			1=section, 2=subsection (not yet implemented)
 %		myFig is a figure handle (for myStep=2)
 
-if isempty(myFile)&myStep==2;
+gcmfaces_global;
+
+if isempty(myFile)&&myStep==2;
     myText=varargin{1};
     myText=[myText{:}];
     gcmfaces_caption(myText);
@@ -132,7 +134,7 @@ if myStep==2;
     %save figure (with visible caption)
     set(captionHandle,'Visible','on');
     set(get(captionHandle,'Children'),'Visible','on');
-    saveas(myFig,[dirTex fileTex '_fig' num2str(myFigNumTex)],'fig');
+    if ~myenv.usingOctave; saveas(myFig,[dirTex fileTex '_fig' num2str(myFigNumTex)],'fig'); end;
     %close figure
     close;
     %add figure to text file
@@ -184,11 +186,11 @@ end;
 
 
 %compile
-if myStep==6&ispc;
+if myStep==6&&ispc;
     fprintf('warning : compiling tex to pdf is bypassed on PCs\n');
 end;
 
-if myStep==6&~ispc;
+if myStep==6&&~ispc;
     dirOrig=pwd;
     nn=strfind(myFile,filesep);
     if ~isempty(nn);

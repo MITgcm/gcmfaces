@@ -70,15 +70,15 @@ for ii=2:nargin-1;
             '         Argument no. ' num2str(ii+1) ' was ignored \n'...
             '         Type ''help m_map_gcmfaces'' for details.']);
     else;
-        if strcmp(varargin{ii}{1},'myCaxis')|...
-                strcmp(varargin{ii}{1},'myCmap')|...
-                strcmp(varargin{ii}{1},'myShading')|...
-                strcmp(varargin{ii}{1},'myFontSize')|...
-                strcmp(varargin{ii}{1},'myTitle')|...
-                strcmp(varargin{ii}{1},'doHold')|...
-                strcmp(varargin{ii}{1},'doCbar')|...
-                strcmp(varargin{ii}{1},'doLabl')|...
-                strcmp(varargin{ii}{1},'doFit')|...
+        if strcmp(varargin{ii}{1},'myCaxis')||...
+                strcmp(varargin{ii}{1},'myCmap')||...
+                strcmp(varargin{ii}{1},'myShading')||...
+                strcmp(varargin{ii}{1},'myFontSize')||...
+                strcmp(varargin{ii}{1},'myTitle')||...
+                strcmp(varargin{ii}{1},'doHold')||...
+                strcmp(varargin{ii}{1},'doCbar')||...
+                strcmp(varargin{ii}{1},'doLabl')||...
+                strcmp(varargin{ii}{1},'doFit')||...
                 strcmp(varargin{ii}{1},'do_m_coast');
             eval([varargin{ii}{1} '=varargin{ii}{2};']);
         else;
@@ -97,7 +97,7 @@ else;
     plotCBAR=2;
 end;
 %
-if choicePlot==0&~doHold;
+if choicePlot==0&&~doHold;
     clf;
 elseif ~doHold;
     cla;
@@ -118,30 +118,30 @@ param.doFit=doFit;
 param.myPlot=myPlot;
 
 %do the plotting:
-if (choicePlot~=0&choicePlot~=1&choicePlot~=2&choicePlot~=3);
+if (choicePlot~=0&&choicePlot~=1&&choicePlot~=2&&choicePlot~=3);
     do_my_plot(fld,param,choicePlot,myShading);
-end;%if choicePlot==0|choicePlot==1;
+end;%if choicePlot==0||choicePlot==1;
 
 if choicePlot==0; subplot(2,1,1); end;
-if choicePlot==0|choicePlot==1;
-    if mygrid.nFaces~=5&mygrid.nFaces~=6;
+if choicePlot==0||choicePlot==1;
+    if mygrid.nFaces~=5&&mygrid.nFaces~=6;
        do_my_plot(fld,param,1,myShading);
     else;
        do_my_plot(fld,param,1.1,myShading);
     end;
-end;%if choicePlot==0|choicePlot==1;
+end;%if choicePlot==0||choicePlot==1;
 
 if choicePlot==0; subplot(2,2,3); end;
-if choicePlot==0|choicePlot==2;
+if choicePlot==0||choicePlot==2;
     do_my_plot(fld,param,2,myShading);
-end;%if choicePlot==0|choicePlot==1;
+end;%if choicePlot==0||choicePlot==1;
 
 if choicePlot==0; subplot(2,2,4); end;
-if choicePlot==0|choicePlot==3;
+if choicePlot==0||choicePlot==3;
     do_my_plot(fld,param,3,myShading);
-end;%if choicePlot==0|choicePlot==1;
+end;%if choicePlot==0||choicePlot==1;
 
-if plotCBAR==2&strcmp(myPlot,'pcolor')&doCbar;
+if plotCBAR==2&&strcmp(myPlot,'pcolor')&&doCbar;
     cbar=gcmfaces_cmap_cbar(myCaxis,{'myCmap',myCmap});
     if choicePlot==0;
         set(cbar,'Position',[0.88 0.15 0.02 0.75]);
@@ -159,7 +159,7 @@ if plotCBAR==2&strcmp(myPlot,'pcolor')&doCbar;
 end;
 
 if doFit;
-    if doLabl&~doCbar; 
+    if doLabl&&~doCbar; 
         set(gca,'LooseInset',[0.05 0.02 0.03 0.03]);
     else; 
         set(gca,'LooseInset',[0.01 0 0.03 0.03]);
@@ -258,13 +258,13 @@ if xticlab==0; m_grid_opt=[m_grid_opt ',''xticklabel'',[]']; end;
 if yticlab==0; m_grid_opt=[m_grid_opt ',''yticklabel'',[]']; end;
 m_grid_opt=[m_grid_opt ',''fontsize'',param.myFontSize'];
 
-if strcmp(param.myPlot,'pcolor')|strcmp(param.myPlot,'contour')||strcmp(param.myPlot,'contourf');
+if strcmp(param.myPlot,'pcolor')||strcmp(param.myPlot,'contour')||strcmp(param.myPlot,'contourf');
     x=mygrid.XC;
     %mask out the XC padded zeros
     if isfield(mygrid,'xtrct');
       pt1=mygrid.xtrct.pt1face; pt2=mygrid.xtrct.pt2face;
       if pt1~=pt2;
-        for iF=1:6; if iF~=pt1&iF~=pt2; x{iF}(:)=NaN; end; end; 
+        for iF=1:6; if iF~=pt1&&iF~=pt2; x{iF}(:)=NaN; end; end; 
       end;
       x(x<0)=x(x<0)+360;
     end;
@@ -277,7 +277,14 @@ if strcmp(param.myPlot,'pcolor')|strcmp(param.myPlot,'contour')||strcmp(param.my
     end;
     [x,y]=m_ll2xy(xx,yy);
     if strcmp(param.myPlot,'pcolor');
-        if sum(~isnan(x(:)))>0; pcolor(x,y,z); eval(['shading ' shad ';']); end;
+        if sum(~isnan(x(:)))>0&&~myenv.usingOctave; 
+            pcolor(x,y,z); eval(['shading ' shad ';']);
+        elseif sum(~isnan(x(:)))>0;
+            zz = zeros (size (z));
+            htmp = surface (x,y,zz,z);
+            set (htmp, "facecolor", "flat");
+            eval(['shading ' shad ';']);
+        end;
         if param.plotCBAR==0;
             colormap(param.myCmap); if param.doCbar; colorbar; end;
         elseif param.plotCBAR==1;

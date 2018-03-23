@@ -44,9 +44,9 @@ function [RHOP,RHOIS,RHOR] = density(TN,SN,GDEPT,ZREF)
 %...   potential temperature, salinity and depth
 ZT = TN;
 ZS = SN;
-if size(TN,2)>1 & size(TN,1)>1 & size(TN,1)==length(GDEPT)
+if size(TN,2)>1 && size(TN,1)>1 && size(TN,1)==length(GDEPT)
 ZH = GDEPT*ones(1,size(ZT,2)); % comented 13/04/99 for WHP Thorpe calc. 
-elseif size(TN,2)>1 & size(TN,1)>1 & size(TN,2)==length(GDEPT)
+elseif size(TN,2)>1 && size(TN,1)>1 && size(TN,2)==length(GDEPT)
 ZH = ones(size(ZT,1),1) *GDEPT';
 elseif sum(size(TN))==2
 ZH = ones(size(TN))*GDEPT;
