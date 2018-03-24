@@ -282,7 +282,7 @@ if strcmp(param.myPlot,'pcolor')||strcmp(param.myPlot,'contour')||strcmp(param.m
         elseif sum(~isnan(x(:)))>0;
             zz = zeros (size (z));
             htmp = surface (x,y,zz,z);
-            set (htmp, "facecolor", "flat");
+            set (htmp, 'facecolor', 'flat');
             eval(['shading ' shad ';']);
         end;
         if param.plotCBAR==0;
