@@ -16,13 +16,9 @@ Download the latest software version from `github <https://github.com/gaelforget
     git clone https://github.com/gaelforget/gcmfaces
     git clone https://github.com/gaelforget/MITprof
 
-at the command line or using the github web browser interface. This method allows users to update the software later on and to manage their own, if any, code modifications. Archived frozen versions of the software, which can be cited in publications using permanent digital object identifiers, are also available via `zenodo <https://zenodo.org/badge/latestdoi/62541910>`__. Additionally, `gcmfaces` relies on the `m_map` toolbox for geographic projections (:numref:`plot_one_field_M_MAP`). To download `m_map`, follow directions provided by `this webpage <https://www.eoas.ubc.ca/~rich/map.html>`__.
+at the command line or using the github web browser interface. This method allows users to update the software later on and to manage their own, if any, code modifications. Archived frozen versions of the software, which can be cited in publications using permanent digital object identifiers, are also available via `zenodo <https://zenodo.org/badge/latestdoi/62541910>`__. Additionally, `gcmfaces` relies on the `m_map` toolbox for geographic projections (:numref:`plot_one_field_M_MAP`), which can be downloaded from `this webpage <https://www.eoas.ubc.ca/~rich/map.html>`__ (e.g., `m_map1.4.tar.gz <http://www.eos.ubc.ca/~rich/m_map1.4.tar.gz>`__).
 
-Octave users should replace the above ```git clone ...gcmfaces`` command with
-
-::
-
-    git clone -b octave https://github.com/gaelforget/gcmfaces
+Octave users will want to replace ``git clone ...faces`` with ``git clone -b octave ...faces`` in the above recipe. They will also need to install and load the Octave `statistics <https://octave.sourceforge.io/statistics/index.html>`__, `io <https://octave.sourceforge.io/io/index.html>`__, and `netcdf <https://octave.sourceforge.io/netcdf/index.html>`__ packages.
 
 .. note::
 
