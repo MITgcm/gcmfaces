@@ -67,7 +67,7 @@ for iDiag=1:length(setDiags);
 
     nmDiag=setDiags{iDiag};
 
-    normalLoop=~strcmp(nmDiag,'B')&~strcmp(nmDiag,'D')&...
+    normalLoop=~strcmp(nmDiag,'B')&~strcmp(nmDiag,'D')&~strcmp(nmDiag,'drwn3')&...
                ~strcmp(nmDiag,'profiles')&~strcmp(nmDiag,'ecco')&~strcmp(nmDiag,'ctrl');
 
     if normalLoop;
@@ -81,6 +81,11 @@ for iDiag=1:length(setDiags);
     elseif strcmp(nmDiag,'B');
       recInAve=[myparms.recInAve(1):myparms.recInAve(2)];
       diags_select(dirModel,dirMat,'B',1,recInAve);
+
+    elseif strcmp(nmDiag,'drwn3');
+      recs=(years(1)-1)*12+1:years(end)*12;
+      recs=recs(recs<=myparms.diagsNbRec);
+      diags_select(dirModel,dirMat,'drwn3',1,recs);
 
     elseif strcmp(nmDiag,'D');
       for kk=myparms.budgetList;
