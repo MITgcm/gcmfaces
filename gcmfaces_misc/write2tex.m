@@ -123,16 +123,16 @@ if myStep==2;
     [dirTex,fileTex,EXT] = fileparts(myFile);
     %print figure
     if strcmp(frmt,'eps');
-      print(myFig,'-depsc',[dirTex fileTex '_fig' num2str(myFigNumTex) '.eps']);
+      print(myFig,'-depsc',[dirTex filesep fileTex '_fig' num2str(myFigNumTex) '.eps']);
     elseif strcmp(frmt,'jpg');
-      print(myFig,'-djpeg90',[dirTex fileTex '_fig' num2str(myFigNumTex) '.jpg']);
+      print(myFig,'-djpeg90',[dirTex filesep fileTex '_fig' num2str(myFigNumTex) '.jpg']);
     elseif strcmp(frmt,'png');
-      print(myFig,'-dpng',[dirTex fileTex '_fig' num2str(myFigNumTex) '.png']);
+      print(myFig,'-dpng',[dirTex filesep fileTex '_fig' num2str(myFigNumTex) '.png']);
     end
     %save figure (with visible caption)
     set(captionHandle,'Visible','on');
     set(get(captionHandle,'Children'),'Visible','on');
-    saveas(myFig,[dirTex fileTex '_fig' num2str(myFigNumTex)],'fig');
+    saveas(myFig,[dirTex filesep fileTex '_fig' num2str(myFigNumTex)],'fig');
     %close figure
     close;
     %add figure to text file

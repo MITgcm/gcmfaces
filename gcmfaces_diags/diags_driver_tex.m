@@ -165,17 +165,17 @@ for ii=1:length(setDiags);
 
   elseif strcmp(setDiags{ii},'profiles');
         %in situ profiles fit
-        write2tex(fileTex,1,'fit to data',1);
-        write2tex(fileTex,1,'fit to in situ data',2);
+        write2tex(fileTex,1,'Fit To Data',1);
+        write2tex(fileTex,1,'Fit To In Situ Data',2);
         insitu_diags(dirMat,0,dirTex,nameTex);
     
   elseif strcmp(setDiags{ii},'cost');
         if isempty(find(strcmp(setDiags,'profiles')));
-          write2tex(fileTex,1,'fit to data',1);
+          write2tex(fileTex,1,'Fit To Data',1);
         end;
         %altimeter fit
         if ~isempty(dir([dirMat 'cost/cost_altimeter_mod.mat']))
-        write2tex(fileTex,1,'fit to altimeter data (RADS)',2);
+        write2tex(fileTex,1,'Fit To Altimeter Data (RADS)',2);
         cost_altimeter_disp(dirMat,0,'etaglo',dirTex,nameTex);
         cost_altimeter_disp(dirMat,2,'modMobs',dirTex,nameTex);
         cost_altimeter_disp(dirMat,1,'modMobs',dirTex,nameTex);
@@ -184,21 +184,21 @@ for ii=1:length(setDiags);
         cost_altimeter_disp(dirMat,1,'mod',dirTex,nameTex);
         end;
         %other cost terms
-        write2tex(fileTex,1,'fit to sst data',2);
+        write2tex(fileTex,1,'Fit To SST Data',2);
         cost_sst('',dirMat,0,dirTex,nameTex);
-        write2tex(fileTex,1,'fit to seaice data',2);
+        write2tex(fileTex,1,'Fit To Seaice Data',2);
         cost_seaicearea('',dirMat,0,dirTex,nameTex);
     
   elseif strcmp(setDiags{ii},'A');
-      write2tex(fileTex,1,'volume, heat and salt transports',1);
+      write2tex(fileTex,1,'Volume, Heat, And Salt Transports',1);
       diags_display({dirMat,dirMatRef},'A',dirTex,nameTex);
 
   elseif strcmp(setDiags{ii},'B');
-    write2tex(fileTex,1,'mean and variance maps',1);
+    write2tex(fileTex,1,'Mean And Variance Maps',1);
     diags_display({dirMat,dirMatRef},'B',dirTex,nameTex);
 
   elseif strcmp(setDiags{ii},'C');
-    write2tex(fileTex,1,'global, zonal, regional averages',1);
+    write2tex(fileTex,1,'Global, Zonal, Regional Averages',1);
     diags_display({dirMat,dirMatRef},'C',dirTex,nameTex);
 
   elseif strcmp(setDiags{ii},'D');
@@ -208,26 +208,29 @@ for ii=1:length(setDiags);
         end;
         for kk=budget_list;
             if kk==1;
-                tmp1='(top to bottom)';
+                tmp1='(Top To Bottom)';
             else;
-                tmp1=sprintf('(%im to bottom)',round(-mygrid.RF(kk)));
+                tmp1=sprintf('(%im To Bottom)',round(-mygrid.RF(kk)));
             end;
-            write2tex(fileTex,1,['budgets : volume, heat and salt ' tmp1],1);
+            write2tex(fileTex,1,['Budgets : Volume, Heat, And Salt ' tmp1],1);
             diags_display({dirMat,dirMatRef},{'D',kk},dirTex,nameTex);
         end;
 
   elseif strcmp(setDiags{ii},'MLD');
-      write2tex(fileTex,1,'mixed layer depth fields',1);
+      write2tex(fileTex,1,'Mixed Layer Depth Fields',1);
       diags_display({dirMat,dirMatRef},'MLD',dirTex,nameTex);
   elseif strcmp(setDiags{ii},'SEAICE');
-      write2tex(fileTex,1,'seaice and snow fields',1);
+      write2tex(fileTex,1,'Seaice And Snow Fields',1);
       diags_display({dirMat,dirMatRef},'SEAICE',dirTex,nameTex);
+  elseif strcmp(setDiags{ii},'gudA');
+      write2tex(fileTex,1,'Primary Production And Related Fields',1);
+      diags_display({dirMat,dirMatRef},'gudA',dirTex,nameTex);
   elseif strcmp(setDiags{ii},'drwn3');
-      write2tex(fileTex,1,'Plankton and related fields',1);
+      write2tex(fileTex,1,'Plankton Biomass And Related Fields',1);
       diags_display({dirMat,dirMatRef},'drwn3',dirTex,nameTex);
   elseif strcmp(setDiags{ii},'controls');
         %controls
-        write2tex(fileTex,1,'controls',1);
+        write2tex(fileTex,1,'Control Parameters',1);
         cost_xx('',dirMat,0,dirTex,nameTex);
 
   else;
