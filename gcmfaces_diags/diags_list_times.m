@@ -19,7 +19,7 @@ if ~use_nctiles;
     if isempty(who('listSubdirs'));
         listSubdirs={[myenv.matdir 'BUDG/' ],[myenv.diagsdir '/BUDG/' ],[myenv.diagsdir '/OTHER/' ],...
             [myenv.diagsdir '/STATE/' ],[myenv.diagsdir '/TRSP/'],[myenv.diagsdir '/' ]};
-        listFiles={'state_2d_set1','trsp_3d_set1','budg2d_zflux_set1'};
+        listFiles={'state_2d_set1','trsp_3d_set1','budg2d_zflux_set1','gud_3d_set1'};
     end;
     %
     listTimes=[];

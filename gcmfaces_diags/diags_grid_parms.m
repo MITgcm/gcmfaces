@@ -27,7 +27,7 @@ myparms=review_parms(myparms,listTimes,doInteractive);
 
 %issue warning if myparms.recInAve seems inconsistent compared with myparms.diagsNbRec~:
 if myparms.diagsNbRec~=(myparms.recInAve(2)-myparms.recInAve(1)+1); 
-  warning(['It appears that myparms.recInAve does not match myparms.recInAve']);
+  warning(['It appears that myparms.diagsNbRec does not match myparms.recInAve']);
   warning(['This may suggest that the oInteractive=1 option should be used.']); 
   pause(5);
 end;

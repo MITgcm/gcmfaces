@@ -1,0 +1,7 @@
+docs/_build
+.ipynb_checkpoints
+octave-workspace
+release2_climatology
+GRID
+devel
+
