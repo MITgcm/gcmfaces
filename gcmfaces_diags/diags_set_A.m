@@ -1,4 +1,6 @@
 
+skipTH=0; skipSLT=0;
+
 if userStep==1;%diags to be computed
     listDiags='fldBAR fldTRANSPORTS gloOV gloOVbolus gloOVres gloMT_H gloMT_FW gloMT_SLT';
     listBasins=1;
@@ -17,22 +19,38 @@ elseif userStep==2;%input files and variables
     listFlds={listFlds{:},'ADVx_SLT','ADVy_SLT','DFxE_SLT','DFyE_SLT'};
     listFldsNames=deblank(listFlds);
     listFiles={'trsp_3d_set1','trsp_2d_set1','trsp_3d_set2'};
-    listSubdirs={[dirModel 'diags/TRSP/'],[dirModel 'diags/']};
+    listSubdirs={[dirModel 'diags_trsp/'],[dirModel 'diags/TRSP/'],[dirModel 'diags/']};
 elseif userStep==3;%computational part;
+
+    skipTH=~isa(ADVx_TH,'gcmfaces');
+    skipSLT=~isa(ADVx_SLT,'gcmfaces');
+    skipGM=~isa(GM_PsiX,'gcmfaces');
+    if skipTH|skipSLT|skipGM; 
+      skTH=num2str(skipTH); skSLT=num2str(skipSLT); skGM=num2str(skipGM);
+      fprintf(['Skipping TH(' skTH ') or SLT(' skSLT ') or GM(' skGM ')\n']);
+    end;
+
         %mask fields:
         fldU=UVELMASS.*mygrid.mskW; fldV=VVELMASS.*mygrid.mskS;
-        if ~isempty(whos('ADVx_TH'));%for backward compatibility
+        if ~skipTH;
             if size(ADVx_TH{1},3)>1; %assume full 3D fields
                 mskW=mygrid.mskW; mskS=mygrid.mskS;
             else; %assume vertically integrated (2D fields)
                 mskW=mygrid.mskW(:,:,1); mskS=mygrid.mskS(:,:,1);
             end;
             ADVx_TH=ADVx_TH.*mskW; ADVy_TH=ADVy_TH.*mskS;
-            ADVx_SLT=ADVx_SLT.*mskW; ADVy_SLT=ADVy_SLT.*mskS;
             DFxE_TH=DFxE_TH.*mskW; DFyE_TH=DFyE_TH.*mskS;
+        end;
+        if ~skipSLT;
+            if size(ADVx_SLT{1},3)>1; %assume full 3D fields
+                mskW=mygrid.mskW; mskS=mygrid.mskS;
+            else; %assume vertically integrated (2D fields)
+                mskW=mygrid.mskW(:,:,1); mskS=mygrid.mskS(:,:,1);
+            end;
+            ADVx_SLT=ADVx_SLT.*mskW; ADVy_SLT=ADVy_SLT.*mskS;
             DFxE_SLT=DFxE_SLT.*mskW; DFyE_SLT=DFyE_SLT.*mskS;
         end;
-        if ~isempty(whos('GM_PsiX'));%for backward compatibility
+        if ~skipGM;
             [fldUbolus,fldVbolus,fldWbolus]=calc_bolus(GM_PsiX,GM_PsiY);
             fldUbolus=fldUbolus.*mygrid.mskW; fldVbolus=fldVbolus.*mygrid.mskS;
             fldUres=fldU+fldUbolus; fldVres=fldV+fldVbolus;
@@ -53,32 +71,30 @@ elseif userStep==3;%computational part;
             %note: while mskC is a basin mask for tracer points, it can be applied to U/V below
             %compute overturning: eulerian contribution
             [fldOV]=calc_overturn(fldU.*mskC,fldV.*mskC);
-            if ~isempty(whos('GM_PsiX'));%for backward compatibility
+            fldOVbolus=NaN*fldOV; fldOVres=NaN*fldOV;
+            if ~skipGM;
                 %compute overturning: eddy contribution
                 [fldOVbolus]=calc_overturn(fldUbolus.*mskC,fldVbolus.*mskC);
                 %compute overturning: residual overturn
                 [fldOVres]=calc_overturn(fldUres.*mskC,fldVres.*mskC);
-            else;
-                fldOVbolus=NaN*fldOV; fldOVres=NaN*fldOV;
             end;
-            
-            if ~isempty(whos('ADVx_TH'));%for backward compatibility
+
+            [fldMT_FW]=1e-6*calc_MeridionalTransport(fldU.*mskC,fldV.*mskC,1);            
+            fldMT_H=NaN*mygrid.LATS; fldMT_SLT=NaN*mygrid.LATS;
+            if ~skipTH;
                 %compute meridional heat transports:
                 tmpU=(ADVx_TH+DFxE_TH).*mskC(:,:,1:size(ADVx_TH{1},3));
                 tmpV=(ADVy_TH+DFyE_TH).*mskC(:,:,1:size(ADVx_TH{1},3));
                 [fldMT_H]=1e-15*4e6*calc_MeridionalTransport(tmpU,tmpV,0);
-                %compute meridional fresh water transports:
-                %... using the virtual salt flux formula:
-                %[fldMT_FW]=1e-6/35*calc_MeridionalTransport(ADVx_SLT+DFxE_SLT,ADVy_SLT+DFyE_SLT,0);
-                %[fldMT_FW]=1e-6/35*calc_MeridionalTransport(ADVx_SLT,ADVy_SLT,0);
-                %... using the real freshwater flux formula:
-                [fldMT_FW]=1e-6*calc_MeridionalTransport(fldU.*mskC,fldV.*mskC,1);
+            end;
+            if ~skipSLT;
                 %compute meridional salt transports:
                 tmpU=(ADVx_SLT+DFxE_SLT).*mskC(:,:,1:size(ADVx_TH{1},3));
                 tmpV=(ADVy_SLT+DFyE_SLT).*mskC(:,:,1:size(ADVx_TH{1},3));
                 [fldMT_SLT]=1e-6*calc_MeridionalTransport(tmpU,tmpV,0);
-            else;
-                fldMT_H=NaN*mygrid.LATS; fldMT_FW=NaN*mygrid.LATS; fldMT_SLT=NaN*mygrid.LATS;
+                %compute meridional seawater transports using the virtual salt flux formula:
+                %[fldMT_FW]=1e-6/35*calc_MeridionalTransport(ADVx_SLT+DFxE_SLT,ADVy_SLT+DFyE_SLT,0);
+                %[fldMT_FW]=1e-6/35*calc_MeridionalTransport(ADVx_SLT,ADVy_SLT,0);
             end;
             
             %store to global, atlantic or Pac+Ind arrays:
@@ -285,9 +301,9 @@ elseif userStep==-1;%plotting
 
     if sum(strcmp(choicePlot,'all'))||sum(strcmp(choicePlot,'mfwt'));
 
-    if addToTex; write2tex(fileTex,1,'meridional freshwater transport',2); end;
+    if addToTex; write2tex(fileTex,1,'meridional seawater transport',2); end;
 
-    %meridional freshwater transport
+    %meridional seawater transport
     figureL;
     fld=mean(alldiag.gloMT_FW(:,tt),2);
     plot(mygrid.LATS,fld,'LineWidth',2);
@@ -299,8 +315,8 @@ elseif userStep==-1;%plotting
     end;
     set(gca,'FontSize',14); grid on; axis([-90 90 -1.5 2.0]);
     if doAnomalies; aa=axis; aa(3:4)=scaleAnom*[-1 1]*0.1; axis(aa); end;
-    title('Meridional Freshwater Transport (in Sv)');
-    myCaption={myYmeanTxt,'mean -- meridional freshwater transport (Sv)'};
+    title('Meridional seawater transport (in Sv)');
+    myCaption={myYmeanTxt,'mean -- meridional seawater transport (Sv)'};
     if addToTex; write2tex(fileTex,2,myCaption,gcf); end;
 
     %and the corresponding standard deviation:
@@ -316,8 +332,8 @@ elseif userStep==-1;%plotting
     end;
     set(gca,'FontSize',14); grid on; axis([-90 90 0 2]);
     if doAnomalies; aa=axis; aa(3:4)=scaleAnom*[0 1]*0.2; axis(aa); end;
-    title('Meridional Freshwater Transport (in Sv)');
-    myCaption={myYmeanTxt,' standard deviation -- meridional freshwater transport (Sv)'};
+    title('Meridional seawater transport (in Sv)');
+    myCaption={myYmeanTxt,' standard deviation -- meridional seawater transport (Sv)'};
     if addToTex; write2tex(fileTex,2,myCaption,gcf); end;
     end;
 
@@ -378,15 +394,15 @@ elseif userStep==-1;%plotting
     myCaption={'meridional heat transport (PW, annual mean)'};
     if addToTex; write2tex(fileTex,2,myCaption,gcf); end;
 
-    %meridional freshwater transport
+    %meridional seawater transport
     fld=squeeze(alldiag.gloMT_FW(:,tt))';
     x=TT*ones(1,length(mygrid.LATS)); y=ones(nt,1)*mygrid.LATS';
     fld=runmean(fld,myNmean,1);
     cc=[[-250:50:-100] [-75 -50] [-35:10:35] [50 75] [100:50:250]]/100;
     if doAnomalies; cc=scaleAnom*[-1:0.1:1]*0.05; end;
     figureL; pcolor(x,y,fld); shading flat; axis([TT(1) TT(end) -90 90]);
-    gcmfaces_cmap_cbar(cc); title('Meridional Freshwater Transport (in Sv)');
-    myCaption={'meridional freshwater transport (Sv, annual mean)'};
+    gcmfaces_cmap_cbar(cc); title('Meridional seawater transport (in Sv)');
+    myCaption={'meridional seawater transport (Sv, annual mean)'};
     if addToTex; write2tex(fileTex,2,myCaption,gcf); end;
 
     %meridional salt transport

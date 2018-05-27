@@ -7,7 +7,8 @@ elseif userStep==2;%input files and variables
     listFlds={    'THETA','SALT','ETAN','SIarea','SIheff','SIhsnow','sIceLoad','MXLDEPTH','UVELMASS','VVELMASS'};
     listFldsNames=deblank(listFlds);
     listFiles={'state_2d_set1','other_2d_set1','state_3d_set1','trsp_3d_set1'};
-    listSubdirs={[dirModel 'diags/OTHER/' ],[dirModel 'diags/STATE/' ],[dirModel 'diags/TRSP/'],[dirModel 'diags/']};
+    listSubdirs={[dirModel 'diags/OTHER/' ],[dirModel 'diags/STATE/' ],[dirModel 'diags/TRSP/' ],...
+                 [dirModel 'diags_trsp/'],[dirModel 'diags/']};
 elseif userStep==3;%computational part;
     %mask and re-arrange fields:
     fldT=THETA.*mygrid.mskC; fldS=SALT.*mygrid.mskC;
