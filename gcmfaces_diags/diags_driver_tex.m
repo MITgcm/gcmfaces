@@ -222,6 +222,9 @@ for ii=1:length(setDiags);
   elseif strcmp(setDiags{ii},'SEAICE');
       write2tex(fileTex,1,'seaice and snow fields',1);
       diags_display({dirMat,dirMatRef},'SEAICE',dirTex,nameTex);
+  elseif strcmp(setDiags{ii},'drwn3');
+      write2tex(fileTex,1,'Plankton and related fields',1);
+      diags_display({dirMat,dirMatRef},'drwn3',dirTex,nameTex);
   elseif strcmp(setDiags{ii},'controls');
         %controls
         write2tex(fileTex,1,'controls',1);

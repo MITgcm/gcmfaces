@@ -52,13 +52,26 @@ for ii=1:nargin-1;
     end;
 end;
 
+%white/black at colorbar edges/center?
 if strcmp(myCmap,'jetBW1'); myCmap='jet'; myBW=1; end;
 if strcmp(myCmap,'jetBW2'); myCmap='jet'; myBW=2; end;
 
+%flip colormap direction?
+flipCmap=0;
+if ~isempty(strfind(myCmap,'FLIP')); flipCmap=1; myCmap=myCmap(5:end); end;
+
+%need to revert to known colormap?
+test1=isempty(which(myCmap));
+if test1; 
+    warning(['Colormap ' myCmap ' not found => reverting to jet.']); 
+    myCmap='jet';
+end;
+
 %vecLimCol must be strickly increasing :
 tmp1=vecLimCol(2:end)-vecLimCol(1:end-1);
-if ~isempty(find(tmp1<=0)); fprintf('please use increasing values \n');
-    myColorbar=-1; return; end;
+if ~isempty(find(tmp1<=0)); 
+    error('Non-increasing sequence in vecLimCol');
+end;
 
 %original colormap precision :
 %nb_colors=64*3;
@@ -69,12 +82,8 @@ nb_colors=64*10*tmp3;
 %nb_colors=64*500*tmp3;
 
 %colormap and caxis :
-if ~isempty(strfind(myCmap,'FLIP'));
-    eval(['tmp_map=colormap(' myCmap(5:end)  '(nb_colors));']);
-    tmp_map=flipdim(tmp_map,1);
-else;
-    eval(['tmp_map=colormap(' myCmap  '(nb_colors));']);
-end;
+eval(['tmp_map=colormap(' myCmap  '(nb_colors));']);
+if flipCmap; tmp_map=flipdim(tmp_map,1); end;
 tmp_val=[vecLimCol(1) vecLimCol(end)];
 tmp_val=[tmp_val(1) : (tmp_val(2)-tmp_val(1))/(nb_colors-1) : tmp_val(2)];
 caxis([tmp_val(1) tmp_val(end)]);
