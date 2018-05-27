@@ -1,71 +1,93 @@
-function []=process2nctiles(dirModel,fileModel,fldModel,tileSize);
-%process2nctiles(dirModel);
-%object : convert MITgcm binary output to netcdf files (tiled) 
-%inputs : dirModel is the MITgcm run directory
-%           It is expected to contain binaries in 
-%           'diags/STATE/', 'diags/TRSP/', etc. as well
-%           as the 'available_diagnostics.log' text file.
-%         fileModel the file name base e.g. 'state_2d_set1'
+function []=process2nctiles(dirDiags,fileDiags,selectFld,tileSize);
+%process2nctiles(dirDiags,fileDiags);
+% object : convert MITgcm binary output to netcdf files (tiled) 
+% inputs : dirDiags is the directory containing binary model output from 
+%             MITgcm/pkg/diagnostics; dirDiags and its subdirectories will 
+%             be scanned to locate files that start with the fileDiags prefix;
+%             it should also contain two files called available_diagnostics.log
+%             and README (see below for additional information).
+%         fileDiags the file name base e.g. 'state_2d_set1'
 %           By default : all variables in e.g. 'state_2d_set1*' 
-%           files will be processed, and writen individually to
+%           files will be processed, and written individually to
 %           nctiles (tiled netcdf) that will be located in 'nctiles/'
-%         fldModel (by default []) can be specified (as e.g. 'ETAN')
-%            when fldModel is empty, all fields are processed
-%         tileSize (optional) is e.g. [90 90] (by default tiles=faces) 
-%output : (netcdf files)
+%         selectFld (optional) can be specified as, e.g., 1, or 'ETAN', or {'ETAN'}; 
+%            {'ETAN'};; if selectFld is left un-specified or specified as empty 
+%            then all fields listed in [fileDiags '*.meta'] will be processed; 
+%            if selectFld is a vector of positive integers then these will be treated
+%            as indices in the fields list; if selectFld is a character string or a
+%            cell array of strings then each string will be treated as the field name.
+%         tileSize (optional) can be specified (e.g., [90 90]); if otherwise
+%            then tile sizes will be set to face sizes (i.e., mygrid.facesSize). 
+% Output : (netcdf files)
+%
+% Notes: available_diagnostics.log...
+%        README ...
+%
+% Example: process2nctiles([pwd '/diags_ALL_MDS/'],'ptr_3d_set1',[1:3:9],[90 90]);
 
 gcmfaces_global;
 
-%listFiles={'state_2d_set1','state_2d_set2','state_3d_set1','state_3d_set2'};
-%listFiles={'trsp_3d_set1','trsp_3d_set2','trsp_3d_set3'};
-%for ff=1:length(listFiles); process2nctiles('iter12/',listFiles{ff},[],[90 90]); end;
+if isempty(whos('selectFld')); selectFld=''; end;
+if isempty(whos('tileSize')); tileSize=[]; end;
 
 %replace time series with monthly climatology?
-doClim=0;
+doClim=1;
 
-%directory names
-listDirs={'STATE/','TRSP/'};%BUDG?
-filAvailDiag=[dirModel 'available_diagnostics.log'];
-filReadme=[dirModel 'README'];
-dirOut=[dirModel 'nctiles_tmp/'];
-%dirOut=[dirModel 'nctiles_post_tmp/'];
+%needed files
+filAvailDiag=[dirDiags 'available_diagnostics.log'];
+if isempty(dir(filAvailDiag)); error('Missing available_diagnostics.log in dirDiags'); end;
+
+filReadme=[dirDiags 'README'];
+if isempty(dir(filReadme)); error('Missing README in dirDiags'); end;
+
+filRename=[dirDiags 'rename_diagnostics.mat'];
+if isempty(dir(filRename)); filRename=''; end;
+
+%output directory
+dirOut=[dirDiags 'nctiles_tmp/'];
 if ~isdir(dirOut); mkdir(dirOut); end;
 
 %search in subdirectories
-subDir=[];
-diagsDir='diags/';
-%diagsDir='diags_post/'; 
-%diagsDir='diags_interp/';
-for ff=1:length(listDirs);
-tmp1=dir([dirModel diagsDir listDirs{ff} fileModel '*']);
-if ~isempty(tmp1); subDir=listDirs{ff}; end;
+listDirs=dir(dirDiags);
+jj=find([listDirs(:).isdir]&[~strcmp({listDirs(:).name},'.')]&[~strcmp({listDirs(:).name},'..')]);
+listDirs=listDirs(jj);
+
+if ~isempty(dir([dirDiags fileDiags '*.data']));
+  subDir='./';
+else;
+  subDir='';
 end;
 
-if isempty(subDir);
-tmp1=dir([dirModel diagsDir fileModel '/' fileModel '*']);
-if ~isempty(tmp1); subDir=[fileModel '/']; end;
+for ff=1:length(listDirs);
+  tmp1=dir([dirDiags listDirs(ff).name '/' fileDiags '*.data']);
+  if ~isempty(tmp1)&isempty(subDir); subDir=[listDirs(ff).name '/'];
+  elseif ~isempty(tmp1); error('fileDiags were found in two different locations'); 
+  end;
 end;
 
 if isempty(subDir); 
-  error(['file ' fileModel ' was not found']);
+  error(['file ' fileDiags ' was not found']);
 else;
-  dirIn=[dirModel diagsDir subDir];
-  nn=length(dir([dirIn fileModel '*data']));
-  fprintf('%s (%d files) was found in \n %s \n',fileModel,nn,dirIn);
+  dirIn=[dirDiags subDir];
+  nn=length(dir([dirIn fileDiags '*data']));
+  fprintf('%s (%d files) was found in %s \n',fileDiags,nn,dirIn);
 end;
 
 %set list of variables to process
-if ~isempty(fldModel);
-   if ischar(fldModel); listFlds={fldModel};
-   else; listFlds=fldModel;
-   end;
+if ~isempty(selectFld)&&ischar(selectFld);
+   listFlds={selectFld};
+elseif ~isempty(selectFld)&&iscell(selectFld);
+   listFlds=selectFld;
 else;
-   meta=read_meta([dirIn fileModel '*']);
+   meta=read_meta([dirIn fileDiags '*']);
    listFlds=meta.fldList;
+   if isnumeric(selectFld);
+     listFlds={listFlds{selectFld}};
+   end;
 end;
 
 %determine map of tile indices (by default tiles=faces)
-if isempty(whos('tileSize'));
+if isempty(tileSize);
   tileNo=mygrid.XC; 
   for ff=1:mygrid.nFaces; tileNo{ff}(:)=ff; end;
 else;
@@ -74,41 +96,60 @@ end;
 
 %now do the actual processing
 for vv=1:length(listFlds);
-nameDiag=deblank(listFlds{vv}) 
+nameDiag=deblank(listFlds{vv});
+fprintf(['processing ' nameDiag '... \n']);
 
 %get meta information
-meta=read_meta([dirIn fileModel '*']);
+meta=read_meta([dirIn fileDiags '*']);
 irec=find(strcmp(deblank(meta.fldList),nameDiag));
 if length(irec)~=1; error('field not in file\n'); end;
 
 %read time series
-myDiag=rdmds2gcmfaces([dirIn fileModel '*'],NaN,'rec',irec);
-
-%replace time series with monthly climatology
-if doClim; myDiag=compClim(myDiag); end;
+myDiag=rdmds2gcmfaces([dirIn fileDiags '*'],NaN,'rec',irec);
 
 %set ancilliary time variable
 nn=length(size(myDiag{1}));
 nn=size(myDiag{1},nn);
-%tim=[1:nn];
 tim=[1992*ones(nn,1) [1:nn]' 15*ones(nn,1)];
-tim=datenum(tim)-datenum([1992 1 0]);
+tim=datenum(tim)-datenum([1992 1 1]);
+begtim=[1992*ones(nn,1) [1:nn]' ones(nn,1)];
+begtim=datenum(begtim)-datenum([1992 1 1]);
+endtim=[1992*ones(nn,1) [1:nn]' 1+ones(nn,1)];
+endtim=datenum(endtim)-datenum([1992 1 1]);
 timUnits='days since 1992-1-1 0:0:0';
+clmbnds=[];
 
-%get time step axis
-[listTimes]=diags_list_times({dirIn},{fileModel});
+%if doClim then replace time series with monthly climatology and assign climatology_bounds variable
+if doClim; 
+ myDiag=compClim(myDiag);
+ %set tim to first year values for case of unsupported 'climatology' attribute (see below)  
+ tim=(1:12);
+ %'climatology' attribute + 'climatology_bounds' variable will be added as shown at
+ %http://cfconventions.org/cf-conventions/v1.6.0/cf-conventions.html#climatological-statistics
+ for tt=1:12; 
+   tmpb=begtim(tt:12:nn); tmpe=endtim(tt:12:nn) ;
+   clmbnds=[clmbnds;[tmpb(1) tmpe(end)]];
+ end;
+end;
 
 %get units and long name from available_diagnostics.log
 [avail_diag]=read_avail_diag(filAvailDiag,nameDiag);
+
+%rename variable if needed
+nameDiagOut=nameDiag;
+if ~isempty(filRename);
+  load(filRename); ii=strcmp(listNameIn,nameDiag);
+  if ~isempty(ii); nameDiagOut=listNameOut{ii}; end;
+end;
 
 %get description of estimate from README
 [rdm]=read_readme(filReadme);
 disp(rdm');
 
 %set output directory/file name
-myFile=[dirOut nameDiag];%first instance is for subdirectory name
+myFile=[dirOut nameDiagOut];%first instance is for subdirectory name
 if ~isdir(myFile); mkdir(myFile); end;
-myFile=[myFile filesep nameDiag];%second instance is for file name base
+myFile=[myFile filesep nameDiagOut];%second instance is for file name base
 
 %get grid params
 [grid_diag]=set_grid_diag(avail_diag);
@@ -130,22 +171,20 @@ end;
 %set 'coord' attribute
 if avail_diag.nr~=1;
   coord='lon lat dep tim';
+  dimlist={'t','k','j','i'};
+  dimname={'Time coordinate','Cartesian coordinate 3','Cartesian coordinate 2','Cartesian coordinate 1'};
 else;
   coord='lon lat tim';
-end;
-
-%replace time series with monthly climatology
-if doClim;
-  listTimes=listTimes(1:12);
-  timUnits='days since year-1-1 0:0:0';
-  avail_diag.longNameDiag=[avail_diag.longNameDiag ' (climatology) '];
+  dimlist={'t','j','i'};
+  dimname={'Time coordinate','Cartesian coordinate 2','Cartesian coordinate 1'};
 end;
 
 %create netcdf file using write2nctiles
-doCreate=1; 
+doCreate=1; myDiag=single(myDiag); 
 dimlist=write2nctiles(myFile,myDiag,doCreate,{'tileNo',tileNo},...
-    {'fldName',nameDiag},{'longName',avail_diag.longNameDiag},...
-    {'units',avail_diag.units},{'descr',nameDiag},{'coord',coord},{'rdm',rdm});
+    {'fldName',nameDiagOut},{'longName',avail_diag.longNameDiag},{'xtype','float'},...
+    {'units',avail_diag.units},{'descr',nameDiagOut},{'coord',coord},{'dimlist',dimlist},...
+    {'dimname',dimname},{'clmbnds',clmbnds},{'rdm',rdm});
 
 %determine relevant dimensions
 for ff=1:length(dimlist);
@@ -172,13 +211,9 @@ if isfield(grid_diag,'dep');
     write2nctiles(myFile,grid_diag.dep,doCreate,{'tileNo',tileNo},...
       {'fldName','dep'},{'units','m'},{'dimIn',dim.dep});
 end;
-write2nctiles(myFile,tim,doCreate,{'tileNo',tileNo},...
-  {'fldName','tim'},{'longName','time'},...
-  {'units',timUnits},{'dimIn',dim.tim});
+write2nctiles(myFile,tim,doCreate,{'tileNo',tileNo},{'fldName','tim'},...
+  {'longName','time'},{'units',timUnits},{'dimIn',dim.tim},{'clmbnds',clmbnds});
 if ~isempty(mygrid.RAC);
-  write2nctiles(myFile,listTimes,doCreate,{'tileNo',tileNo},...
-    {'fldName','timstep'},{'longName','final time step number'},...
-    {'units','1'},{'dimIn',dim.tim});
   write2nctiles(myFile,grid_diag.msk,doCreate,{'tileNo',tileNo},...
     {'fldName','land'},{'units','1'},{'longName','land mask'},{'dimIn',dim.threeD});
   write2nctiles(myFile,grid_diag.RAC,doCreate,{'tileNo',tileNo},...

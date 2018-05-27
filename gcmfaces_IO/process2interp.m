@@ -1,19 +1,16 @@
-function [listInterp,listNot]=process2interp(listDo);
-% [listInterp,listNot]=PROCESS2INTERP(listDo);
+function [listInterp,listNot]=process2interp(dirDiags,listDo);
+% [listInterp,listNot]=PROCESS2INTERP(dirDiags,listDo);
 % 1) computes listInterp and listNot (if listDo is not provided)
 % 2) interpolates and ouput fields in listDo (= precomputed listInterp)
 %
-% Usage: [listInterp,listNot]=process2interp;
-%        process2interp({listInterp{1:3}});
-%        process2interp({listInterp{4:25}});
-%        process2interp({listInterp{26:47}});
+% Usage: [listInterp,listNot]=process2interp(dirDiags);
+%        process2interp(dirDiags,{listInterp{1:2}});
 
 
-dirIn=[pwd filesep 'nctiles/'];
-dirTim=[pwd '/diags/STATE/']; filTim='state_2d_set1';
-dirOut=[pwd filesep 'diags_interp_tmp/'];
-filAvailDiag=[pwd filesep 'available_diagnostics.log'];
-filReadme=[pwd filesep 'README'];
+dirIn=[dirDiags filesep 'nctiles_tmp/'];
+dirOut=[dirDiags filesep 'diags_interp_tmp/'];
+filAvailDiag=[dirDiags filesep 'available_diagnostics.log'];
+filReadme=[dirDiags filesep 'README'];
 
 %% ======== PART 1 =======
 
@@ -49,14 +46,16 @@ for ii=1:length(listDo);
 tic;
 
 nameDiag=listDo{ii};
+fprintf(['processing ' nameDiag '... \n']);
+
 myDiag=read_nctiles([dirIn nameDiag '/' nameDiag]);
-[listTimes]=diags_list_times({dirTim},{filTim});
+eval(['ncload ' dirIn nameDiag '/' nameDiag '.0001.nc timstep']);
 
 is3D=length(size(myDiag{1}))==4;
 
 %loop over months and output result
-for tt=1:240;
-  filOut=sprintf('%s.%010i',nameDiag,listTimes(tt)); 
+for tt=1:length(timstep);
+  filOut=sprintf('%s.%010i',nameDiag,timstep(tt)); 
   if is3D; fldOut=myDiag(:,:,:,tt);
   else; fldOut=myDiag(:,:,tt);
   end;
