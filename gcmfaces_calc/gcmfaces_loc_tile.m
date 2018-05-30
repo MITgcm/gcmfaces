@@ -46,11 +46,12 @@ if ~test1|~test2;
   tileCount=0;
   for iF=1:XC11.nFaces;
     face_XC=XC{iF}; face_YC=YC{iF};
-    for ii=1:size(face_XC,1)/ni;
-        for jj=1:size(face_XC,2)/nj;
-%the MITgcm exch2 package proceeds this way instead:
-%     for jj=1:size(face_XC,2)/nj;
-%         for ii=1:size(face_XC,1)/ni;            
+%ordering convention that was used in first generation nctile files:
+%    for ii=1:size(face_XC,1)/ni;
+%        for jj=1:size(face_XC,2)/nj;
+%ordering convention that is consistent with MITgcm/pkg/exch2:
+     for jj=1:size(face_XC,2)/nj;
+         for ii=1:size(face_XC,1)/ni;            
             tileCount=tileCount+1;
             tmp_i=[1:ni]+ni*(ii-1);
             tmp_j=[1:nj]+nj*(jj-1);

@@ -20,10 +20,11 @@ function []=process2nctiles(dirDiags,fileDiags,selectFld,tileSize);
 %            then tile sizes will be set to face sizes (i.e., mygrid.facesSize). 
 % Output : (netcdf files)
 %
-% Notes: available_diagnostics.log...
-%        README ...
+% Notes: available_diagnostics.log (need for documentation ...)
+%        rename_diagnostics.mat (need for documentation ...)
+%        README (need for documentation ...)
 %
-% Example: process2nctiles([pwd '/diags_ALL_MDS/'],'ptr_3d_set1',[1:3:9],[90 90]);
+% Example: process2nctiles([pwd '/diags_ALL_MDS/'],'ptr_3d_set1','TRAC01',[90 90]);
 
 gcmfaces_global;
 
@@ -123,7 +124,7 @@ clmbnds=[];
 if doClim; 
  myDiag=compClim(myDiag);
  %set tim to first year values for case of unsupported 'climatology' attribute (see below)  
- tim=(1:12);
+ tim=tim(1:12);
  %'climatology' attribute + 'climatology_bounds' variable will be added as shown at
  %http://cfconventions.org/cf-conventions/v1.6.0/cf-conventions.html#climatological-statistics
  for tt=1:12; 
@@ -138,7 +139,7 @@ end;
 %rename variable if needed
 nameDiagOut=nameDiag;
 if ~isempty(filRename);
-  load(filRename); ii=strcmp(listNameIn,nameDiag);
+  load(filRename); ii=find(strcmp(listNameIn,nameDiag));
   if ~isempty(ii); nameDiagOut=listNameOut{ii}; end;
 end;
 
@@ -154,8 +155,8 @@ myFile=[myFile filesep nameDiagOut];%second instance is for file name base
 %get grid params
 [grid_diag]=set_grid_diag(avail_diag);
 
-%apply mask, and convert to land mask
-if ~isempty(mygrid.RAC);
+%apply mask(, and convert to land mask)
+if isfield(grid_diag,'msk');
   msk=grid_diag.msk;
   if length(size(myDiag{1}))==3;
     msk=repmat(msk(:,:,1),[1 1 size(myDiag{1},3)]);
@@ -165,17 +166,17 @@ if ~isempty(mygrid.RAC);
   myDiag=myDiag.*msk;
   clear msk;
   %
-  land=isnan(grid_diag.msk);
+  %land=isnan(grid_diag.msk);
 end;
 
 %set 'coord' attribute
 if avail_diag.nr~=1;
   coord='lon lat dep tim';
-  dimlist={'t','k','j','i'};
+  dimlist={'t',grid_diag.dimlist{:}};
   dimname={'Time coordinate','Cartesian coordinate 3','Cartesian coordinate 2','Cartesian coordinate 1'};
 else;
   coord='lon lat tim';
-  dimlist={'t','j','i'};
+  dimlist={'t',grid_diag.dimlist{:}};
   dimname={'Time coordinate','Cartesian coordinate 2','Cartesian coordinate 1'};
 end;
 
@@ -207,21 +208,23 @@ write2nctiles(myFile,grid_diag.lon,doCreate,{'tileNo',tileNo},...
   {'fldName','lon'},{'units','degrees_east'},{'dimIn',dim.twoD});
 write2nctiles(myFile,grid_diag.lat,doCreate,{'tileNo',tileNo},...
   {'fldName','lat'},{'units','degrees_north'},{'dimIn',dim.twoD});
-if isfield(grid_diag,'dep');
-    write2nctiles(myFile,grid_diag.dep,doCreate,{'tileNo',tileNo},...
-      {'fldName','dep'},{'units','m'},{'dimIn',dim.dep});
-end;
 write2nctiles(myFile,tim,doCreate,{'tileNo',tileNo},{'fldName','tim'},...
   {'longName','time'},{'units',timUnits},{'dimIn',dim.tim},{'clmbnds',clmbnds});
-if ~isempty(mygrid.RAC);
-  write2nctiles(myFile,grid_diag.msk,doCreate,{'tileNo',tileNo},...
-    {'fldName','land'},{'units','1'},{'longName','land mask'},{'dimIn',dim.threeD});
-  write2nctiles(myFile,grid_diag.RAC,doCreate,{'tileNo',tileNo},...
-    {'fldName','area'},{'units','m^2'},{'longName','grid cell area'},{'dimIn',dim.twoD});
+if isfield(grid_diag,'dep');
+  write2nctiles(myFile,grid_diag.dep,doCreate,{'tileNo',tileNo},...
+    {'fldName','dep'},{'units','m'},{'dimIn',dim.dep});
   if isfield(grid_diag,'dz');
     write2nctiles(myFile,grid_diag.dz,doCreate,{'tileNo',tileNo},...
       {'fldName','thic'},{'units','m'},{'dimIn',dim.dep});
   end;
+end;
+if isfield(grid_diag,'msk');
+  write2nctiles(myFile,grid_diag.msk,doCreate,{'tileNo',tileNo},...
+    {'fldName','land'},{'units','1'},{'longName','land mask'},{'dimIn',dim.threeD});
+end;
+if isfield(grid_diag,'area');
+  write2nctiles(myFile,grid_diag.area,doCreate,{'tileNo',tileNo},...
+    {'fldName','area'},{'units','m^2'},{'longName','grid cell area'},{'dimIn',dim.twoD});
 end;
 
 clear myDiag;
@@ -315,33 +318,45 @@ gcmfaces_global;
 
 %switch for non-tracer point values
 if strcmp(avail_diag.loc_h,'C');
-    grid_diag.lon=mygrid.XC;
-    grid_diag.lat=mygrid.YC;
-    grid_diag.msk=mygrid.mskC(:,:,1:avail_diag.nr);
+    grid_diag.lon=mygrid.XC; grid_diag.lat=mygrid.YC;
+    if isfield(mygrid,'mskC'); grid_diag.msk=mygrid.mskC(:,:,1:avail_diag.nr); end;
+    if isfield(mygrid,'RAC'); grid_diag.area=mygrid.RAC; end;
+    grid_diag.dimlist={'j_c','i_c'};
 elseif strcmp(avail_diag.loc_h,'W');
-    grid_diag.lon=mygrid.XG;
-    grid_diag.lat=mygrid.YC;
-    grid_diag.msk=mygrid.mskW(:,:,1:avail_diag.nr);
+    grid_diag.lon=mygrid.XW; grid_diag.lat=mygrid.YW;
+    if isfield(mygrid,'mskW'); grid_diag.msk=mygrid.mskW(:,:,1:avail_diag.nr); end;
+    if isfield(mygrid,'RAW'); grid_diag.area=mygrid.RAW; end;
+    grid_diag.dimlist={'j_w','i_w'};
 elseif strcmp(avail_diag.loc_h,'S');
-    grid_diag.lon=mygrid.XC;
-    grid_diag.lat=mygrid.YG;
-    grid_diag.msk=mygrid.mskS(:,:,1:avail_diag.nr);
+    grid_diag.lon=mygrid.XS; grid_diag.lat=mygrid.YS;
+    if isfield(mygrid,'mskS'); grid_diag.msk=mygrid.mskS(:,:,1:avail_diag.nr); end;
+    if isfield(mygrid,'RAS'); grid_diag.area=mygrid.RAS; end;
+    grid_diag.dimlist={'j_s','i_s'};
+elseif strcmp(avail_diag.loc_h,'Z');
+    error('remains to be implemented: loc_h=Z');
+else;
+    error('unimplemeted loc_h case')
 end;
-grid_diag.RAC=mygrid.RAC;
 
 %vertical grid
 if avail_diag.nr~=1;
     if strcmp(avail_diag.loc_z,'M');
         grid_diag.dep=-mygrid.RC;
-        grid_diag.dz=mygrid.DRF;
+        if isfield(mygrid,'DRF'); grid_diag.dz=mygrid.DRF; end;
+        grid_diag.dimlist={'k_c',grid_diag.dimlist{:}};
     elseif strcmp(avail_diag.loc_z,'L');
         grid_diag.dep=-mygrid.RF(2:end);
-        grid_diag.dz=[mygrid.DRC(2:end) ; 228.25];%quick fix
+        if isfield(mygrid,'DRC'); grid_diag.dz=mygrid.DRC(2:end); end;
+        grid_diag.dimlist={'k_l',grid_diag.dimlist{:}};
+    elseif strcmp(avail_diag.loc_z,'U');
+        grid_diag.dep=-mygrid.RF(1:end-1);
+        if isfield(mygrid,'DRC'); grid_diag.dz=mygrid.DRC(1:end-1); end;
+        grid_diag.dimlist={'k_u',grid_diag.dimlist{:}};
     else;
-        error('unknown vertical grid');
+        error('unimplemented loc_z case');
     end;
     grid_diag.dep=reshape(grid_diag.dep,[1 1 avail_diag.nr]);
-    grid_diag.dz=reshape(grid_diag.dz,[1 1 avail_diag.nr]);
+    if isfield(grid_diag,'dz'); grid_diag.dz=reshape(grid_diag.dz,[1 1 avail_diag.nr]); end;
 end;
 
 %%replace time series with monthly climatology

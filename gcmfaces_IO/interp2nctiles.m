@@ -23,10 +23,9 @@ mygrid_latlon.XC=gcmfaces({lon});
 mygrid_latlon.YC=gcmfaces({lat});
 mygrid_latlon.RC=mygrid.RC;
 mygrid_latlon.RF=mygrid.RF;
-mygrid_latlon.DRC=mygrid.DRC;
-mygrid_latlon.DRF=mygrid.DRF;
-mygrid_latlon.mskC=1+0*repmat(mygrid_latlon.XC,[1 1  length(mygrid.RC)]);
-mygrid_latlon.RAC=[];
+%mygrid_latlon.DRC=mygrid.DRC;
+%mygrid_latlon.DRF=mygrid.DRF;
+%mygrid_latlon.mskC=1+0*repmat(mygrid_latlon.XC,[1 1  length(mygrid.RC)]);
 mygrid_latlon.gcm2facesFast=0;
 mygrid_latlon.facesExpand=[];
 

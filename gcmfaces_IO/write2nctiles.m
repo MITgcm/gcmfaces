@@ -158,24 +158,25 @@ else;
 end;
 
 %complement dimension specs as needed:
-need_dimlist=isempty(dimlist);
-need_dimname=isempty(dimname);
+need_dimlist=isempty(dimlist)&&doCreate;
+need_dimname=isempty(dimname)&&doCreate;
+need_dimvec=doCreate;
 for iDim=1:nDim;
 if dimsize(iDim)~=1;
     if need_dimlist; dimlist{iDim}=['i' num2str(iDim)]; end;
     if need_dimname; dimname{iDim}=['array index ' num2str(iDim)]; end;
-    eval(['dimvec.' dimlist{iDim} '=[1:dimsize(iDim)];']);
+    if need_dimvec; eval(['dimvec.' dimlist{iDim} '=[1:dimsize(iDim)];']); end;
 end;
 end;
 
 %omit singleton dimensions:
 ii=find(dimsize~=1);
 dimsize=dimsize(ii);
-dimlist={dimlist{ii}};
-dimname={dimname{ii}};
+if need_dimlist; dimlist={dimlist{ii}}; end;
+if need_dimlist; dimname={dimname{ii}}; end;
 
 %check : 
-if doCheck;
+if doCheck&doCreate&ff==1;
 whos fldTile
 descr
 fldName
@@ -189,9 +190,6 @@ dimsize
 dimvec
 keyboard;
 end;
-
-%output dimension information
-dimOut{ff}=dimlist;
 
 if doCreate;
   %create netcdf file:
@@ -223,6 +221,9 @@ if doCreate;
   ncputAtt(ncid,'','_FillValue',fillval);
   ncputAtt(ncid,'','missing_value',missval);
 
+  ncputAtt(ncid,'','itile',ff);
+  ncputAtt(ncid,'','ntile',ntile);
+
   %ncdefDim(ncid,'itxt',30);
   for dd=1:length(dimlist); ncdefDim(ncid,dimlist{dd},dimsize(dd)); end;
   if ~isempty(clmbnds); ncdefDim(ncid,'tcb',2); end;
@@ -245,6 +246,9 @@ end;
 
 %use dimension specified by user
 if ~isempty(dimIn); dimlist=dimIn{ff}; end;
+
+%output dimension information
+dimOut{ff}=dimlist;
 
 %define and fill field:
 %----------------------
