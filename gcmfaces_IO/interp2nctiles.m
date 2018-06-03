@@ -31,7 +31,7 @@ mygrid_latlon.facesExpand=[];
 
 mygrid=mygrid_latlon;
 for ii=1:length(listDo);
-tic; process2nctiles(dirDiags,listDo{ii});
+tic; process2nctiles(dirDiags,listDo{ii},listDo{ii});
 fprintf(['DONE: ' listDo{ii} ' (in ' num2str(toc) 's)\n']);
 end;
 mygrid=mygrid_orig;

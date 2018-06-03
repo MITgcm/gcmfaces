@@ -1,39 +1,48 @@
-function [listInterp,listNot]=process2interp(dirDiags,listDo);
-% [listInterp,listNot]=PROCESS2INTERP(dirDiags,listDo);
-% 1) computes listInterp and listNot (if listDo is not provided)
-% 2) interpolates and ouput fields in listDo (= precomputed listInterp)
+function [listInterp,listNot]=process2interp(dirDiags,fileDiags,varargin);
+% [listInterp,listNot]=PROCESS2INTERP(dirDiags,fileDiags);
+% []=PROCESS2INTERP(dirDiags,fileDiags,listInterp);
 %
-% Usage: [listInterp,listNot]=process2interp(dirDiags);
-%        process2interp(dirDiags,{listInterp{1:2}});
+%  Either  computes listInterp and listNot (if nargin==2)
+%  Or      interpolates and ouput fields in listInterp (if nargin==3)
+%
+% Usage:
+%   dirDiags=[pwd '/diags_ALL_MDS/']; fileDiags='state_2d_set1';
+%   [listInterp,listNot]=process2interp(dirDiags,fileDiags);
+%   process2interp(dirDiags,fileDiags,listInterp);
 
-
-dirIn=[dirDiags filesep 'nctiles_tmp/'];
-dirOut=[dirDiags filesep 'diags_interp_tmp/'];
+gcmfaces_global;
+dirOut=[dirDiags filesep 'diags_interp_tmp' filesep];
 filAvailDiag=[dirDiags filesep 'available_diagnostics.log'];
 filReadme=[dirDiags filesep 'README'];
 
 %% ======== PART 1 =======
 
-if isempty(who('listDo'));
-  listDirs=dir(dirIn);
-  listInterp={};
-  listNot={};
-  for ii=1:length(listDirs);
-    %get units and long name from available_diagnostics.log
-    [avail_diag]=read_avail_diag(filAvailDiag,listDirs(ii).name);
-    if ~isempty(avail_diag);
-    if strcmp(avail_diag.loc_h,'C');
-      ndiags=length(listInterp)+1;
-      listInterp={listInterp{:},listDirs(ii).name};
-    else;
-      listNot={listNot{:},listDirs(ii).name};
-    end;
-    end;
+%search for fileDiags in subdirectories
+[subDir]=rdmds_search_subdirs(dirDiags,fileDiags);
+%read meta file to get list of variables
+[meta]=rdmds_meta([dirDiags subDir fileDiags '*']);
+%set listInterp based on available_diagnostics.log
+listInterp={};
+listNot={};
+for ii=1:length(meta.fldList);
+  %get units and long name from available_diagnostics.log
+  [avail_diag]=read_avail_diag(filAvailDiag,meta.fldList{ii});
+  if ~isempty(avail_diag);
+  if strcmp(avail_diag.loc_h,'C');
+    ndiags=length(listInterp)+1;
+    listInterp={listInterp{:},deblank(meta.fldList{ii})};
+  else;
+    listNot={listNot{:},deblank(meta.fldList{ii})};
   end;
-  return;
+  end;
 end;
 
+if nargin==2; return; end;
+
 %% ======== PART 2 =======
+
+if nargin==3; listInterp=varargin{1}; end;
+if ischar(listInterp); listInterp={listInterp}; end;
 
 lon=[-179.75:0.5:179.75]; lat=[-89.75:0.5:89.75];
 [lat,lon] = meshgrid(lat,lon);
@@ -41,23 +50,32 @@ interp=gcmfaces_interp_coeffs(lon(:),lat(:));
 
 if ~isdir(dirOut); mkdir(dirOut); end;
 
-for ii=1:length(listDo);
+for ii=1:length(listInterp);
 
 tic;
 
-nameDiag=listDo{ii};
+nameDiag=deblank(listInterp{ii});
 fprintf(['processing ' nameDiag '... \n']);
 
-myDiag=read_nctiles([dirIn nameDiag '/' nameDiag]);
-eval(['ncload ' dirIn nameDiag '/' nameDiag '.0001.nc timstep']);
+if ~isempty(dir([dirOut nameDiag filesep nameDiag '*.data'])); 
+  fprintf(['\n Files were found: ' dirOut nameDiag filesep '*.data']); 
+  test0=fprintf('\n Do you want to continue despite risk of overwriting them?');
+  test0=input('\n >> If yes then please type 1 (otherwise just hit return).\n');
+  if isempty(test0)||test0~=1; fprintf(['... skipping ' nameDiag '\n\n']); continue; end;
+end;
 
+jj=find(strcmp(deblank(meta.fldList),nameDiag));
+myDiag=rdmds2gcmfaces([dirDiags subDir fileDiags '*'],NaN,'rec',jj);
+listFiles=dir([dirDiags subDir fileDiags '*.data']);
 is3D=length(size(myDiag{1}))==4;
 
 %loop over months and output result
-for tt=1:length(timstep);
-  filOut=sprintf('%s.%010i',nameDiag,timstep(tt)); 
-  if is3D; fldOut=myDiag(:,:,:,tt);
-  else; fldOut=myDiag(:,:,tt);
+for tt=1:length(listFiles);
+  filOut=listFiles(tt).name(1:end-5);
+  kk=strfind(filOut,'.00');
+  filOut=[nameDiag filOut(kk(1):end)];
+  if is3D; fldOut=myDiag(:,:,:,tt).*mygrid.mskC;
+  else; fldOut=myDiag(:,:,tt).*mygrid.mskC(:,:,1);
   end;
   %interpolate one field
   tmp1=convert2vector(fldOut);
@@ -69,11 +87,11 @@ for tt=1:length(timstep);
   fldOut=reshape(tmp1./tmp0,siz);
   sizOut=size(fldOut);
   %create subdirectory
-  if ~isdir([dirOut nameDiag '/']); mkdir([dirOut nameDiag '/']); end;
+  if ~isdir([dirOut nameDiag filesep]); mkdir([dirOut nameDiag filesep]); end;
   %write binary field (masked)
-  write2file([dirOut nameDiag '/' filOut '.data'],fldOut,32,0);
+  write2file([dirOut nameDiag filesep filOut '.data'],fldOut,32,0);
   %create meta file
-  write2meta([dirOut nameDiag '/' filOut '.data'],sizOut,32,{nameDiag});
+  write2meta([dirOut nameDiag filesep filOut '.data'],sizOut,32,{nameDiag});
 end;
 
 fprintf(['DONE: ' nameDiag ' (in ' num2str(toc) 's)\n']);

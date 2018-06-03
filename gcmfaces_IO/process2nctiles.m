@@ -32,7 +32,7 @@ if isempty(whos('selectFld')); selectFld=''; end;
 if isempty(whos('tileSize')); tileSize=[]; end;
 
 %replace time series with monthly climatology?
-doClim=1;
+doClim=1; if doClim; fprintf('\n Creating monthly climatology (doClim=1) \n\n'); end;
 
 %needed files
 filAvailDiag=[dirDiags 'available_diagnostics.log'];
@@ -48,25 +48,10 @@ if isempty(dir(filRename)); filRename=''; end;
 dirOut=[dirDiags 'nctiles_tmp/'];
 if ~isdir(dirOut); mkdir(dirOut); end;
 
-%search in subdirectories
-listDirs=dir(dirDiags);
-jj=find([listDirs(:).isdir]&[~strcmp({listDirs(:).name},'.')]&[~strcmp({listDirs(:).name},'..')]);
-listDirs=listDirs(jj);
+%search for fileDiags in subdirectories
+[subDir]=rdmds_search_subdirs(dirDiags,fileDiags);
 
-if ~isempty(dir([dirDiags fileDiags '*.data']));
-  subDir='./';
-else;
-  subDir='';
-end;
-
-for ff=1:length(listDirs);
-  tmp1=dir([dirDiags listDirs(ff).name '/' fileDiags '*.data']);
-  if ~isempty(tmp1)&isempty(subDir); subDir=[listDirs(ff).name '/'];
-  elseif ~isempty(tmp1); error('fileDiags were found in two different locations'); 
-  end;
-end;
-
-if isempty(subDir); 
+if isempty(subDir);
   error(['file ' fileDiags ' was not found']);
 else;
   dirIn=[dirDiags subDir];
@@ -80,7 +65,7 @@ if ~isempty(selectFld)&&ischar(selectFld);
 elseif ~isempty(selectFld)&&iscell(selectFld);
    listFlds=selectFld;
 else;
-   meta=read_meta([dirIn fileDiags '*']);
+   meta=rdmds_meta([dirIn fileDiags '*']);
    listFlds=meta.fldList;
    if isnumeric(selectFld);
      listFlds={listFlds{selectFld}};
@@ -101,7 +86,7 @@ nameDiag=deblank(listFlds{vv});
 fprintf(['processing ' nameDiag '... \n']);
 
 %get meta information
-meta=read_meta([dirIn fileDiags '*']);
+meta=rdmds_meta([dirIn fileDiags '*']);
 irec=find(strcmp(deblank(meta.fldList),nameDiag));
 if length(irec)~=1; error('field not in file\n'); end;
 
@@ -230,33 +215,6 @@ end;
 clear myDiag;
 
 end;%for vv=1:length(listFlds);
-
-function [meta]=read_meta(fileName);
-
-%read meta file
-tmp1=dir([fileName '*.meta']); tmp1=tmp1(1).name;
-tmp2=strfind(fileName,filesep);
-if ~isempty(tmp2); tmp2=tmp2(end); else; tmp2=0; end;
-tmp1=[fileName(1:tmp2) tmp1]; fid=fopen(tmp1);
-while 1;
-    tline = fgetl(fid);
-    if ~ischar(tline), break, end
-    if isempty(whos('tmp3')); tmp3=tline; else; tmp3=[tmp3 ' ' tline]; end;
-end
-fclose(fid);
-
-%add meta variables to workspace
-eval(tmp3);
-
-%reformat to meta structure
-meta.dataprec=dataprec;
-meta.nDims=nDims;
-meta.nFlds=nFlds;
-meta.nrecords=nrecords;
-meta.fldList=fldList;
-meta.dimList=dimList;
-if ~isempty(who('timeInterval')); meta.timeInterval=timeInterval; end;
-if ~isempty(who('timeStepNumber'));  meta.timeStepNumber=timeStepNumber; end;
 
 %%
 
