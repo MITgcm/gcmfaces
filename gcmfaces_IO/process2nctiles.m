@@ -65,7 +65,7 @@ if ~isempty(selectFld)&&ischar(selectFld);
 elseif ~isempty(selectFld)&&iscell(selectFld);
    listFlds=selectFld;
 else;
-   meta=rdmds_meta([dirIn fileDiags '*']);
+   meta=rdmds_meta([dirIn fileDiags]);
    listFlds=meta.fldList;
    if isnumeric(selectFld);
      listFlds={listFlds{selectFld}};
@@ -86,7 +86,7 @@ nameDiag=deblank(listFlds{vv});
 fprintf(['processing ' nameDiag '... \n']);
 
 %get meta information
-meta=rdmds_meta([dirIn fileDiags '*']);
+meta=rdmds_meta([dirIn fileDiags]);
 irec=find(strcmp(deblank(meta.fldList),nameDiag));
 if length(irec)~=1; error('field not in file\n'); end;
 

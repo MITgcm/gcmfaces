@@ -15,7 +15,7 @@ pairsOut={{'UVELSTAR','VVELSTAR','WVELSTAR'}};
 %search for fileDiags in subdirectories
 [subDir]=rdmds_search_subdirs(dirDiags,fileDiags);
 %read meta file to get list of variables
-[meta]=rdmds_meta([dirDiags subDir fileDiags '*']);
+[meta]=rdmds_meta([dirDiags subDir fileDiags]);
 
 listIn=dir([dirDiags subDir fileDiags '*meta']);
 for tt=1:length(listIn);

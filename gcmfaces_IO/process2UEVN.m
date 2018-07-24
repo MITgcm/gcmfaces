@@ -34,7 +34,7 @@ end;
 %search for fileDiags in subdirectories
 [subDir]=rdmds_search_subdirs(dirDiags,fileDiags);
 %read meta file to get list of variables
-[meta]=rdmds_meta([dirDiags subDir fileDiags '*']);
+[meta]=rdmds_meta([dirDiags subDir fileDiags]);
 
 %% ======== PART 2 =======
 

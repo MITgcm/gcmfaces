@@ -1,7 +1,10 @@
 function [meta]=rdmds_meta(fileName);
 
 %read meta file
-tmp1=dir([fileName '*.meta']); tmp1=tmp1(1).name;
+tmp1=dir([fileName '.meta']);
+if isempty(tmp1)&~strcmp(fileName(end),'*'); tmp1=dir([fileName '*.meta']); end;
+if isempty(tmp1); error(['file not found: ' fileName '*']); end; 
+tmp1=tmp1(1).name;
 tmp2=strfind(fileName,filesep);
 if ~isempty(tmp2); tmp2=tmp2(end); else; tmp2=0; end;
 tmp1=[fileName(1:tmp2) tmp1]; fid=fopen(tmp1);

@@ -20,7 +20,7 @@ filReadme=[dirDiags filesep 'README'];
 %search for fileDiags in subdirectories
 [subDir]=rdmds_search_subdirs(dirDiags,fileDiags);
 %read meta file to get list of variables
-[meta]=rdmds_meta([dirDiags subDir fileDiags '*']);
+[meta]=rdmds_meta([dirDiags subDir fileDiags]);
 %set listInterp based on available_diagnostics.log
 listInterp={};
 listNot={};
@@ -44,9 +44,15 @@ if nargin==2; return; end;
 if nargin==3; listInterp=varargin{1}; end;
 if ischar(listInterp); listInterp={listInterp}; end;
 
-lon=[-179.75:0.5:179.75]; lat=[-89.75:0.5:89.75];
-[lat,lon] = meshgrid(lat,lon);
-interp=gcmfaces_interp_coeffs(lon(:),lat(:));
+if isempty(dir('interp_precomputed.mat'));
+  lon=[-179.75:0.5:179.75]; lat=[-89.75:0.5:89.75];
+  [lat,lon] = meshgrid(lat,lon);
+  interp=gcmfaces_interp_coeffs(lon(:),lat(:));
+  %save interp_precomputed.mat lon lat interp;
+else;
+  fprintf('reloading interp_precomputed.mat...\n');
+  load('interp_precomputed.mat');
+end;
 
 if ~isdir(dirOut); mkdir(dirOut); end;
 
