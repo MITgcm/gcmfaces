@@ -3,6 +3,10 @@ function [fld]=read_nctiles(fileName,fldName,varargin);
 %usage: fld=read_nctiles(fileName,fldName);        reads full field (all depths, all times)
 %usage: fld=read_nctiles(fileName,fldName,tt);     reads 3D or 2D field, at time index tt (all depths)
 %usage: fld=read_nctiles(fileName,fldName,tt,kk);  reads 3D field, at depth index(es) kk, at time index tt 
+%
+%note: when using old nctiles files, the deprecated old tile ordering convention may apply
+%      In such cases, user wants to set a global variable named nctiles_old_tile_order
+%      to 1 so that read_nctiles reverts to the old convention. 
 
 gcmfaces_global;
 nz=length(mygrid.RC);
@@ -35,7 +39,7 @@ end;
 
 %A) determine map of tile indices (if not already done)
 
-global nctiles;
+global nctiles nctiles_old_tile_order;
 
 test1=isempty(nctiles);
 test2=0;
@@ -45,6 +49,9 @@ if ~test1;
 end;
 
 if test1|test2;
+  %unless specified otherwise by user, nctiles_old_tile_order should be set 
+  %to 0 in order to follow the tile ordering convention of MITgcm/pkg/exch2:
+  if isempty(nctiles_old_tile_order); nctiles_old_tile_order=0; end;
   %build map of tile indices
   if (length(dir([fileName '*']))==mygrid.nFaces);
     nctiles.map=NaN*mygrid.XC; 
@@ -59,6 +66,23 @@ if test1|test2;
     [tmp,tileSize(2)] = netcdf.inqDim(nc,dimids(2));
     netcdf.close(nc);
     nctiles.map=gcmfaces_loc_tile(tileSize(1),tileSize(2));
+    %if specified by user then revert to old ordering convention that was used 
+    %in first generation nctile files but differs from MITgcm/pkg/exch2:
+    if nctiles_old_tile_order==1; 
+      for gg=1:mygrid.nFaces;
+        tmp1=nctiles.map{gg}; tmp2=tmp1;
+        tileCount=0; tileOrigin=min(tmp1(:))-1;
+        for ii=1:size(tmp1,1)/tileSize(1);
+          for jj=1:size(tmp1,2)/tileSize(2);
+            tileCount=tileCount+1;
+            tmp_i=[1:tileSize(1)]+tileSize(1)*(ii-1);
+            tmp_j=[1:tileSize(2)]+tileSize(2)*(jj-1);
+            tmp2(tmp_i,tmp_j)=tileOrigin+tileCount;
+          end; 
+        end;
+        nctiles.map{gg}=tmp2;
+      end;
+    end;
   end;
   %determine tile list
   nctiles.no=unique(convert2vector(nctiles.map));
