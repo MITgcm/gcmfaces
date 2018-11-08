@@ -14,7 +14,12 @@ function [dimOut]=write2nctiles(fileOut,fldIn,doCreate,varargin);
 %         'fillval' is the fill value (NaN by default).
 %         'tileNo' is a map of tile indices (face # by default)
 %         'coord' is auxilliary coordinates attribute (e.g. 'lon lat dep')
-%         'dimsize' is the array size associated with 'coord'
+%         'dimIn' is a structure that contains dimlist, dimname, dimsize, etc (see below); it 
+%            is normally returned as output on the first pass and is passed as input arg afterwards.
+%         'dimlist' is the list of dimension names
+%         'dimname' is the list of long names associated with dimlist
+%         'dimsize' is the list of array sizes associated with dimlist
+%         'clmbnds' provides time intervals (nt x 2 cell array; if climatology).
 %         'xtype' is the variable ('double' by default)
 %         'rdm' is the extended estimate description ('' by default).
 %         'descr' is the file description ('' by default).
@@ -22,7 +27,10 @@ function [dimOut]=write2nctiles(fileOut,fldIn,doCreate,varargin);
 % notes: 
 %    - if fldName is not explicitly specified then the input variable 
 %      name (if ok) or file name (otherwise) is used as fldName.
-%    - netcdf dimensions are simply set to 'i1,i2,...'
+%    - if dimlist is not provided then it is set to 'i1,i2,...'
+%    - if dimname is not provided then it is set ot 'array index 1','array index 2', etc
+%    - if non-empty clmbnds is provided then a 'climatology' attribute is added to the
+%      time coordinate variable which wil point towards the 'climatology_bounds' variable
 %
 % examples:
 %
@@ -56,9 +64,10 @@ fldName=inputname(2);
 if isempty(fldName); 
     [tmp1,fldName,tmp2] = fileparts(fileOut); 
 end;
-longName=''; units='(unknown)'; missval=NaN; fillval=NaN; dimIn=[];
+longName=''; units='(unknown)'; missval=NaN; fillval=NaN;
+coord=''; dimIn=[]; dimlist=[]; dimname=[]; dimsize=[]; 
 tileNo=mygrid.XC; for ff=1:mygrid.nFaces; tileNo{ff}(:)=ff; end;
-coord=''; dimsize=[]; xtype='double'; descr=''; rdm='';
+clmbnds=[]; xtype='double'; descr=''; rdm='';
 
 %set more optional paramaters to user defined values
 for ii=1:nargin-3;
@@ -85,9 +94,12 @@ for ii=1:nargin-3;
                 strcmp(varargin{ii}{1},'fillval')|...
                 strcmp(varargin{ii}{1},'tileNo')|...
                 strcmp(varargin{ii}{1},'coord')|...
+                strcmp(varargin{ii}{1},'dimIn')|...
+                strcmp(varargin{ii}{1},'dimlist')|...
+                strcmp(varargin{ii}{1},'dimname')|...
                 strcmp(varargin{ii}{1},'dimsize')|...
-                strcmp(varargin{ii}{1},'xtype')|...
-                strcmp(varargin{ii}{1},'dimIn');
+                strcmp(varargin{ii}{1},'clmbnds')|...
+                strcmp(varargin{ii}{1},'xtype');
             eval([varargin{ii}{1} '=varargin{ii}{2};']);
         else;
             warning('inputCheck:write2nctiles_3',...
@@ -145,22 +157,26 @@ else;
   error('undertermined array size');
 end;
 
+%complement dimension specs as needed:
+need_dimlist=isempty(dimlist)&&doCreate;
+need_dimname=isempty(dimname)&&doCreate;
+need_dimvec=doCreate;
 for iDim=1:nDim;
 if dimsize(iDim)~=1;
-    dimlist{iDim}=['i' num2str(iDim)];
-    dimName{iDim}=['array index ' num2str(iDim)];
-    eval(['dimvec.i' num2str(iDim) '=[1:dimsize(iDim)];']);
+    if need_dimlist; dimlist{iDim}=['i' num2str(iDim)]; end;
+    if need_dimname; dimname{iDim}=['array index ' num2str(iDim)]; end;
+    if need_dimvec; eval(['dimvec.' dimlist{iDim} '=[1:dimsize(iDim)];']); end;
 end;
 end;
 
 %omit singleton dimensions:
 ii=find(dimsize~=1);
 dimsize=dimsize(ii);
-dimlist={dimlist{ii}};
-dimName={dimName{ii}};
+if need_dimlist; dimlist={dimlist{ii}}; end;
+if need_dimlist; dimname={dimname{ii}}; end;
 
 %check : 
-if doCheck;
+if doCheck&doCreate&ff==1;
 whos fldTile
 descr
 fldName
@@ -169,14 +185,11 @@ units
 missval
 fillval
 dimlist
-dimName
+dimname
 dimsize
 dimvec
 keyboard;
 end;
-
-%output dimension information
-dimOut{ff}=dimlist;
 
 if doCreate;
   %create netcdf file:
@@ -208,12 +221,16 @@ if doCreate;
   ncputAtt(ncid,'','_FillValue',fillval);
   ncputAtt(ncid,'','missing_value',missval);
 
+  ncputAtt(ncid,'','itile',ff);
+  ncputAtt(ncid,'','ntile',ntile);
+
   %ncdefDim(ncid,'itxt',30);
   for dd=1:length(dimlist); ncdefDim(ncid,dimlist{dd},dimsize(dd)); end;
+  if ~isempty(clmbnds); ncdefDim(ncid,'tcb',2); end;
 
   for dd=1:length(dimlist);
     ncdefVar(ncid,dimlist{dd},'double',{dimlist{dd}});
-    ncputAtt(ncid,dimlist{dd},'long_name',dimName{dd});
+    ncputAtt(ncid,dimlist{dd},'long_name',dimname{dd});
     ncputAtt(ncid,dimlist{dd},'units','1');
   end;
   ncclose(ncid);
@@ -227,8 +244,11 @@ if doCreate;
   ncclose(ncid);
 end;
 
-%use dimentsion specified by user
+%use dimension specified by user
 if ~isempty(dimIn); dimlist=dimIn{ff}; end;
+
+%output dimension information
+dimOut{ff}=dimlist;
 
 %define and fill field:
 %----------------------
@@ -242,13 +262,25 @@ if ~isempty(coord); ncputAtt(ncid,fldName,'coordinates',coord); end;
 if strcmp(fldName,'lon'); ncputAtt(ncid,fldName,'standard_name','longitude'); end;
 if strcmp(fldName,'lat'); ncputAtt(ncid,fldName,'standard_name','latitude'); end;
 if strcmp(fldName,'dep'); ncputAtt(ncid,fldName,'standard_name','depth'); end;
-if strcmp(fldName,'tim'); ncputAtt(ncid,fldName,'standard_name','time'); end;
+if strcmp(fldName,'tim'); 
+  ncputAtt(ncid,fldName,'standard_name','time');
+  if ~isempty(clmbnds);
+     ncputAtt(ncid,fldName,'climatology','climatology_bounds');
+     ncdefVar(ncid,'climatology_bounds',xtype,{'tcb' dimlist{1}});%note the direction flip
+     ncputAtt(ncid,'climatology_bounds','long_name','climatology_bounds');
+     ncputAtt(ncid,'climatology_bounds','units',units);
+  end;
+end;
 if strcmp(fldName,'land'); ncputAtt(ncid,fldName,'standard_name','land_binary_mask'); end;
 if strcmp(fldName,'area'); ncputAtt(ncid,fldName,'standard_name','cell_area'); end;
 if strcmp(fldName,'thic'); ncputAtt(ncid,fldName,'standard_name','cell_thickness'); end;
 netcdf.endDef(ncid);
 %
 if ~fldInIsEmpty; ncputvar(ncid,fldName,fldTile); end;
+%
+if strcmp(fldName,'tim')&~isempty(clmbnds);
+  ncputvar(ncid,'climatology_bounds',clmbnds);
+end;
 %
 ncclose(ncid);
 
