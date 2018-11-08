@@ -149,6 +149,11 @@ for iFld=1:length(list0);
     end;
 end;
 
+%if needed then (re)set RF(nr+1) and DRC(nr+1):
+nr=length(mygrid.RC);
+if isnan(mygrid.RF(nr+1)); mygrid.RF(nr+1)=mygrid.RC(nr)-1/2*mygrid.DRF(nr); end;
+if length(mygrid.DRC)==nr||isnan(mygrid.DRC(nr+1)); mygrid.DRC(nr+1)=mygrid.DRC(nr)/2; end;
+
 %grid orientation
 if mygrid.memoryLimit<2;
     list0={'AngleCS','AngleSN'};
@@ -198,11 +203,48 @@ end;
 %grid masks
 if mygrid.memoryLimit<1;
     mygrid.hFacCsurf=mygrid.hFacC;
-    for ff=1:mygrid.hFacC.nFaces; mygrid.hFacCsurf{ff}=mygrid.hFacC{ff}(:,:,1); end;
+    for ff=1:mygrid.nFaces; mygrid.hFacCsurf{ff}=mygrid.hFacC{ff}(:,:,1); end;
     
     mskC=mygrid.hFacC; mskC(mskC==0)=NaN; mskC(mskC>0)=1; mygrid.mskC=mskC;
     mskW=mygrid.hFacW; mskW(mskW==0)=NaN; mskW(mskW>0)=1; mygrid.mskW=mskW;
     mskS=mygrid.hFacS; mskS(mskS==0)=NaN; mskS(mskS>0)=1; mygrid.mskS=mskS;
+end;
+
+%missing velocity point locations
+if mygrid.memoryLimit<2;
+    %1) average C point locations
+    tmpXC=exch_T_N(mygrid.XC); tmpYC=exch_T_N(mygrid.YC);
+    mygrid.XW=NaN*mygrid.XC; mygrid.YW=NaN*mygrid.YC;
+    mygrid.XS=NaN*mygrid.XC; mygrid.YS=NaN*mygrid.YC;
+    for ff=1:mygrid.nFaces;
+       tmp1=tmpXC{ff}(1:end-2,2:end-1);
+       tmp2=tmpXC{ff}(2:end-1,2:end-1); 
+       tmp2(tmp2-tmp1>180)=tmp2(tmp2-tmp1>180)-360;
+       tmp2(tmp1-tmp2>180)=tmp2(tmp1-tmp2>180)+360;
+       mygrid.XW{ff}=(tmp1+tmp2)/2;
+       %
+       tmp1=tmpXC{ff}(2:end-1,1:end-2);
+       tmp2=tmpXC{ff}(2:end-1,2:end-1);
+       tmp2(tmp2-tmp1>180)=tmp2(tmp2-tmp1>180)-360;
+       tmp2(tmp1-tmp2>180)=tmp2(tmp1-tmp2>180)+360;
+       mygrid.XS{ff}=(tmp1+tmp2)/2;
+       %
+       tmp1=tmpYC{ff}(1:end-2,2:end-1);
+       tmp2=tmpYC{ff}(2:end-1,2:end-1);
+       mygrid.YW{ff}=(tmp1+tmp2)/2;
+       %
+       tmp1=tmpYC{ff}(2:end-1,1:end-2);
+       tmp2=tmpYC{ff}(2:end-1,2:end-1);
+       mygrid.YS{ff}=(tmp1+tmp2)/2;
+    end;
+    %2) fix lonitude range:
+    tmp1=convert2gcmfaces(mygrid.XC);
+    test1=~isempty(find(tmp1(:)<0));
+    if test1; Xmax=180; Xmin=-180; else; Xmax=360; Xmin=0; end;
+    mygrid.XS(mygrid.XS<Xmin)=mygrid.XS(mygrid.XS<Xmin)+360;
+    mygrid.XS(mygrid.XS>Xmax)=mygrid.XS(mygrid.XS>Xmax)-360;
+    mygrid.XW(mygrid.XW<Xmin)=mygrid.XW(mygrid.XW<Xmin)+360;
+    mygrid.XW(mygrid.XW>Xmax)=mygrid.XW(mygrid.XW>Xmax)-360;
 end;
 
 %zonal mean and sections needed for transport computations
