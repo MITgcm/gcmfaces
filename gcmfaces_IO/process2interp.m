@@ -1,4 +1,4 @@
-function [listInterp,listNot]=process2interp(dirDiags,fileDiags,subDir,varargin);
+function [listInterp,listNot]=process2interp(dirDiags,fileDiags,subDir,dirOut,filAvailDiag,varargin);
 % [listInterp,listNot]=PROCESS2INTERP(dirDiags,fileDiags);
 % []=PROCESS2INTERP(dirDiags,fileDiags,listInterp);
 %
@@ -11,9 +11,9 @@ function [listInterp,listNot]=process2interp(dirDiags,fileDiags,subDir,varargin)
 %   process2interp(dirDiags,fileDiags,listInterp);
 
 gcmfaces_global;
-dirOut=[dirDiags filesep 'diags_interp_tmp' filesep];
-filAvailDiag=[dirDiags filesep 'available_diagnostics.log'];
-filReadme=[dirDiags filesep 'README'];
+%dirOut=[dirDiags filesep 'diags_interp_tmp' filesep];
+%filAvailDiag=[dirDocs filesep 'available_diagnostics.log'];
+%filReadme=[dirDocs filesep 'README'];
 
 %% ======== PART 1 =======
 
@@ -37,11 +37,11 @@ for ii=1:length(meta.fldList);
     end;
 end;
 
-if nargin==3; return; end;
+if nargin==5; return; end;
 
 %% ======== PART 2 =======
 
-if nargin>=4; listInterp=varargin{1}; end;
+if nargin>=6; listInterp=varargin{1}; end;
 if ischar(listInterp); listInterp={listInterp}; end;
 
 if isempty(dir(fullfile(dirDiags,'interp_precomputed.mat')));
@@ -70,7 +70,7 @@ for ii=1:length(listInterp);
         if isempty(test0)||test0~=1; fprintf(['... skipping ' nameDiag '\n\n']); continue; end;
     end;
     
-    if nargin == 6 % passing in pre-loaded fld
+    if nargin == 8 % passing in pre-loaded fld
         
         fldOut = varargin{2};
         filOut = varargin{3};
