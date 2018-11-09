@@ -63,14 +63,14 @@ for ii=1:length(listInterp);
     nameDiag=deblank(listInterp{ii});
     fprintf(['processing ' nameDiag '... \n']);
     
-    if ~isempty(dir([dirOut nameDiag filesep nameDiag '*.data']));
-        fprintf(['\n Files were found: ' dirOut nameDiag filesep '*.data']);
-        test0=fprintf('\n Do you want to continue despite risk of overwriting them?');
-        test0=input('\n >> If yes then please type 1 (otherwise just hit return).\n');
-        if isempty(test0)||test0~=1; fprintf(['... skipping ' nameDiag '\n\n']); continue; end;
-    end;
-    
     if nargin == 8 % passing in pre-loaded fld
+        
+        if ~isempty(dir([dirOut nameDiag filesep filOut '.data']));
+            fprintf(['\n File was found: ' dirOut nameDiag filesep filOut '.data']);
+            test0=fprintf('\n Do you want to continue despite risk of overwriting them?');
+            test0=input('\n >> If yes then please type 1 (otherwise just hit return).\n');
+            if isempty(test0)||test0~=1; fprintf(['... skipping ' nameDiag filesep filout '\n\n']); continue; end;
+        end;
         
         fldOut = varargin{2};
         filOut = varargin{3};
@@ -92,6 +92,13 @@ for ii=1:length(listInterp);
         write2meta([dirOut nameDiag filesep filOut '.data'],sizOut,32,{nameDiag});
         
     else
+        
+        if ~isempty(dir([dirOut nameDiag filesep nameDiag '*.data']));
+            fprintf(['\n Files were found: ' dirOut nameDiag filesep '*.data']);
+            test0=fprintf('\n Do you want to continue despite risk of overwriting them?');
+            test0=input('\n >> If yes then please type 1 (otherwise just hit return).\n');
+            if isempty(test0)||test0~=1; fprintf(['... skipping ' nameDiag '\n\n']); continue; end;
+        end;
         
         jj=find(strcmp(deblank(meta.fldList),nameDiag));
         myDiag=rdmds2gcmfaces([dirDiags subDir fileDiags '*'],NaN,'rec',jj);
