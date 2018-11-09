@@ -65,6 +65,11 @@ for ii=1:length(listInterp);
     
     if nargin == 8 % passing in pre-loaded fld
         
+        fldOut = varargin{2};
+        filOut = varargin{3};
+        kk=strfind(filOut,'.00');
+        filOut=[nameDiag filOut(kk(1):end)];
+        
         if ~isempty(dir([dirOut nameDiag filesep filOut '.data']));
             fprintf(['\n File was found: ' dirOut nameDiag filesep filOut '.data']);
             test0=fprintf('\n Do you want to continue despite risk of overwriting them?');
@@ -72,10 +77,6 @@ for ii=1:length(listInterp);
             if isempty(test0)||test0~=1; fprintf(['... skipping ' nameDiag filesep filout '\n\n']); continue; end;
         end;
         
-        fldOut = varargin{2};
-        filOut = varargin{3};
-        kk=strfind(filOut,'.00');
-        filOut=[nameDiag filOut(kk(1):end)];
         tmp1=convert2vector(fldOut);
         tmp0=1*~isnan(tmp1);
         tmp1(isnan(tmp1))=0;
