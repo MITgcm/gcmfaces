@@ -44,17 +44,17 @@ if nargin==5; return; end;
 if nargin>=6; listInterp=varargin{1}; end;
 if ischar(listInterp); listInterp={listInterp}; end;
 
-if isempty(dir(fullfile(dirDiags,'interp_precomputed.mat')));
+if ~isdir(dirOut); mkdir(dirOut); end;
+
+if isempty(dir(fullfile(dirOut,'interp_precomputed.mat')));
     lon=[-179.75:0.5:179.75]; lat=[-89.75:0.5:89.75];
     [lat,lon] = meshgrid(lat,lon);
     interp=gcmfaces_interp_coeffs(lon(:),lat(:));
-    %save interp_precomputed.mat lon lat interp;
+    save(fullfile(dirOut,'interp_precomputed.mat'),'lon','lat','interp');
 else;
     fprintf('reloading interp_precomputed.mat...\n');
-    load(fullfile(dirDiags,'interp_precomputed.mat'));
+    load(fullfile(dirOut,'interp_precomputed.mat'));
 end;
-
-if ~isdir(dirOut); mkdir(dirOut); end;
 
 for ii=1:length(listInterp);
     
