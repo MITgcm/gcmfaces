@@ -1,4 +1,4 @@
-function []=process2nctiles(dirDiags,fileDiags,selectFld,tileSize);
+function []=process2nctiles(dirDiags,fileDiags,selectFld,tileSize,iterateOverFiles);
 %process2nctiles(dirDiags,fileDiags);
 % object : convert MITgcm binary output to netcdf files (tiled)
 % inputs : dirDiags is the directory containing binary model output from
@@ -18,6 +18,8 @@ function []=process2nctiles(dirDiags,fileDiags,selectFld,tileSize);
 %            cell array of strings then each string will be treated as the field name.
 %         tileSize (optional) can be specified (e.g., [90 90]); if otherwise
 %            then tile sizes will be set to face sizes (i.e., mygrid.facesSize).
+%         iterateOverFiles (optional) when set to 1, willset "time" to 
+%           unlimited and iterate over files and process one at a time
 % Output : (netcdf files)
 %
 % Notes: available_diagnostics.log (need for documentation ...)
@@ -30,6 +32,8 @@ gcmfaces_global;
 
 if isempty(whos('selectFld')); selectFld=''; end;
 if isempty(whos('tileSize')); tileSize=[]; end;
+if isempty(whos('iterateOverFiles')); iterateOverFiles=0; end;
+TIME_UNLIMITED = iterateOverFiles;
 
 %replace time series with monthly climatology?
 %doClim=1; 
@@ -91,35 +95,24 @@ for vv=1:length(listFlds);
     irec=find(strcmp(deblank(meta.fldList),nameDiag));
     if length(irec)~=1; error('field not in file\n'); end;
     
-    %read time series
-    myDiag=rdmds2gcmfaces([dirIn fileDiags '*'],NaN,'rec',irec);
+    %read time series LM: setting to read in one time step at a time?
     
-    %set ancilliary time variable
-    nn=length(size(myDiag{1}));
-    nn=size(myDiag{1},nn);
-    tim=[1992*ones(nn,1) [1:nn]' 15*ones(nn,1)];
-    tim=datenum(tim)-datenum([1992 1 1]);
-    begtim=[1992*ones(nn,1) [1:nn]' ones(nn,1)];
-    begtim=datenum(begtim)-datenum([1992 1 1]);
-    endtim=[1992*ones(nn,1) [1:nn]' 1+ones(nn,1)];
-    endtim=datenum(endtim)-datenum([1992 1 1]);
-    timUnits='days since 1992-1-1 0:0:0';
-    clmbnds=[];
+    if iterateOverFiles
+        fnames = dir([dirIn fileDiags '*.data']);
+        tim = zeros(length(fnames),1);
+        
+        nn = length(fnames);
+        begtim=[1992*ones(nn,1) [1:nn]' ones(nn,1)];
+        begtim=datenum(begtim)-datenum([1992 1 1]);
+        endtim=[1992*ones(nn,1) [1:nn]' 1+ones(nn,1)];
+        endtim=datenum(endtim)-datenum([1992 1 1]);
+        timUnits='days since 1992-1-1 0:0:0';
+        clmbnds=[];
+    else
+        fnames = {[dirIn fileDiags '*']};
+    end
     
-    %if doClim then replace time series with monthly climatology and assign climatology_bounds variable
-    if doClim;
-        myDiag=compClim(myDiag);
-        %set tim to first year values for case of unsupported 'climatology' attribute (see below)
-        tim=tim(1:12);
-        %'climatology' attribute + 'climatology_bounds' variable will be added as shown at
-        %http://cfconventions.org/cf-conventions/v1.6.0/cf-conventions.html#climatological-statistics
-        for tt=1:12;
-            tmpb=begtim(tt:12:nn); tmpe=endtim(tt:12:nn) ;
-            clmbnds=[clmbnds;[tmpb(1) tmpe(end)]];
-        end;
-    end;
-   
-   %get units and long name from available_diagnostics.log
+    %get units and long name from available_diagnostics.log
    [avail_diag]=read_avail_diag(filAvailDiag,nameDiag);
      
     %rename variable if needed
@@ -141,20 +134,6 @@ for vv=1:length(listFlds);
     %get grid params
     [grid_diag]=set_grid_diag(avail_diag);
     
-    %apply mask(, and convert to land mask)
-    if isfield(grid_diag,'msk');
-        msk=grid_diag.msk;
-        if length(size(myDiag{1}))==3;
-            msk=repmat(msk(:,:,1),[1 1 size(myDiag{1},3)]);
-        else;
-            msk=repmat(msk,[1 1 1 size(myDiag{1},4)]);
-        end;
-        myDiag=myDiag.*msk;
-        clear msk;
-        %
-        %land=isnan(grid_diag.msk);
-    end;
-    
     %set 'coord' attribute
     if avail_diag.nr~=1;
         coord='lon lat dep tim';
@@ -166,13 +145,86 @@ for vv=1:length(listFlds);
         dimname={'Time coordinate','Cartesian coordinate 2','Cartesian coordinate 1'};
     end;
     
-    %create netcdf file using write2nctiles
-    doCreate=1; myDiag=single(myDiag);
-    dimlist=write2nctiles(myFile,myDiag,doCreate,{'tileNo',tileNo},...
-        {'fldName',nameDiagOut},{'longName',avail_diag.longNameDiag},{'xtype','float'},...
-        {'units',avail_diag.units},{'descr',nameDiagOut},{'coord',coord},{'dimlist',dimlist},...
-        {'dimname',dimname},{'clmbnds',clmbnds},{'rdm',rdm});
-    
+    for ff = 1:length(fnames)
+        if iscell(fnames)
+            myDiag=rdmds2gcmfaces([dirIn fileDiags '*'],NaN,'rec',irec);
+            
+            %set ancilliary time variable
+            nn=length(size(myDiag{1}));
+            nn=size(myDiag{1},nn);
+            tim=[1992*ones(nn,1) [1:nn]' 15*ones(nn,1)];
+            tim=datenum(tim)-datenum([1992 1 1]);
+            begtim=[1992*ones(nn,1) [1:nn]' ones(nn,1)];
+            begtim=datenum(begtim)-datenum([1992 1 1]);
+            endtim=[1992*ones(nn,1) [1:nn]' 1+ones(nn,1)];
+            endtim=datenum(endtim)-datenum([1992 1 1]);
+            timUnits='days since 1992-1-1 0:0:0';
+            clmbnds=[];
+        else
+            fname = fnames(ff).name;
+            extidx = strfind(fname,'.');
+            itrs = str2double(fname(extidx(1)+1:extidx(2)-1));
+            myDiag=rdmds2gcmfaces([dirIn fileDiags '*'],itrs,'rec',irec);
+            
+            tim(ff) = itrs;
+            
+        end
+        
+        
+        
+        %if doClim then replace time series with monthly climatology and assign climatology_bounds variable
+        if doClim;
+            myDiag=compClim(myDiag);
+            %set tim to first year values for case of unsupported 'climatology' attribute (see below)
+            tim=tim(1:12);
+            %'climatology' attribute + 'climatology_bounds' variable will be added as shown at
+            %http://cfconventions.org/cf-conventions/v1.6.0/cf-conventions.html#climatological-statistics
+            for tt=1:12;
+                tmpb=begtim(tt:12:nn); tmpe=endtim(tt:12:nn) ;
+                clmbnds=[clmbnds;[tmpb(1) tmpe(end)]];
+            end;
+        end;
+        
+        
+        %apply mask(, and convert to land mask)
+        if isfield(grid_diag,'msk');
+            msk=grid_diag.msk;
+            if length(size(myDiag{1}))==3;
+                msk=repmat(msk(:,:,1),[1 1 size(myDiag{1},3)]);
+            else;
+                msk=repmat(msk,[1 1 1 size(myDiag{1},4)]);
+            end;
+            myDiag=myDiag.*msk;
+            clear msk;
+            %
+            %land=isnan(grid_diag.msk);
+        end;
+        
+        %create netcdf file using write2nctiles
+        doCreate=1; myDiag=single(myDiag);
+        if iterateOverFiles && ff == 1
+            start = [0 0 0 0];
+            dimlist=write2nctiles(myFile,myDiag,doCreate,{'tileNo',tileNo},...
+                {'fldName',nameDiagOut},{'longName',avail_diag.longNameDiag},{'xtype','float'},...
+                {'units',avail_diag.units},{'descr',nameDiagOut},{'coord',coord},{'dimlist',dimlist},...
+                {'dimname',dimname},{'clmbnds',clmbnds},{'rdm',rdm},{'TIME_UNLIMITED',TIME_UNLIMITED},{'start',start});
+        elseif iterateOverFiles
+            %for tt = 2:size(myDiag.f1,4)
+            doCreate = 0;
+            start(1) = ff-1;
+            dimlist=write2nctiles(myFile,myDiag,doCreate,{'tileNo',tileNo},...
+                {'fldName',nameDiagOut},{'longName',avail_diag.longNameDiag},{'xtype','float'},...
+                {'units',avail_diag.units},{'descr',nameDiagOut},{'coord',coord},{'dimlist',dimlist{1}},...
+                {'dimname',dimname},{'clmbnds',clmbnds},{'rdm',rdm},{'TIME_UNLIMITED',TIME_UNLIMITED},{'start',start});
+            %end
+            
+        else
+            dimlist=write2nctiles(myFile,myDiag,doCreate,{'tileNo',tileNo},...
+                {'fldName',nameDiagOut},{'longName',avail_diag.longNameDiag},{'xtype','float'},...
+                {'units',avail_diag.units},{'descr',nameDiagOut},{'coord',coord},{'dimlist',dimlist},...
+                {'dimname',dimname},{'clmbnds',clmbnds},{'rdm',rdm});
+        end
+    end
     %determine relevant dimensions
     for ff=1:length(dimlist);
         dim.tim{ff}={dimlist{ff}{1}};
@@ -189,13 +241,16 @@ for vv=1:length(listFlds);
     %prepare to add fields
     doCreate=0;
     
+    
     %now add fields
     write2nctiles(myFile,grid_diag.lon,doCreate,{'tileNo',tileNo},...
         {'fldName','lon'},{'units','degrees_east'},{'dimIn',dim.twoD});
     write2nctiles(myFile,grid_diag.lat,doCreate,{'tileNo',tileNo},...
         {'fldName','lat'},{'units','degrees_north'},{'dimIn',dim.twoD});
-    write2nctiles(myFile,tim,doCreate,{'tileNo',tileNo},{'fldName','tim'},...
-        {'longName','time'},{'units',timUnits},{'dimIn',dim.tim},{'clmbnds',clmbnds});
+    %if ~iterateOverFiles
+        write2nctiles(myFile,tim,doCreate,{'tileNo',tileNo},{'fldName','tim'},...
+            {'longName','time'},{'units',timUnits},{'dimIn',dim.tim},{'clmbnds',clmbnds});
+    %end
     if isfield(grid_diag,'dep');
         write2nctiles(myFile,grid_diag.dep,doCreate,{'tileNo',tileNo},...
             {'fldName','dep'},{'units','m'},{'dimIn',dim.dep});

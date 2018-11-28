@@ -67,7 +67,7 @@ end;
 longName=''; units='(unknown)'; missval=NaN; fillval=NaN;
 coord=''; dimIn=[]; dimlist=[]; dimname=[]; dimsize=[];
 tileNo=mygrid.XC; for ff=1:mygrid.nFaces; tileNo{ff}(:)=ff; end;
-clmbnds=[]; xtype='double'; descr=''; rdm='';
+clmbnds=[]; xtype='double'; descr=''; rdm=''; TIME_UNLIMITED = 0;
 
 %set more optional paramaters to user defined values
 for ii=1:nargin-3;
@@ -99,7 +99,9 @@ for ii=1:nargin-3;
                 strcmp(varargin{ii}{1},'dimname')|...
                 strcmp(varargin{ii}{1},'dimsize')|...
                 strcmp(varargin{ii}{1},'clmbnds')|...
-                strcmp(varargin{ii}{1},'xtype');
+                strcmp(varargin{ii}{1},'xtype')|...
+                strcmp(varargin{ii}{1},'TIME_UNLIMITED')|...
+                strcmp(varargin{ii}{1},'start');
             eval([varargin{ii}{1} '=varargin{ii}{2};']);
         else;
             warning('inputCheck:write2nctiles_3',...
@@ -124,7 +126,7 @@ if fldInIsaGcmfaces&~fldInIsEmpty;
                 tmp1=fldIn{gg}(tmpi,tmpj,:,:);
             end;
         end;
-        fldTiles{ff}=tmp1;
+            fldTiles{ff}=tmp1;
     end;
     clear fldIn;
 elseif fldInIsaGcmfaces;
@@ -146,6 +148,10 @@ for ff=1:ntile;
         fldTile=fldIn;
     end;
     fileTile=[fileOut sprintf('.%04d.nc',ff)];
+    
+    if TIME_UNLIMITED % Only one time step, need to add time dimension
+        fldTile = reshape(fldTile,1,size(fldTile,1),size(fldTile,2),size(fldTile,3));
+    end
     
     %select dimensions of relevance:
     if ~fldInIsEmpty;
@@ -170,7 +176,11 @@ for ff=1:ntile;
     end;
     
     %omit singleton dimensions:
-    ii=find(dimsize~=1);
+    if TIME_UNLIMITED % if time is unlimited allow singleton time dimension
+        ii=find(dimsize~=1 + strcmp(dimlist,'t'));
+    else
+        ii=find(dimsize~=1);
+    end
     dimsize=dimsize(ii);
     if need_dimlist || length(dimlist) > length(dimsize); dimlist={dimlist{ii}}; end; %LM: handle single time step
     if need_dimlist || length(dimname) > length(dimsize); dimname={dimname{ii}}; end;
@@ -194,7 +204,7 @@ for ff=1:ntile;
     if doCreate;
         %create netcdf file:
         %-------------------
-        if prod(dimsize)*4/1e9<1.5;%use (always available) basic netcdf:
+        if prod(dimsize)*4/1e9<1.5 && ~TIME_UNLIMITED;%use (always available) basic netcdf:
             mode='clobber';
         else;%to allow for large file:
             mode='NETCDF4';
@@ -225,7 +235,14 @@ for ff=1:ntile;
         ncputAtt(ncid,'','ntile',ntile);
         
         %ncdefDim(ncid,'itxt',30);
-        for dd=1:length(dimlist); ncdefDim(ncid,dimlist{dd},dimsize(dd)); end;
+        
+        for dd=1:length(dimlist)
+            if strcmp(dimlist{dd},'t') && TIME_UNLIMITED
+                ncdefDim(ncid,dimlist{dd},netcdf.getConstant('UNLIMITED'))
+            else
+                ncdefDim(ncid,dimlist{dd},dimsize(dd))
+            end
+        end
         if ~isempty(clmbnds); ncdefDim(ncid,'tcb',2); end;
         
         for dd=1:length(dimlist);
@@ -239,7 +256,9 @@ for ff=1:ntile;
         %-------------------------------------------------
         ncid=ncopen(fileTile,'write');
         for dd=1:length(dimlist);
-            ncputvar(ncid,dimlist{dd},getfield(dimvec,dimlist{dd}));
+            if ~(strcmp(dimlist{dd},'t') && TIME_UNLIMITED) % don't write time var for unlimited time
+                ncputvar(ncid,dimlist{dd},getfield(dimvec,dimlist{dd}));
+            end
         end;
         ncclose(ncid);
     end;
@@ -255,7 +274,10 @@ for ff=1:ntile;
     ncid=ncopen(fileTile,'write');
     %
     netcdf.reDef(ncid);
-    ncdefVar(ncid,fldName,xtype,flipdim(dimlist,2));%note the direction flip
+    if ~TIME_UNLIMITED || (doCreate && nDim > 2)
+        %ncdefVar(ncid,fldName,xtype,flipdim(dimlist(2:end),2));
+        ncdefVar(ncid,fldName,xtype,flipdim(dimlist,2));%note the direction flip
+    end
     if ~isempty(longName); ncputAtt(ncid,fldName,'long_name',longName); end;
     if ~isempty(units); ncputAtt(ncid,fldName,'units',units); end;
     if ~isempty(coord); ncputAtt(ncid,fldName,'coordinates',coord); end;
@@ -276,7 +298,15 @@ for ff=1:ntile;
     if strcmp(fldName,'thic'); ncputAtt(ncid,fldName,'standard_name','cell_thickness'); end;
     netcdf.endDef(ncid);
     %
-    if ~fldInIsEmpty; ncputvar(ncid,fldName,fldTile); end;
+    
+    if ~fldInIsEmpty
+        if TIME_UNLIMITED
+            count = [1 dimsize(2:end)];
+            ncputvar(ncid,fldName,fldTile,start,count);
+        else
+            ncputvar(ncid,fldName,fldTile);
+        end
+    end
     %
     if strcmp(fldName,'tim')&~isempty(clmbnds);
         ncputvar(ncid,'climatology_bounds',clmbnds);
