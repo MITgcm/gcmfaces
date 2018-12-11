@@ -95,8 +95,6 @@ for vv=1:length(listFlds);
     irec=find(strcmp(deblank(meta.fldList),nameDiag));
     if length(irec)~=1; error('field not in file\n'); end;
     
-    %read time series LM: setting to read in one time step at a time?
-    
     if iterateOverFiles
         fnames = dir([dirIn fileDiags '*.data']);
         tim = zeros(length(fnames),1);
@@ -136,9 +134,15 @@ for vv=1:length(listFlds);
     
     %set 'coord' attribute
     if avail_diag.nr~=1;
-        coord='lon lat dep tim';
-        dimlist={'t',grid_diag.dimlist{:}};
-        dimname={'Time coordinate','Cartesian coordinate 3','Cartesian coordinate 2','Cartesian coordinate 1'};
+        if isfield(mygrid,'latlon1D') && mygrid.latlon1D
+            coord='';
+            dimlist={'t',grid_diag.dimlist{:}};
+            dimname={'Time coordinate','Cartesian coordinate 3','Cartesian coordinate 2','Cartesian coordinate 1'};
+        else
+            coord='lon lat dep tim';
+            dimlist={'t',grid_diag.dimlist{:}};
+            dimname={'Time coordinate','Cartesian coordinate 3','Cartesian coordinate 2','Cartesian coordinate 1'};
+        end
     else;
         coord='lon lat tim';
         dimlist={'t',grid_diag.dimlist{:}};
@@ -147,6 +151,7 @@ for vv=1:length(listFlds);
     
     for ff = 1:length(fnames)
         if iscell(fnames)
+            %read time series
             myDiag=rdmds2gcmfaces([dirIn fileDiags '*'],NaN,'rec',irec);
             
             %set ancilliary time variable
@@ -164,6 +169,8 @@ for vv=1:length(listFlds);
             fname = fnames(ff).name;
             extidx = strfind(fname,'.');
             itrs = str2double(fname(extidx(1)+1:extidx(2)-1));
+            
+            %read time series
             myDiag=rdmds2gcmfaces([dirIn fileDiags '*'],itrs,'rec',irec);
             
             tim(ff) = itrs;
@@ -229,6 +236,8 @@ for vv=1:length(listFlds);
     for ff=1:length(dimlist);
         dim.tim{ff}={dimlist{ff}{1}};
         dim.twoD{ff}={dimlist{ff}{end-1:end}};
+        dim.lon{ff} = {dim.twoD{ff}{2}};
+        dim.lat{ff} = {dim.twoD{ff}{1}};
         if avail_diag.nr~=1;
             dim.threeD{ff}={dimlist{ff}{end-2:end}};
             dim.dep{ff}={dimlist{ff}{end-2}};
@@ -241,12 +250,23 @@ for vv=1:length(listFlds);
     %prepare to add fields
     doCreate=0;
     
+%     if isfield(mygrid,'latlon1D') && mygrid.latlon1D
+%         mygrid.XC = mygrid.XC_1D;
+%         mygrid.YC = mygrid.YC_1D;
+%     end
     
     %now add fields
-    write2nctiles(myFile,grid_diag.lon,doCreate,{'tileNo',tileNo},...
-        {'fldName','lon'},{'units','degrees_east'},{'dimIn',dim.twoD});
-    write2nctiles(myFile,grid_diag.lat,doCreate,{'tileNo',tileNo},...
-        {'fldName','lat'},{'units','degrees_north'},{'dimIn',dim.twoD});
+    if isfield(mygrid,'latlon1D') && mygrid.latlon1D
+        write2nctiles(myFile,grid_diag.lon,doCreate,{'tileNo',tileNo},...
+            {'fldName','lon'},{'units','degrees_east'},{'dimIn',dim.lon});
+        write2nctiles(myFile,grid_diag.lat,doCreate,{'tileNo',tileNo},...
+            {'fldName','lat'},{'units','degrees_north'},{'dimIn',dim.lat});
+    else
+        write2nctiles(myFile,grid_diag.lon,doCreate,{'tileNo',tileNo},...
+            {'fldName','lon'},{'units','degrees_east'},{'dimIn',dim.twoD});
+        write2nctiles(myFile,grid_diag.lat,doCreate,{'tileNo',tileNo},...
+            {'fldName','lat'},{'units','degrees_north'},{'dimIn',dim.twoD});
+    end
     %if ~iterateOverFiles
         write2nctiles(myFile,tim,doCreate,{'tileNo',tileNo},{'fldName','tim'},...
             {'longName','time'},{'units',timUnits},{'dimIn',dim.tim},{'clmbnds',clmbnds});
@@ -332,10 +352,16 @@ gcmfaces_global;
 
 %switch for non-tracer point values
 if strcmp(avail_diag.loc_h,'C');
-    grid_diag.lon=mygrid.XC; grid_diag.lat=mygrid.YC;
+    if isfield(mygrid,'latlon1D') && mygrid.latlon1D
+        grid_diag.lon=mygrid.XC_1D; grid_diag.lat=mygrid.YC_1D;
+        grid_diag.dimlist={'lat','lon'};
+    else
+        grid_diag.lon=mygrid.XC; grid_diag.lat=mygrid.YC;
+        grid_diag.dimlist={'j_c','i_c'};
+    end
     if isfield(mygrid,'mskC'); grid_diag.msk=mygrid.mskC(:,:,1:avail_diag.nr); end;
     if isfield(mygrid,'RAC'); grid_diag.area=mygrid.RAC; end;
-    grid_diag.dimlist={'j_c','i_c'};
+    
 elseif strcmp(avail_diag.loc_h,'W');
     grid_diag.lon=mygrid.XW; grid_diag.lat=mygrid.YW;
     if isfield(mygrid,'mskW'); grid_diag.msk=mygrid.mskW(:,:,1:avail_diag.nr); end;

@@ -274,7 +274,7 @@ for ff=1:ntile;
     ncid=ncopen(fileTile,'write');
     %
     netcdf.reDef(ncid);
-    if ~TIME_UNLIMITED || (doCreate && nDim > 2)
+    if (~TIME_UNLIMITED || (doCreate && nDim > 2)) && ~(isempty(coord) && (strcmp(fldName,'lon') || strcmp(fldName,'lat')))
         %ncdefVar(ncid,fldName,xtype,flipdim(dimlist(2:end),2));
         ncdefVar(ncid,fldName,xtype,flipdim(dimlist,2));%note the direction flip
     end
