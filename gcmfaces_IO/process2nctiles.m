@@ -210,7 +210,7 @@ for vv=1:length(listFlds);
         %create netcdf file using write2nctiles
         doCreate=1; myDiag=single(myDiag);
         if iterateOverFiles && ff == 1
-            start = [0 0 0 0];
+            start = zeros(1,length(dimlist)); %[0 0 0 0];
             dimlist=write2nctiles(myFile,myDiag,doCreate,{'tileNo',tileNo},...
                 {'fldName',nameDiagOut},{'longName',avail_diag.longNameDiag},{'xtype','float'},...
                 {'units',avail_diag.units},{'descr',nameDiagOut},{'coord',coord},{'dimlist',dimlist},...
@@ -250,10 +250,6 @@ for vv=1:length(listFlds);
     %prepare to add fields
     doCreate=0;
     
-%     if isfield(mygrid,'latlon1D') && mygrid.latlon1D
-%         mygrid.XC = mygrid.XC_1D;
-%         mygrid.YC = mygrid.YC_1D;
-%     end
     
     %now add fields
     if isfield(mygrid,'latlon1D') && mygrid.latlon1D

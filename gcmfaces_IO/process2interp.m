@@ -20,6 +20,8 @@ gcmfaces_global;
 %search for fileDiags in subdirectories
 %[subDir]=rdmds_search_subdirs(dirDiags,fileDiags);
 %read meta file to get list of variables
+
+if nargin < 8
 [meta]=rdmds_meta([dirDiags subDir fileDiags]);
 %set listInterp based on available_diagnostics.log
 listInterp={};
@@ -38,7 +40,7 @@ for ii=1:length(meta.fldList);
 end;
 
 if nargin==5; return; end;
-
+end
 %% ======== PART 2 =======
 
 if nargin>=6; listInterp=varargin{1}; end;
@@ -68,7 +70,11 @@ for ii=1:length(listInterp);
         fldOut = varargin{2};
         filOut = varargin{3};
         kk=strfind(filOut,'.00');
-        filOut=[nameDiag filOut(kk(1):end)];
+        if isempty(kk)
+            filOut = nameDiag;
+        else
+            filOut=[nameDiag filOut(kk(1):end)];
+        end
         
         if ~isempty(dir([dirOut nameDiag filesep filOut '.data']));
             fprintf(['\n File was found: ' dirOut nameDiag filesep filOut '.data']);
