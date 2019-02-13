@@ -274,7 +274,7 @@ for ff=1:ntile;
     ncid=ncopen(fileTile,'write');
     %
     netcdf.reDef(ncid);
-    if (~TIME_UNLIMITED || (doCreate && nDim > 2))% && ~(isempty(coord) && (strcmp(fldName,'lon') || strcmp(fldName,'lat')))
+    if doCreate
         %ncdefVar(ncid,fldName,xtype,flipdim(dimlist(2:end),2));
         ncdefVar(ncid,fldName,xtype,flipdim(dimlist,2));%note the direction flip
     end
@@ -284,7 +284,7 @@ for ff=1:ntile;
     if strcmp(fldName,'lon'); ncputAtt(ncid,fldName,'standard_name','longitude'); end;
     if strcmp(fldName,'lat'); ncputAtt(ncid,fldName,'standard_name','latitude'); end;
     if strcmp(fldName,'dep'); ncputAtt(ncid,fldName,'standard_name','depth'); end;
-    if strcmp(fldName,'tim');
+    if strcmp(fldName,'t');
         ncputAtt(ncid,fldName,'standard_name','time');
         if ~isempty(clmbnds);
             ncputAtt(ncid,fldName,'climatology','climatology_bounds');
@@ -308,7 +308,7 @@ for ff=1:ntile;
         end
     end
     %
-    if strcmp(fldName,'tim')&~isempty(clmbnds);
+    if strcmp(fldName,'t')&~isempty(clmbnds);
         ncputvar(ncid,'climatology_bounds',clmbnds);
     end;
     %

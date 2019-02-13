@@ -13,7 +13,7 @@ function []=interp2nctiles(dirDiags,listDo,iterateOverFiles,latlon1D);
 gcmfaces_global; global mygrid_orig;
 
 if isempty(mygrid_orig); mygrid_orig=mygrid; end;
-if isempty(whos('iterateOverFiles')); iterateOverFiles=0; end;
+if isempty(whos('iterateOverFiles')); iterateOverFiles=1; end;
 if isempty(whos('latlon1D')); latlon1D=0; end;
 
 lon=[-179.75:0.5:179.75]; lat=[-89.75:0.5:89.75];

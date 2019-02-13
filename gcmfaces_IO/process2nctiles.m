@@ -1,4 +1,4 @@
-function []=process2nctiles(dirDiags,fileDiags,selectFld,tileSize,iterateOverFiles);
+function []=process2nctiles(dirDiags,fileDiags,selectFld,tileSize,iterateOverFiles,clmbnds);
 %process2nctiles(dirDiags,fileDiags);
 % object : convert MITgcm binary output to netcdf files (tiled)
 % inputs : dirDiags is the directory containing binary model output from
@@ -32,7 +32,7 @@ gcmfaces_global;
 
 if isempty(whos('selectFld')); selectFld=''; end;
 if isempty(whos('tileSize')); tileSize=[]; end;
-if isempty(whos('iterateOverFiles')); iterateOverFiles=0; end;
+if isempty(whos('iterateOverFiles')); iterateOverFiles=1; end;
 TIME_UNLIMITED = iterateOverFiles;
 
 %replace time series with monthly climatology?
@@ -105,7 +105,7 @@ for vv=1:length(listFlds);
         endtim=[1992*ones(nn,1) [1:nn]' 1+ones(nn,1)];
         endtim=datenum(endtim)-datenum([1992 1 1]);
         timUnits='days since 1992-1-1 0:0:0';
-        clmbnds=[];
+        if ~exist('clmbnds','var'); clmbnds=[]; end;
     else
         fnames = {[dirIn fileDiags '*']};
     end
@@ -164,7 +164,7 @@ for vv=1:length(listFlds);
             endtim=[1992*ones(nn,1) [1:nn]' 1+ones(nn,1)];
             endtim=datenum(endtim)-datenum([1992 1 1]);
             timUnits='days since 1992-1-1 0:0:0';
-            clmbnds=[];
+            if ~exist('clmbnds','var'); clmbnds=[]; end;
         else
             fname = fnames(ff).name;
             extidx = strfind(fname,'.');
@@ -263,10 +263,10 @@ for vv=1:length(listFlds);
         write2nctiles(myFile,grid_diag.lat,doCreate,{'tileNo',tileNo},...
             {'fldName','lat'},{'units','degrees_north'},{'dimIn',dim.twoD});
     end
-    %if ~iterateOverFiles
-        write2nctiles(myFile,tim,doCreate,{'tileNo',tileNo},{'fldName','tim'},...
-            {'longName','time'},{'units',timUnits},{'dimIn',dim.tim},{'clmbnds',clmbnds});
-    %end
+    % LM 02/13/2019: change name from "tim" to "t" to match previous field name
+    % Otherwise time can't be interpreted by xarray
+    write2nctiles(myFile,tim,doCreate,{'tileNo',tileNo},{'fldName','t'},...
+        {'longName','time'},{'units',timUnits},{'dimIn',dim.tim},{'clmbnds',clmbnds});
     if isfield(grid_diag,'dep');
         write2nctiles(myFile,grid_diag.dep,doCreate,{'tileNo',tileNo},...
             {'fldName','dep'},{'units','m'},{'dimIn',dim.dep});
