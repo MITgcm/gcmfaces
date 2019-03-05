@@ -1,4 +1,4 @@
-function [fld]=read_nctiles(fileName,fldName,varargin);
+function [fld,clmbnds]=read_nctiles(fileName,fldName,varargin);
 %usage: fld=read_nctiles(fileName);                reads full field using fileName as field name
 %usage: fld=read_nctiles(fileName,fldName);        reads full field (all depths, all times)
 %usage: fld=read_nctiles(fileName,fldName,tt);     reads 3D or 2D field, at time index tt (all depths)
@@ -9,7 +9,7 @@ function [fld]=read_nctiles(fileName,fldName,varargin);
 %      to 1 so that read_nctiles reverts to the old convention. 
 
 gcmfaces_global;
-nz=length(mygrid.RC);
+
 
 if nargin==1; 
   tmp1=['/' fileName];
@@ -22,6 +22,7 @@ else;
     tt=[]; 
 end;
 if nargin>3; 
+    nz=length(mygrid.RC);
     kk=varargin{2}; 
     if min(kk)<1 | max(kk)>nz
         error(['kk must be an integer between 1 and ' num2str(nz)])
@@ -146,6 +147,10 @@ else
 end;
 fldTile=netcdf.getVar(nc,vv,start,count);
 fldTile=squeeze(fldTile);
+
+climID = netcdf.inqVarID(nc,'climatology_bounds');
+clmbnds = netcdf.getVar(nc,climID);
+
 netcdf.close(nc);
 
 %initialize fld (full gcmfaces object)

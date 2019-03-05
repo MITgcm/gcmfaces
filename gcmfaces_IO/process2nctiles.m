@@ -1,4 +1,4 @@
-function []=process2nctiles(dirDiags,fileDiags,selectFld,tileSize,iterateOverFiles,clmbnds);
+function []=process2nctiles(dirDiags,fileDiags,selectFld,tileSize);
 %process2nctiles(dirDiags,fileDiags);
 % object : convert MITgcm binary output to netcdf files (tiled)
 % inputs : dirDiags is the directory containing binary model output from
@@ -32,12 +32,15 @@ gcmfaces_global;
 
 if isempty(whos('selectFld')); selectFld=''; end;
 if isempty(whos('tileSize')); tileSize=[]; end;
-if isempty(whos('iterateOverFiles')); iterateOverFiles=1; end;
-TIME_UNLIMITED = iterateOverFiles;
+TIME_UNLIMITED = 1;
 
 %replace time series with monthly climatology?
 %doClim=1; 
-doClim=0; if doClim; fprintf('\n Creating monthly climatology (doClim=1) \n\n'); end;
+doClim=0;
+if doClim
+    fprintf('\n Creating monthly climatology (doClim=1) \n\n')
+    TIME_UNLIMITED = 0;
+end
 
 %needed files
 filAvailDiag=[dirDiags 'available_diagnostics.log'];
@@ -95,15 +98,9 @@ for vv=1:length(listFlds);
     irec=find(strcmp(deblank(meta.fldList),nameDiag));
     if length(irec)~=1; error('field not in file\n'); end;
     
-    if iterateOverFiles
+    if TIME_UNLIMITED
         fnames = dir([dirIn fileDiags '*.data']);
         tim = zeros(length(fnames),1);
-        
-        nn = length(fnames);
-        begtim=[1992*ones(nn,1) [1:nn]' ones(nn,1)];
-        begtim=datenum(begtim)-datenum([1992 1 1]);
-        endtim=[1992*ones(nn,1) [1:nn]' 1+ones(nn,1)];
-        endtim=datenum(endtim)-datenum([1992 1 1]);
         timUnits='days since 1992-1-1 0:0:0';
         if ~exist('clmbnds','var'); clmbnds=[]; end;
     else
@@ -136,21 +133,22 @@ for vv=1:length(listFlds);
     if avail_diag.nr~=1;
         if isfield(mygrid,'latlon1D') && mygrid.latlon1D
             coord='';
-            dimlist={'t',grid_diag.dimlist{:}};
+            dimlist={'tim',grid_diag.dimlist{:}};
             dimname={'Time coordinate','Cartesian coordinate 3','Cartesian coordinate 2','Cartesian coordinate 1'};
         else
             coord='lon lat dep tim';
-            dimlist={'t',grid_diag.dimlist{:}};
+            dimlist={'tim',grid_diag.dimlist{:}};
             dimname={'Time coordinate','Cartesian coordinate 3','Cartesian coordinate 2','Cartesian coordinate 1'};
         end
     else;
         coord='lon lat tim';
-        dimlist={'t',grid_diag.dimlist{:}};
+        dimlist={'tim',grid_diag.dimlist{:}};
         dimname={'Time coordinate','Cartesian coordinate 2','Cartesian coordinate 1'};
     end;
     
     for ff = 1:length(fnames)
-        if iscell(fnames)
+        if iscell(fnames) % Not iterating over files
+            
             %read time series
             myDiag=rdmds2gcmfaces([dirIn fileDiags '*'],NaN,'rec',irec);
             
@@ -165,7 +163,7 @@ for vv=1:length(listFlds);
             endtim=datenum(endtim)-datenum([1992 1 1]);
             timUnits='days since 1992-1-1 0:0:0';
             if ~exist('clmbnds','var'); clmbnds=[]; end;
-        else
+        else % Iterating over files
             fname = fnames(ff).name;
             extidx = strfind(fname,'.');
             itrs = str2double(fname(extidx(1)+1:extidx(2)-1));
@@ -174,12 +172,10 @@ for vv=1:length(listFlds);
             myDiag=rdmds2gcmfaces([dirIn fileDiags '*'],itrs,'rec',irec);
             
             tim(ff) = itrs;
-            
         end
         
-        
-        
         %if doClim then replace time series with monthly climatology and assign climatology_bounds variable
+        % If doClim won't be able to write out one timestep at a time
         if doClim;
             myDiag=compClim(myDiag);
             %set tim to first year values for case of unsupported 'climatology' attribute (see below)
@@ -191,7 +187,6 @@ for vv=1:length(listFlds);
                 clmbnds=[clmbnds;[tmpb(1) tmpe(end)]];
             end;
         end;
-        
         
         %apply mask(, and convert to land mask)
         if isfield(grid_diag,'msk');
@@ -209,21 +204,20 @@ for vv=1:length(listFlds);
         
         %create netcdf file using write2nctiles
         doCreate=1; myDiag=single(myDiag);
-        if iterateOverFiles && ff == 1
-            start = zeros(1,length(dimlist)); %[0 0 0 0];
+        
+        if TIME_UNLIMITED% First of many timesteps
+            dimlist_pass = dimlist;
+            if ff > 1
+                doCreate = 0;
+                dimlist_pass = dimlist{1};
+                start(1) = ff-1;
+            else
+                start = zeros(1,length(dimlist));
+            end
             dimlist=write2nctiles(myFile,myDiag,doCreate,{'tileNo',tileNo},...
                 {'fldName',nameDiagOut},{'longName',avail_diag.longNameDiag},{'xtype','float'},...
-                {'units',avail_diag.units},{'descr',nameDiagOut},{'coord',coord},{'dimlist',dimlist},...
+                {'units',avail_diag.units},{'descr',nameDiagOut},{'coord',coord},{'dimlist',dimlist_pass},...
                 {'dimname',dimname},{'clmbnds',clmbnds},{'rdm',rdm},{'TIME_UNLIMITED',TIME_UNLIMITED},{'start',start});
-        elseif iterateOverFiles
-            %for tt = 2:size(myDiag.f1,4)
-            doCreate = 0;
-            start(1) = ff-1;
-            dimlist=write2nctiles(myFile,myDiag,doCreate,{'tileNo',tileNo},...
-                {'fldName',nameDiagOut},{'longName',avail_diag.longNameDiag},{'xtype','float'},...
-                {'units',avail_diag.units},{'descr',nameDiagOut},{'coord',coord},{'dimlist',dimlist{1}},...
-                {'dimname',dimname},{'clmbnds',clmbnds},{'rdm',rdm},{'TIME_UNLIMITED',TIME_UNLIMITED},{'start',start});
-            %end
             
         else
             dimlist=write2nctiles(myFile,myDiag,doCreate,{'tileNo',tileNo},...
@@ -232,6 +226,7 @@ for vv=1:length(listFlds);
                 {'dimname',dimname},{'clmbnds',clmbnds},{'rdm',rdm});
         end
     end
+    
     %determine relevant dimensions
     for ff=1:length(dimlist);
         dim.tim{ff}={dimlist{ff}{1}};
@@ -250,7 +245,6 @@ for vv=1:length(listFlds);
     %prepare to add fields
     doCreate=0;
     
-    
     %now add fields
     if isfield(mygrid,'latlon1D') && mygrid.latlon1D
         write2nctiles(myFile,grid_diag.lon,doCreate,{'tileNo',tileNo},...
@@ -263,10 +257,8 @@ for vv=1:length(listFlds);
         write2nctiles(myFile,grid_diag.lat,doCreate,{'tileNo',tileNo},...
             {'fldName','lat'},{'units','degrees_north'},{'dimIn',dim.twoD});
     end
-    % LM 02/13/2019: change name from "tim" to "t" to match previous field name
-    % Otherwise time can't be interpreted by xarray
-    write2nctiles(myFile,tim,doCreate,{'tileNo',tileNo},{'fldName','t'},...
-        {'longName','time'},{'units',timUnits},{'dimIn',dim.tim},{'clmbnds',clmbnds});
+    write2nctiles(myFile,tim,doCreate,{'tileNo',tileNo},{'fldName','tim'},...
+        {'units',timUnits},{'dimIn',dim.tim},{'clmbnds',clmbnds});
     if isfield(grid_diag,'dep');
         write2nctiles(myFile,grid_diag.dep,doCreate,{'tileNo',tileNo},...
             {'fldName','dep'},{'units','m'},{'dimIn',dim.dep});
@@ -379,7 +371,7 @@ if avail_diag.nr~=1;
     if strcmp(avail_diag.loc_z,'M');
         grid_diag.dep=-mygrid.RC;
         if isfield(mygrid,'DRF'); grid_diag.dz=mygrid.DRF; end;
-        grid_diag.dimlist={'k_c',grid_diag.dimlist{:}};
+        grid_diag.dimlist={'dep',grid_diag.dimlist{:}};
     elseif strcmp(avail_diag.loc_z,'L');
         grid_diag.dep=-mygrid.RF(2:end);
         if isfield(mygrid,'DRC'); grid_diag.dz=mygrid.DRC(2:end); end;

@@ -1,4 +1,4 @@
-function []=interp2nctiles(dirDiags,listDo,iterateOverFiles,latlon1D);
+function []=interp2nctiles(dirDiags,listDo);
 % INTERP2CNTILES(dirDiags,listDo); 
 %   creates netcdf files from interpolated 
 %   fields that were created by process2interp. The 
@@ -13,8 +13,7 @@ function []=interp2nctiles(dirDiags,listDo,iterateOverFiles,latlon1D);
 gcmfaces_global; global mygrid_orig;
 
 if isempty(mygrid_orig); mygrid_orig=mygrid; end;
-if isempty(whos('iterateOverFiles')); iterateOverFiles=1; end;
-if isempty(whos('latlon1D')); latlon1D=0; end;
+if isempty(whos('latlon1D')); latlon1D=1; end;
 
 lon=[-179.75:0.5:179.75]; lat=[-89.75:0.5:89.75];
 [lat,lon] = meshgrid(lat,lon);
@@ -40,7 +39,7 @@ mygrid_latlon.latlon1D = latlon1D;
 
 mygrid=mygrid_latlon;
 for ii=1:length(listDo);
-tic; process2nctiles(dirDiags,listDo{ii},listDo{ii},tileSize,iterateOverFiles);
+tic; process2nctiles(dirDiags,listDo{ii},listDo{ii});
 fprintf(['DONE: ' listDo{ii} ' (in ' num2str(toc) 's)\n']);
 end;
 mygrid=mygrid_orig;

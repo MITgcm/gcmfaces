@@ -177,7 +177,7 @@ for ff=1:ntile;
     
     %omit singleton dimensions:
     if TIME_UNLIMITED % if time is unlimited allow singleton time dimension
-        ii=find(dimsize~=1 + strcmp(dimlist,'t'));
+        ii=find(dimsize~=1 + strcmp(dimlist,'tim'));
     else
         ii=find(dimsize~=1);
     end
@@ -237,7 +237,7 @@ for ff=1:ntile;
         %ncdefDim(ncid,'itxt',30);
         
         for dd=1:length(dimlist)
-            if strcmp(dimlist{dd},'t') && TIME_UNLIMITED
+            if strcmp(dimlist{dd},'tim') && TIME_UNLIMITED
                 ncdefDim(ncid,dimlist{dd},netcdf.getConstant('UNLIMITED'))
             else
                 ncdefDim(ncid,dimlist{dd},dimsize(dd))
@@ -256,7 +256,7 @@ for ff=1:ntile;
         %-------------------------------------------------
         ncid=ncopen(fileTile,'write');
         for dd=1:length(dimlist);
-            if ~(strcmp(dimlist{dd},'t') && TIME_UNLIMITED) % don't write time var for unlimited time
+            if ~(strcmp(dimlist{dd},'tim') && TIME_UNLIMITED) % don't write time var for unlimited time
                 ncputvar(ncid,dimlist{dd},getfield(dimvec,dimlist{dd}));
             end
         end;
@@ -284,7 +284,8 @@ for ff=1:ntile;
     if strcmp(fldName,'lon'); ncputAtt(ncid,fldName,'standard_name','longitude'); end;
     if strcmp(fldName,'lat'); ncputAtt(ncid,fldName,'standard_name','latitude'); end;
     if strcmp(fldName,'dep'); ncputAtt(ncid,fldName,'standard_name','depth'); end;
-    if strcmp(fldName,'t');
+    if strcmp(fldName,'dep'); ncputAtt(ncid,fldName,'positive','down'); end;
+    if strcmp(fldName,'tim');
         ncputAtt(ncid,fldName,'standard_name','time');
         if ~isempty(clmbnds);
             ncputAtt(ncid,fldName,'climatology','climatology_bounds');
@@ -308,7 +309,7 @@ for ff=1:ntile;
         end
     end
     %
-    if strcmp(fldName,'t')&~isempty(clmbnds);
+    if strcmp(fldName,'tim')&~isempty(clmbnds);
         ncputvar(ncid,'climatology_bounds',clmbnds);
     end;
     %

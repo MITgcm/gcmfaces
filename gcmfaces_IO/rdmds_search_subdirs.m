@@ -14,11 +14,19 @@ function [subDir]=rdmds_search_subdirs(dirDiags,fileDiags);
    else;
      subDir='';
    end;
-
+   
+   alldirs = {};
+   
    for ff=1:length(listDirs);
-     tmp1=dir([dirDiags listDirs(ff).name '/' fileDiags '*.data']);
-     if ~isempty(tmp1)&isempty(subDir); subDir=[listDirs(ff).name '/'];
-     elseif ~isempty(tmp1); error('fileDiags were found in two different locations');
-     end;
+       tmp1=dir([dirDiags listDirs(ff).name '/' fileDiags '.*.data']);
+       if ~isempty(tmp1)&isempty(subDir); subDir=[listDirs(ff).name '/']; alldirs = [alldirs {listDirs(ff).name}];
+       elseif ~isempty(tmp1);
+           alldirs = [alldirs {listDirs(ff).name}];
+       end;
    end;
+   
+   if length(alldirs) > 1
+       warning('fileDiags were found in multiple different locations. Selecting first location:');
+       disp(['Selecting ' subDir ' of:' char(10) strjoin(alldirs,',')])
+   end
 

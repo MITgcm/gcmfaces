@@ -1,4 +1,4 @@
-function [listInterp,listNot]=process2interp(dirDiags,fileDiags,subDir,dirOut,filAvailDiag,varargin);
+function [listInterp,listNot]=process2interp(dirDiags,fileDiags,varargin);
 % [listInterp,listNot]=PROCESS2INTERP(dirDiags,fileDiags);
 % []=PROCESS2INTERP(dirDiags,fileDiags,listInterp);
 %
@@ -11,39 +11,39 @@ function [listInterp,listNot]=process2interp(dirDiags,fileDiags,subDir,dirOut,fi
 %   process2interp(dirDiags,fileDiags,listInterp);
 
 gcmfaces_global;
-%dirOut=[dirDiags filesep 'diags_interp_tmp' filesep];
-%filAvailDiag=[dirDocs filesep 'available_diagnostics.log'];
+dirOut=[dirDiags filesep 'diags_interp_tmp' filesep]; % LM: if can't write to dirDiags won't work
+filAvailDiag=[dirDiags filesep 'available_diagnostics.log'];
 %filReadme=[dirDocs filesep 'README'];
 
 %% ======== PART 1 =======
-
 %search for fileDiags in subdirectories
-%[subDir]=rdmds_search_subdirs(dirDiags,fileDiags);
-%read meta file to get list of variables
+[subDir]=rdmds_search_subdirs(dirDiags,fileDiags);
 
-if nargin < 8
+%read meta file to get list of variables
 [meta]=rdmds_meta([dirDiags subDir fileDiags]);
-%set listInterp based on available_diagnostics.log
-listInterp={};
-listNot={};
-for ii=1:length(meta.fldList);
-    %get units and long name from available_diagnostics.log
-    [avail_diag]=read_avail_diag(filAvailDiag,meta.fldList{ii});
-    if ~isempty(avail_diag);
-        if strcmp(avail_diag.loc_h,'C');
-            ndiags=length(listInterp)+1;
-            listInterp={listInterp{:},deblank(meta.fldList{ii})};
-        else;
-            listNot={listNot{:},deblank(meta.fldList{ii})};
+
+if nargin < 3
+    %set listInterp based on available_diagnostics.log
+    listInterp={};
+    listNot={};
+    for ii=1:length(meta.fldList);
+        %get units and long name from available_diagnostics.log
+        [avail_diag]=read_avail_diag(filAvailDiag,meta.fldList{ii});
+        if ~isempty(avail_diag);
+            if strcmp(avail_diag.loc_h,'C');
+                ndiags=length(listInterp)+1;
+                listInterp={listInterp{:},deblank(meta.fldList{ii})};
+            else;
+                listNot={listNot{:},deblank(meta.fldList{ii})};
+            end;
         end;
     end;
-end;
-
-if nargin==5; return; end;
+    
+    if nargin==2; return; end;
 end
 %% ======== PART 2 =======
 
-if nargin>=6; listInterp=varargin{1}; end;
+if nargin>=3; listInterp=varargin{1}; end;
 if ischar(listInterp); listInterp={listInterp}; end;
 
 if ~isdir(dirOut); mkdir(dirOut); end;
@@ -65,7 +65,7 @@ for ii=1:length(listInterp);
     nameDiag=deblank(listInterp{ii});
     fprintf(['processing ' nameDiag '... \n']);
     
-    if nargin == 8 % passing in pre-loaded fld
+    if nargin == 5 % passing in pre-loaded fld
         
         fldOut = varargin{2};
         filOut = varargin{3};
