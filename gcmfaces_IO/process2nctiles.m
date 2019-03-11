@@ -54,7 +54,20 @@ if isempty(dir(filRename)); filRename=''; end;
 
 %output directory
 dirOut=[dirDiags 'nctiles_tmp/'];
-if ~isdir(dirOut); mkdir(dirOut); end;
+% Make sure output directory exists and is writable
+if ~isdir(dirOut)
+    try
+        mkdir(dirOut);
+    catch
+        error(['Cannot write to ' dirOut  ' please link the contents of ' dirOut ' to a folder where you have write permissions and try again.'])
+    end
+end
+try
+    save(fullfile(dirOut,'test.mat'),'dirOut');
+    delete(fullfile(dirOut,'test.mat'));
+catch
+   error(['Cannot write to ' dirOut  ' please link the contents of ' dirOut ' to a folder where you have write permissions and try again.'])
+end
 
 %search for fileDiags in subdirectories
 [subDir]=rdmds_search_subdirs(dirDiags,fileDiags);
@@ -82,7 +95,11 @@ end;
 
 %determine map of tile indices (by default tiles=faces)
 if isempty(tileSize);
-    tileNo=mygrid.XC;
+    if isa(mygrid.XC,'gcmfaces')
+        tileNo=mygrid.XC;
+    else
+        tileNo = gcmfaces({zeros(size(mygrid.XC,1),size(mygrid.YC,2))});
+    end
     for ff=1:mygrid.nFaces; tileNo{ff}(:)=ff; end;
 else;
     tileNo=gcmfaces_loc_tile(tileSize(1),tileSize(2));
@@ -131,7 +148,7 @@ for vv=1:length(listFlds);
     
     %set 'coord' attribute
     if avail_diag.nr~=1;
-        if isfield(mygrid,'latlon1D') && mygrid.latlon1D
+        if sum(size(mygrid.XC) > 1) == 1 % 1D lat lon
             coord='';
             dimlist={'tim',grid_diag.dimlist{:}};
             dimname={'Time coordinate','Cartesian coordinate 3','Cartesian coordinate 2','Cartesian coordinate 1'};
@@ -246,7 +263,7 @@ for vv=1:length(listFlds);
     doCreate=0;
     
     %now add fields
-    if isfield(mygrid,'latlon1D') && mygrid.latlon1D
+    if sum(size(mygrid.XC) > 1) == 1 % 1D lat lon
         write2nctiles(myFile,grid_diag.lon,doCreate,{'tileNo',tileNo},...
             {'fldName','lon'},{'units','degrees_east'},{'dimIn',dim.lon});
         write2nctiles(myFile,grid_diag.lat,doCreate,{'tileNo',tileNo},...
@@ -340,11 +357,10 @@ gcmfaces_global;
 
 %switch for non-tracer point values
 if strcmp(avail_diag.loc_h,'C');
-    if isfield(mygrid,'latlon1D') && mygrid.latlon1D
-        grid_diag.lon=mygrid.XC_1D; grid_diag.lat=mygrid.YC_1D;
+    grid_diag.lon=mygrid.XC; grid_diag.lat=mygrid.YC;
+    if sum(size(mygrid.XC) > 1) == 1 % lat/lon 1D
         grid_diag.dimlist={'lat','lon'};
     else
-        grid_diag.lon=mygrid.XC; grid_diag.lat=mygrid.YC;
         grid_diag.dimlist={'j_c','i_c'};
     end
     if isfield(mygrid,'mskC'); grid_diag.msk=mygrid.mskC(:,:,1:avail_diag.nr); end;
@@ -375,11 +391,11 @@ if avail_diag.nr~=1;
     elseif strcmp(avail_diag.loc_z,'L');
         grid_diag.dep=-mygrid.RF(2:end);
         if isfield(mygrid,'DRC'); grid_diag.dz=mygrid.DRC(2:end); end;
-        grid_diag.dimlist={'k_l',grid_diag.dimlist{:}};
+        grid_diag.dimlist={'dep',grid_diag.dimlist{:}};
     elseif strcmp(avail_diag.loc_z,'U');
         grid_diag.dep=-mygrid.RF(1:end-1);
         if isfield(mygrid,'DRC'); grid_diag.dz=mygrid.DRC(1:end-1); end;
-        grid_diag.dimlist={'k_u',grid_diag.dimlist{:}};
+        grid_diag.dimlist={'dep',grid_diag.dimlist{:}};
     else;
         error('unimplemented loc_z case');
     end;

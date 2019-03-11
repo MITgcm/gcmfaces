@@ -66,7 +66,12 @@ if isempty(fldName);
 end;
 longName=''; units='(unknown)'; missval=NaN; fillval=NaN;
 coord=''; dimIn=[]; dimlist=[]; dimname=[]; dimsize=[];
-tileNo=mygrid.XC; for ff=1:mygrid.nFaces; tileNo{ff}(:)=ff; end;
+if isa(mygrid.XC,'gcmfaces')
+    tileNo=mygrid.XC;
+else
+    tileNo = gcmfaces({zeros(size(mygrid.XC,1),size(mygrid.YC,2))});
+end
+for ff=1:mygrid.nFaces; tileNo{ff}(:)=ff; end;
 clmbnds=[]; xtype='double'; descr=''; rdm=''; TIME_UNLIMITED = 0;
 
 %set more optional paramaters to user defined values
@@ -272,9 +277,10 @@ for ff=1:ntile;
     %define and fill field:
     %----------------------
     ncid=ncopen(fileTile,'write');
+    finfo = ncinfo(fileTile);
     %
     netcdf.reDef(ncid);
-    if doCreate
+    if ~any(strcmp({finfo.Variables(:).Name},fldName)) % Create variable if it hasn't been created yet
         %ncdefVar(ncid,fldName,xtype,flipdim(dimlist(2:end),2));
         ncdefVar(ncid,fldName,xtype,flipdim(dimlist,2));%note the direction flip
     end

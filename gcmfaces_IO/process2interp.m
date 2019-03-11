@@ -11,7 +11,7 @@ function [listInterp,listNot]=process2interp(dirDiags,fileDiags,varargin);
 %   process2interp(dirDiags,fileDiags,listInterp);
 
 gcmfaces_global;
-dirOut=[dirDiags filesep 'diags_interp_tmp' filesep]; % LM: if can't write to dirDiags won't work
+dirOut=[dirDiags filesep 'diags_interp_tmp' filesep];
 filAvailDiag=[dirDiags filesep 'available_diagnostics.log'];
 %filReadme=[dirDocs filesep 'README'];
 
@@ -46,7 +46,20 @@ end
 if nargin>=3; listInterp=varargin{1}; end;
 if ischar(listInterp); listInterp={listInterp}; end;
 
-if ~isdir(dirOut); mkdir(dirOut); end;
+% Make sure output directory exists and is writable
+if ~isdir(dirOut)
+    try
+        mkdir(dirOut);
+    catch
+        error(['Cannot write to ' dirOut  ' please link the contents of ' dirOut ' to a folder where you have write permissions and try again.'])
+    end
+end
+try
+    save(fullfile(dirOut,'test.mat'),'dirOut');
+    delete(fullfile(dirOut,'test.mat'));
+catch
+   error(['Cannot write to ' dirOut  ' please link the contents of ' dirOut ' to a folder where you have write permissions and try again.'])
+end
 
 if isempty(dir(fullfile(dirOut,'interp_precomputed.mat')));
     lon=[-179.75:0.5:179.75]; lat=[-89.75:0.5:89.75];
