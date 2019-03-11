@@ -51,14 +51,14 @@ if ~isdir(dirOut)
     try
         mkdir(dirOut);
     catch
-        error(['Cannot write to ' dirOut  ' please link the contents of ' dirOut ' to a folder where you have write permissions and try again.'])
+        error(['Cannot write to ' dirDiags  ' please link the contents of ' dirDiags ' to a folder where you have write permissions and try again.'])
     end
 end
 try
     save(fullfile(dirOut,'test.mat'),'dirOut');
     delete(fullfile(dirOut,'test.mat'));
 catch
-   error(['Cannot write to ' dirOut  ' please link the contents of ' dirOut ' to a folder where you have write permissions and try again.'])
+   error(['Cannot write to ' dirDiags  ' please link the contents of ' dirDiags ' to a folder where you have write permissions and try again.'])
 end
 
 if isempty(dir(fullfile(dirOut,'interp_precomputed.mat')));
