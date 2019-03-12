@@ -4,8 +4,6 @@ function []=interp2nctiles(dirDiags,listDo);
 %   fields that were created by process2interp. The 
 %   input vector process2interp specifies the file subset
 %   to be processed (1:length(listInterp) by default).
-%   iterateOverFiles (optional)- set to 1 if files should be processed one
-%       time step at a time
 %
 % note: this routine overrides mygrid with mygrid_latlon 
 %   after storing the reference grid in mygrid_orig
@@ -13,7 +11,6 @@ function []=interp2nctiles(dirDiags,listDo);
 gcmfaces_global; global mygrid_orig;
 
 if isempty(mygrid_orig); mygrid_orig=mygrid; end;
-if isempty(whos('latlon1D')); latlon1D=1; end;
 
 lon=[-179.75:0.5:179.75]; lat=[-89.75:0.5:89.75];
 [lat,lon] = meshgrid(lat,lon);
@@ -34,7 +31,6 @@ mygrid_latlon.RF=mygrid.RF;
 %mygrid_latlon.mskC=1+0*repmat(mygrid_latlon.XC,[1 1  length(mygrid.RC)]);
 mygrid_latlon.gcm2facesFast=0;
 mygrid_latlon.facesExpand=[];
-%mygrid_latlon.latlon1D = latlon1D;
 
 mygrid=mygrid_latlon;
 for ii=1:length(listDo);

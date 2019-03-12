@@ -18,8 +18,6 @@ function []=process2nctiles(dirDiags,fileDiags,selectFld,tileSize);
 %            cell array of strings then each string will be treated as the field name.
 %         tileSize (optional) can be specified (e.g., [90 90]); if otherwise
 %            then tile sizes will be set to face sizes (i.e., mygrid.facesSize).
-%         iterateOverFiles (optional) when set to 1, willset "time" to 
-%           unlimited and iterate over files and process one at a time
 % Output : (netcdf files)
 %
 % Notes: available_diagnostics.log (need for documentation ...)
@@ -192,17 +190,18 @@ for vv=1:length(listFlds);
         end
         
         %if doClim then replace time series with monthly climatology and assign climatology_bounds variable
-        % If doClim won't be able to write out one timestep at a time
         if doClim;
             myDiag=compClim(myDiag);
             %set tim to first year values for case of unsupported 'climatology' attribute (see below)
             tim=tim(1:12);
             %'climatology' attribute + 'climatology_bounds' variable will be added as shown at
             %http://cfconventions.org/cf-conventions/v1.6.0/cf-conventions.html#climatological-statistics
-            for tt=1:12;
-                tmpb=begtim(tt:12:nn); tmpe=endtim(tt:12:nn) ;
-                clmbnds=[clmbnds;[tmpb(1) tmpe(end)]];
-            end;
+            if isempty(clmbnds)
+                for tt=1:12;
+                    tmpb=begtim(tt:12:nn); tmpe=endtim(tt:12:nn) ;
+                    clmbnds=[clmbnds;[tmpb(1) tmpe(end)]];
+                end;
+            end
         end;
         
         %apply mask(, and convert to land mask)
