@@ -95,7 +95,12 @@ for ii=1:length(listInterp);
         else
             filOut=[nameDiag filOut(kk(1):end)];
         end
-        listFiles = filOut;
+        listFiles = {filOut};
+        if length(size(fldOut{1})) == length(size(mygrid.mskC{1})) %3D
+            fldOut = fldOut.*mygrid.mskC;
+        else
+            fldOut = fldOut.*mygrid.mskC(:,:,1);
+        end
     else
         jj=find(strcmp(deblank(meta.fldList),nameDiag));
         myDiag=rdmds2gcmfaces([dirDiags subDir fileDiags '*'],NaN,'rec',jj);
@@ -108,12 +113,12 @@ for ii=1:length(listInterp);
             filOut=listFiles(tt).name(1:end-5);
             kk=strfind(filOut,'.00');
             filOut=[nameDiag filOut(kk(1):end)];
+            
+            if is3D; fldOut=myDiag(:,:,:,tt).*mygrid.mskC;
+            else; fldOut=myDiag(:,:,tt).*mygrid.mskC(:,:,1);
+            end;
         end
-
-        if is3D; fldOut=myDiag(:,:,:,tt).*mygrid.mskC;
-        else; fldOut=myDiag(:,:,tt).*mygrid.mskC(:,:,1);
-        end;
-
+        
         %interpolate one field
         tmp1=convert2vector(fldOut);
         tmp0=1*~isnan(tmp1);
