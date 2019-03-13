@@ -213,9 +213,9 @@ for vv=1:length(listFlds);
         %apply mask(, and convert to land mask)
         if isfield(grid_diag,'msk');
             msk=grid_diag.msk;
-            if length(size(myDiag{1}))==3;
-                msk=repmat(msk(:,:,1),[1 1 size(myDiag{1},3)]);
-            else;
+            if length(size(myDiag{1}))==3&&length(size(msk{1}))==2;
+                msk=repmat(msk,[1 1 size(myDiag{1},3)]);
+            elseif length(size(myDiag{1}))==4&&length(size(msk{1}))==3;
                 msk=repmat(msk,[1 1 1 size(myDiag{1},4)]);
             end;
             myDiag=myDiag.*msk;
