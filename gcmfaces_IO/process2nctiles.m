@@ -116,11 +116,12 @@ for vv=1:length(listFlds);
     if TIME_UNLIMITED
         fnames = dir([dirIn fileDiags '*.data']);
         tim = zeros(length(fnames),1);
-        timUnits='days since 1992-1-1 0:0:0';
-        if ~exist('clmbnds','var'); clmbnds=[]; end;
     else
         fnames = {[dirIn fileDiags '*']};
     end
+    timUnits='days since 1992-1-1 0:0:0';
+    tim0=datenum([1992 1 1]);
+    if ~exist('clmbnds','var'); clmbnds=[]; end;
     
     %get units and long name from available_diagnostics.log
    [avail_diag]=read_avail_diag(filAvailDiag,nameDiag);
@@ -146,47 +147,52 @@ for vv=1:length(listFlds);
     
     %set 'coord' attribute
     if avail_diag.nr~=1;
-        if sum(size(mygrid.XC) > 1) == 1 % 1D lat lon
+        if ~isa(mygrid.XC,'gcmfaces'); % 1D lat lon
             coord='';
             dimlist={'tim',grid_diag.dimlist{:}};
-            dimname={'Time coordinate','Cartesian coordinate 3','Cartesian coordinate 2','Cartesian coordinate 1'};
+            dimname={'time','depth','latitude','longitude'};
         else
-            coord='lon lat dep tim';
+            coord=['lon lat ' grid_diag.dimlist{1} ' tim'];
             dimlist={'tim',grid_diag.dimlist{:}};
-            dimname={'Time coordinate','Cartesian coordinate 3','Cartesian coordinate 2','Cartesian coordinate 1'};
+            dimname={'time','depth','Cartesian coordinate 2','Cartesian coordinate 1'};
         end
     else;
-        coord='lon lat tim';
-        dimlist={'tim',grid_diag.dimlist{:}};
-        dimname={'Time coordinate','Cartesian coordinate 2','Cartesian coordinate 1'};
+        if ~isa(mygrid.XC,'gcmfaces'); % 1D lat lon
+            coord='';
+            dimlist={'tim',grid_diag.dimlist{:}};
+            dimname={'time','latitude','longitude'};
+        else;
+            coord='lon lat tim';
+            dimlist={'tim',grid_diag.dimlist{:}};
+            dimname={'time','Cartesian coordinate 2','Cartesian coordinate 1'};
+        end;
     end;
     
     for ff = 1:length(fnames)
         if iscell(fnames) % Not iterating over files
             
-            %read time series
+            %read entire time series
             myDiag=rdmds2gcmfaces([dirIn fileDiags '*'],NaN,'rec',irec);
             
             %set ancilliary time variable
             nn=length(size(myDiag{1}));
             nn=size(myDiag{1},nn);
             tim=[1992*ones(nn,1) [1:nn]' 15*ones(nn,1)];
-            tim=datenum(tim)-datenum([1992 1 1]);
+            tim=datenum(tim)-tim0;
             begtim=[1992*ones(nn,1) [1:nn]' ones(nn,1)];
-            begtim=datenum(begtim)-datenum([1992 1 1]);
+            begtim=datenum(begtim)-tim0;
             endtim=[1992*ones(nn,1) [1:nn]' 1+ones(nn,1)];
-            endtim=datenum(endtim)-datenum([1992 1 1]);
-            timUnits='days since 1992-1-1 0:0:0';
-            if ~exist('clmbnds','var'); clmbnds=[]; end;
+            endtim=datenum(endtim)-tim0;
         else % Iterating over files
             fname = fnames(ff).name;
             extidx = strfind(fname,'.');
             itrs = str2double(fname(extidx(1)+1:extidx(2)-1));
             
-            %read time series
+            %read one record 
             myDiag=rdmds2gcmfaces([dirIn fileDiags '*'],itrs,'rec',irec);
-            
-            tim(ff) = itrs;
+
+            %set ancilliary time variable
+            tim(ff)=datenum(1992,ff,15)-tim0;
         end
         
         %if doClim then replace time series with monthly climatology and assign climatology_bounds variable
@@ -217,7 +223,7 @@ for vv=1:length(listFlds);
             %
             %land=isnan(grid_diag.msk);
         end;
-        
+
         %create netcdf file using write2nctiles
         doCreate=1; myDiag=single(myDiag);
         
@@ -262,26 +268,15 @@ for vv=1:length(listFlds);
     doCreate=0;
     
     %now add fields
-    if sum(size(mygrid.XC) > 1) == 1 % 1D lat lon
-        write2nctiles(myFile,grid_diag.lon,doCreate,{'tileNo',tileNo},...
-            {'fldName','lon'},{'units','degrees_east'},{'dimIn',dim.lon});
-        write2nctiles(myFile,grid_diag.lat,doCreate,{'tileNo',tileNo},...
-            {'fldName','lat'},{'units','degrees_north'},{'dimIn',dim.lat});
-    else
+    if isa(mygrid.XC,'gcmfaces');
         write2nctiles(myFile,grid_diag.lon,doCreate,{'tileNo',tileNo},...
             {'fldName','lon'},{'units','degrees_east'},{'dimIn',dim.twoD});
         write2nctiles(myFile,grid_diag.lat,doCreate,{'tileNo',tileNo},...
             {'fldName','lat'},{'units','degrees_north'},{'dimIn',dim.twoD});
     end
-    write2nctiles(myFile,tim,doCreate,{'tileNo',tileNo},{'fldName','tim'},...
-        {'units',timUnits},{'dimIn',dim.tim},{'clmbnds',clmbnds});
-    if isfield(grid_diag,'dep');
-        write2nctiles(myFile,grid_diag.dep,doCreate,{'tileNo',tileNo},...
-            {'fldName','dep'},{'units','m'},{'dimIn',dim.dep});
-        if isfield(grid_diag,'dz');
-            write2nctiles(myFile,grid_diag.dz,doCreate,{'tileNo',tileNo},...
-                {'fldName','thic'},{'units','m'},{'dimIn',dim.dep});
-        end;
+    if isfield(grid_diag,'dz');
+        write2nctiles(myFile,grid_diag.dz,doCreate,{'tileNo',tileNo},...
+            {'fldName','thic'},{'units','m'},{'dimIn',dim.dep});
     end;
     if isfield(grid_diag,'msk');
         write2nctiles(myFile,grid_diag.msk,doCreate,{'tileNo',tileNo},...
@@ -358,7 +353,7 @@ gcmfaces_global;
 if strcmp(avail_diag.loc_h,'C');
     grid_diag.lon=mygrid.XC; grid_diag.lat=mygrid.YC;
     if sum(size(mygrid.XC) > 1) == 1 % lat/lon 1D
-        grid_diag.dimlist={'lat','lon'};
+        grid_diag.dimlist={'lat_c','lon_c'};
     else
         grid_diag.dimlist={'j_c','i_c'};
     end
@@ -367,14 +362,22 @@ if strcmp(avail_diag.loc_h,'C');
     
 elseif strcmp(avail_diag.loc_h,'W');
     grid_diag.lon=mygrid.XW; grid_diag.lat=mygrid.YW;
+    if sum(size(mygrid.XC) > 1) == 1 % lat/lon 1D
+        grid_diag.dimlist={'lat_w','lon_w'};
+    else
+        grid_diag.dimlist={'j_w','i_w'};
+    end
     if isfield(mygrid,'mskW'); grid_diag.msk=mygrid.mskW(:,:,1:avail_diag.nr); end;
     if isfield(mygrid,'RAW'); grid_diag.area=mygrid.RAW; end;
-    grid_diag.dimlist={'j_w','i_w'};
 elseif strcmp(avail_diag.loc_h,'S');
     grid_diag.lon=mygrid.XS; grid_diag.lat=mygrid.YS;
+    if sum(size(mygrid.XC) > 1) == 1 % lat/lon 1D
+        grid_diag.dimlist={'lat_s','lon_s'};
+    else
+        grid_diag.dimlist={'j_s','i_s'};
+    end
     if isfield(mygrid,'mskS'); grid_diag.msk=mygrid.mskS(:,:,1:avail_diag.nr); end;
     if isfield(mygrid,'RAS'); grid_diag.area=mygrid.RAS; end;
-    grid_diag.dimlist={'j_s','i_s'};
 elseif strcmp(avail_diag.loc_h,'Z');
     error('remains to be implemented: loc_h=Z');
 else;
@@ -384,21 +387,23 @@ end;
 %vertical grid
 if avail_diag.nr~=1;
     if strcmp(avail_diag.loc_z,'M');
-        grid_diag.dep=-mygrid.RC;
+        grid_diag.dep_c=-mygrid.RC;
+        grid_diag.dep_c=reshape(grid_diag.dep_c,[1 1 avail_diag.nr]);
         if isfield(mygrid,'DRF'); grid_diag.dz=mygrid.DRF; end;
-        grid_diag.dimlist={'dep',grid_diag.dimlist{:}};
+        grid_diag.dimlist={'dep_c',grid_diag.dimlist{:}};
     elseif strcmp(avail_diag.loc_z,'L');
-        grid_diag.dep=-mygrid.RF(2:end);
+        grid_diag.dep_l=-mygrid.RF(2:end);
+        grid_diag.dep_l=reshape(grid_diag.dep_l,[1 1 avail_diag.nr]);
         if isfield(mygrid,'DRC'); grid_diag.dz=mygrid.DRC(2:end); end;
-        grid_diag.dimlist={'dep',grid_diag.dimlist{:}};
+        grid_diag.dimlist={'dep_l',grid_diag.dimlist{:}};
     elseif strcmp(avail_diag.loc_z,'U');
-        grid_diag.dep=-mygrid.RF(1:end-1);
+        grid_diag.dep_u=-mygrid.RF(1:end-1);
+        grid_diag.dep_u=reshape(grid_diag.dep_u,[1 1 avail_diag.nr]);
         if isfield(mygrid,'DRC'); grid_diag.dz=mygrid.DRC(1:end-1); end;
-        grid_diag.dimlist={'dep',grid_diag.dimlist{:}};
+        grid_diag.dimlist={'dep_u',grid_diag.dimlist{:}};
     else;
         error('unimplemented loc_z case');
     end;
-    grid_diag.dep=reshape(grid_diag.dep,[1 1 avail_diag.nr]);
     if isfield(grid_diag,'dz'); grid_diag.dz=reshape(grid_diag.dz,[1 1 avail_diag.nr]); end;
 end;
 
