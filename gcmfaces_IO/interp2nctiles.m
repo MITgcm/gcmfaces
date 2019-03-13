@@ -14,13 +14,16 @@ if isempty(mygrid_orig); mygrid_orig=mygrid; end;
 
 lon=[-179.75:0.5:179.75]; lat=[-89.75:0.5:89.75];
 [lat,lon] = meshgrid(lat,lon);
+iosize = size(lon);
 
 mygrid_latlon.nFaces=1;
 mygrid_latlon.dirGrid='none';
 mygrid_latlon.fileFormat='straight';
-mygrid_latlon.ioSize=size(lon);
-mygrid_latlon.XC=gcmfaces({lon});
-mygrid_latlon.YC=gcmfaces({lat});
+mygrid_latlon.ioSize=iosize;
+%mygrid_latlon.XC=gcmfaces({lon});
+mygrid_latlon.XC=lon(:,1);
+%mygrid_latlon.YC=gcmfaces({lat});
+mygrid_latlon.YC=lat(1,:);
 mygrid_latlon.RC=mygrid.RC;
 mygrid_latlon.RF=mygrid.RF;
 %mygrid_latlon.DRC=mygrid.DRC;
