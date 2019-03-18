@@ -95,6 +95,7 @@ for ii=1:length(listInterp);
         else
             filOut=[nameDiag filOut(kk(1):end)];
         end
+
         listFiles = {filOut};
         if length(size(fldOut{1})) == length(size(mygrid.mskC{1})) %3D
             fldOut = fldOut.*mygrid.mskC;
@@ -113,12 +114,10 @@ for ii=1:length(listInterp);
             filOut=listFiles(tt).name(1:end-5);
             kk=strfind(filOut,'.00');
             filOut=[nameDiag filOut(kk(1):end)];
-            
             if is3D; fldOut=myDiag(:,:,:,tt).*mygrid.mskC;
             else; fldOut=myDiag(:,:,tt).*mygrid.mskC(:,:,1);
             end;
         end
-        
         %interpolate one field
         tmp1=convert2vector(fldOut);
         tmp0=1*~isnan(tmp1);

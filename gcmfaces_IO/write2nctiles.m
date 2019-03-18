@@ -205,7 +205,6 @@ for ff=1:ntile;
         dimvec
         keyboard;
     end;
-    
     if doCreate;
         %create netcdf file:
         %-------------------
@@ -273,7 +272,6 @@ for ff=1:ntile;
     
     %output dimension information
     dimOut{ff}=dimlist;
-    
     %define and fill field:
     %----------------------
     ncid=ncopen(fileTile,'write');
@@ -289,8 +287,10 @@ for ff=1:ntile;
     if ~isempty(coord); ncputAtt(ncid,fldName,'coordinates',coord); end;
     if strcmp(fldName,'lon'); ncputAtt(ncid,fldName,'standard_name','longitude'); end;
     if strcmp(fldName,'lat'); ncputAtt(ncid,fldName,'standard_name','latitude'); end;
-    if strcmp(fldName,'dep'); ncputAtt(ncid,fldName,'standard_name','depth'); end;
-    if strcmp(fldName,'dep'); ncputAtt(ncid,fldName,'positive','down'); end;
+    if strcmp(fldName,'dep_c')||strcmp(fldName,'dep_l')||strcmp(fldName,'dep_u');
+              ncputAtt(ncid,fldName,'standard_name','depth');
+              ncputAtt(ncid,fldName,'positive','down');
+    end;
     if strcmp(fldName,'tim');
         ncputAtt(ncid,fldName,'standard_name','time');
         if ~isempty(clmbnds);
@@ -315,7 +315,7 @@ for ff=1:ntile;
         end
     end
     %
-    if strcmp(fldName,'tim')&~isempty(clmbnds);
+    if ~isempty(clmbnds);
         ncputvar(ncid,'climatology_bounds',clmbnds);
     end;
     %
