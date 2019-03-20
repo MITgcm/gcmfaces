@@ -168,12 +168,26 @@ for vv=1:length(listFlds);
         end;
     end;
     
-    for ff = 1:length(fnames)
-        if iscell(fnames) % Not iterating over files
-            
-            %read entire time series
-            myDiag=rdmds2gcmfaces([dirIn fileDiags '*'],NaN,'rec',irec);
-            
+    if isfield(mygrid,'timeVec')
+        timUnits = mygrid.timeUnits;
+        tim = mygrid.timeVec;
+        disp(['Timeseries specified. Using provided timeseries with units ' timUnits])
+        
+        % Check that the length of timevec matches the number of timesteps
+        if iscell(fnames)
+            nn=length(size(myDiag{1}));
+            nn=size(myDiag{1},nn);
+        else
+            nn=length(fnames);
+        end
+        if length(tim) ~= nn
+            error('Length of time vector does not match number of timesteps')
+        end
+        
+    else
+        disp(['No timeseries specified. Using monthtly timeseries with units ' timUnits])
+        
+        if iscell(fnames)
             %set ancilliary time variable
             nn=length(size(myDiag{1}));
             nn=size(myDiag{1},nn);
@@ -183,6 +197,20 @@ for vv=1:length(listFlds);
             begtim=datenum(begtim)-tim0;
             endtim=[1992*ones(nn,1) [1:nn]' 1+ones(nn,1)];
             endtim=datenum(endtim)-tim0;
+        else
+            nn=length(fnames);
+            tim=[1992*ones(nn,1) [1:nn]' 15*ones(nn,1)];
+            tim=datenum(tim)-tim0;
+        end
+            
+    end
+    
+    for ff = 1:length(fnames)
+        if iscell(fnames) % Not iterating over files
+            
+            %read entire time series
+            myDiag=rdmds2gcmfaces([dirIn fileDiags '*'],NaN,'rec',irec);
+            
         else % Iterating over files
             fname = fnames(ff).name;
             extidx = strfind(fname,'.');
@@ -190,9 +218,6 @@ for vv=1:length(listFlds);
             
             %read one record 
             myDiag=rdmds2gcmfaces([dirIn fileDiags '*'],itrs,'rec',irec);
-
-            %set ancilliary time variable
-            tim(ff)=datenum(1992,ff,15)-tim0;
         end
         
         %if doClim then replace time series with monthly climatology and assign climatology_bounds variable

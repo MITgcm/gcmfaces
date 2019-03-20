@@ -30,6 +30,10 @@ mygrid_latlon.RF=mygrid.RF;
 %mygrid_latlon.mskC=1+0*repmat(mygrid_latlon.XC,[1 1  length(mygrid.RC)]);
 mygrid_latlon.gcm2facesFast=0;
 mygrid_latlon.facesExpand=[];
+if isfield(mygrid,'timeVec')
+    mygrid_latlon.timeVec = mygrid.timeVec;
+    mygrid_latlon.timeUnits = mygrid.timeUnits;
+end
 
 mygrid=mygrid_latlon;
 for ii=1:length(listDo);
