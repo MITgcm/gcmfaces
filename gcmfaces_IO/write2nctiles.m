@@ -315,7 +315,7 @@ for ff=1:ntile;
         end
     end
     %
-    if ~isempty(clmbnds);
+    if strcmp(fldName,'tim') && ~isempty(clmbnds);
         ncputvar(ncid,'climatology_bounds',clmbnds);
     end;
     %
