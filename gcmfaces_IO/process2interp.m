@@ -118,7 +118,6 @@ for ii=1:length(listInterp);
             else; fldOut=myDiag(:,:,tt).*mygrid.mskC(:,:,1);
             end;
         end
-
         %interpolate one field
         tmp1=convert2vector(fldOut);
         tmp0=1*~isnan(tmp1);

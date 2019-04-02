@@ -168,8 +168,37 @@ for vv=1:length(listFlds);
         end;
     end;
     
-    for ff = 1:length(fnames)
-        if iscell(fnames) % Not iterating over files
+    if isfield(mygrid,'timeVec')
+        timUnits = mygrid.timeUnits;
+        tim = mygrid.timeVec;
+        [d1,d2] = regexp(timUnits,'\d{4}-\d{1,2}-\d{1,2}');
+        [t1,t2] = regexp(timUnits,'\d{1,2}(:\d{1,2})+');
+        if isempty(d1)
+            error('Formatting of timeUnits not supported. Must contain a starting date formatted YYYY-MM-DD.')
+        else
+            tim0 = datenum([timUnits(d1:d2) ' ' timUnits(t1:t2)]);
+        end
+        disp(['Timeseries specified. Using provided timeseries with units ' timUnits])
+        
+        % Check that the length of timevec matches the number of timesteps
+        if iscell(fnames)
+            
+            %read entire time series
+            myDiag=rdmds2gcmfaces([dirIn fileDiags '*'],NaN,'rec',irec);
+            
+            nn=length(size(myDiag{1}));
+            nn=size(myDiag{1},nn);
+        else
+            nn=length(fnames);
+        end
+        if length(tim) ~= nn
+            error('Length of time vector does not match number of timesteps')
+        end
+        
+    else
+        disp(['No timeseries specified. Using monthtly timeseries with units ' timUnits])
+        
+        if iscell(fnames)
             
             %read entire time series
             myDiag=rdmds2gcmfaces([dirIn fileDiags '*'],NaN,'rec',irec);
@@ -179,25 +208,36 @@ for vv=1:length(listFlds);
             nn=size(myDiag{1},nn);
             tim=[1992*ones(nn,1) [1:nn]' 15*ones(nn,1)];
             tim=datenum(tim)-tim0;
-            begtim=[1992*ones(nn,1) [1:nn]' ones(nn,1)];
-            begtim=datenum(begtim)-tim0;
-            endtim=[1992*ones(nn,1) [1:nn]' 1+ones(nn,1)];
-            endtim=datenum(endtim)-tim0;
-        else % Iterating over files
+        else
+            nn=length(fnames);
+            tim=[1992*ones(nn,1) [1:nn]' 15*ones(nn,1)];
+            tim=datenum(tim)-tim0;
+            
+        end
+            
+    end
+    
+    for ff = 1:length(fnames)
+        if ~iscell(fnames) % Iterating over files
             fname = fnames(ff).name;
             extidx = strfind(fname,'.');
             itrs = str2double(fname(extidx(1)+1:extidx(2)-1));
             
             %read one record 
             myDiag=rdmds2gcmfaces([dirIn fileDiags '*'],itrs,'rec',irec);
-
-            %set ancilliary time variable
-            tim(ff)=datenum(1992,ff,15)-tim0;
         end
         
         %if doClim then replace time series with monthly climatology and assign climatology_bounds variable
         if doClim;
             myDiag=compClim(myDiag);
+            
+            % Set begtim and endtim
+            nn = length(tim);
+            begtim=[1992*ones(nn,1) [1:nn]' ones(nn,1)];
+            begtim=datenum(begtim)-tim0;
+            endtim=[1992*ones(nn,1) [1:nn]' 1+ones(nn,1)];
+            endtim=datenum(endtim)-tim0;
+            
             %set tim to first year values for case of unsupported 'climatology' attribute (see below)
             tim=tim(1:12);
             %'climatology' attribute + 'climatology_bounds' variable will be added as shown at
@@ -223,7 +263,6 @@ for vv=1:length(listFlds);
             %
             %land=isnan(grid_diag.msk);
         end;
-
         %create netcdf file using write2nctiles
         doCreate=1; myDiag=single(myDiag);
         

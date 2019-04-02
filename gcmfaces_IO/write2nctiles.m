@@ -205,7 +205,6 @@ for ff=1:ntile;
         dimvec
         keyboard;
     end;
-
     if doCreate;
         %create netcdf file:
         %-------------------
@@ -273,7 +272,6 @@ for ff=1:ntile;
     
     %output dimension information
     dimOut{ff}=dimlist;
-
     %define and fill field:
     %----------------------
     ncid=ncopen(fileTile,'write');
@@ -317,7 +315,7 @@ for ff=1:ntile;
         end
     end
     %
-    if ~isempty(clmbnds);
+    if strcmp(fldName,'tim') && ~isempty(clmbnds);
         ncputvar(ncid,'climatology_bounds',clmbnds);
     end;
     %
