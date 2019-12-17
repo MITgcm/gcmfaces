@@ -46,7 +46,7 @@ gcmfaces_global;
 
 % mask=squeeze(mygrid.hFacC(:,:,1));
 % dzf=mygrid.DRF;
-nz=length(mygrid.RC); 
+nz=size(P.f1,3);
 
 %constants
 rhoconst=1029; 
@@ -62,8 +62,8 @@ fmat=exch_Z(f);
 
 %replace NaN/1 mask with 0/1 mask:
 P(isnan(P))=0;
-mskW=mygrid.mskW; mskW(isnan(mskW))=0;
-mskS=mygrid.mskS; mskS(isnan(mskS))=0;
+mskW=mygrid.mskW(:,:,1:nz); mskW(isnan(mskW))=0;
+mskS=mygrid.mskS(:,:,1:nz); mskS(isnan(mskS))=0;
 %%weight average by portion that is filled
 %mskW=mygrid.hFacW;
 %mskS=mygrid.hFacS;
@@ -118,10 +118,9 @@ for iz=1:nz
     Vg(:,:,iz)=vcur;
 end
     
-mskW=mygrid.mskW; ii=find(isnan(mskW)); mskW(ii)=0;
-mskS=mygrid.mskS; ii=find(isnan(mskS)); mskS(ii)=0;    
-Vg=Vg.*mskS;
-Ug=Ug.*mskW;
+mskW=mygrid.mskW(:,:,1:nz); ii=find(isnan(mskW)); mskW(ii)=0;
+mskS=mygrid.mskS(:,:,1:nz); ii=find(isnan(mskS)); mskS(ii)=0;    
+Vg=Vg.*mskS; Ug=Ug.*mskW;
 
 
 
