@@ -193,11 +193,12 @@ else;
   else;
     t0 = 1;
     t1 = lff;
+    nt=t1-t0+1;
   end;
   for fft=t0:t1;
   
     %read one tile
-    fileIn=flist{fft+1};
+    fileIn=flist{fft};
   
     nc=netcdf.open(fileIn,0);
   
