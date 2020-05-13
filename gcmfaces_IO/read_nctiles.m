@@ -61,24 +61,21 @@ if test1|test2;
   else;
     fileIn=sprintf('%s.%04d.nc',fileName,1);
     if ~length(dir(fileIn));
-      basedir = './';
-      pattern = fileIn;
-      flist = findfiles(pattern,basedir);
-      if length(flist)==1;
-        error([fileIn ' not found in the current directory']);
-        %fileIn = char(flist(1));
-        %nctiles_format = 1;
-      else;
-        pattern = [fileName '*.nc'];
-        flist = findfiles(pattern,basedir);
-        if length(flist)==0;
-           error([pattern ' not found']);
+      % For v4r3
+      flist=findfiles(fileName, '.0001.nc');
+
+      if isempty(flist);
+        %warning([fileIn ' not found in the current directory']);
+        % Could not find the 13-tiled netCDF files, like v4r3.
+        % Now try to search for any netCDF files 
+        flist=findfiles(fileName, '*.nc');
+        if isempty(flist);
+          error([fileIn ' not found in the current directory']);
         end;
-        fileIn = char(flist(1));
         nctiles_format = 0;
       end;
     end;
-    nc=netcdf.open(fileIn,0);
+    nc=netcdf.open(flist{1},0);
     vv = netcdf.inqVarID(nc,fldName);
     [varname,xtype,dimids,natts]=netcdf.inqVar(nc,vv);
     tileSize=zeros(1,2);
@@ -187,7 +184,7 @@ else;
   end;
   
   if ~isempty(tt);
-    t0=tt(1)-1;
+    t0=tt(1);
     nt=tt(end)-tt(1)+1;
     t1=t0+nt-1;
   else;
@@ -196,40 +193,41 @@ else;
     nt=t1-t0+1;
   end;
   for fft=t0:t1;
-  
-    %read one tile
+    %read one file
     fileIn=flist{fft};
-  
     nc=netcdf.open(fileIn,0);
-  
     vv = netcdf.inqVarID(nc,fldName);
     [varname,xtype,dimids,natts]=netcdf.inqVar(nc,vv);
   
-    siz = [];
+    if fft==t0;
+      siz = [];
 
-    [dimname,siz(1)] = netcdf.inqDim(nc,dimids(1));
-    [dimname,siz(2)] = netcdf.inqDim(nc,dimids(2));
-    [dimname,siz(3)] = netcdf.inqDim(nc,dimids(3));
+      [dimname,siz(1)] = netcdf.inqDim(nc,dimids(1));
+      [dimname,siz(2)] = netcdf.inqDim(nc,dimids(2));
+      [dimname,siz(3)] = netcdf.inqDim(nc,dimids(3));
 
-    siz=[siz length(mygrid.RC)];
-
-    if length(dimids)==2;
-      start=[0 0];
-      count=[siz(1) siz(2)];
-    elseif length(dimids)==3;
-      start=[0 0 0];
-      count=[siz(1) siz(2) siz(3)];
-    elseif length(dimids)==4;
-      start=[0 0 0 0];
-      count=[siz(1) siz(2) siz(3) 1];
-    elseif isempty(kk);
-       start=[0 0 0 0 0];
-       count=[siz(1) siz(2) siz(3) siz(4) 1];
-    else;
+      siz=[siz length(mygrid.RC)];
+      if length(dimids)==2;
+        start=[0 0];
+        count=[siz(1) siz(2)];
+      elseif length(dimids)==3;
+        start=[0 0 0];
+        count=[siz(1) siz(2) siz(3)];
+      elseif length(dimids)==4;
+        start=[0 0 0 0];
+        count=[siz(1) siz(2) siz(3) 1];
+      elseif isempty(kk);
+         start=[0 0 0 0 0];
+         count=[siz(1) siz(2) siz(3) siz(4) 1];
+      else;
       start=[0 0 0 kk(1)-1 0];
       count=[siz(1) siz(2) siz(3) length(kk) 1];
     end;
+    ndim = length(count); 
+    end;
+
     fldTile=netcdf.getVar(nc,vv,start,count);
+
     fldTile=squeeze(fldTile);
     netcdf.close(nc);
 
@@ -241,88 +239,50 @@ else;
         siz=[1 1 nt];
       end;
       fld=NaN*repmat(mygrid.XC,siz);
+      fldTile_all=[];
     end;
 
-    for ff=1:length(nctiles.no);
-
-      %place tile in fld
-  
-      if size(fldTile,4)>1;
-        fld{nctiles.f{ff}}(nctiles.i{ff},nctiles.j{ff},:,fft-t0+1)=squeeze(fldTile(:,:,ff,:));
-      else;
-        fld{nctiles.f{ff}}(nctiles.i{ff},nctiles.j{ff},fft-t0+1)=squeeze(fldTile(:,:,ff));
-      end;
-    end; %for ff=1:length(nctiles.no);
-
+  fldTile_all=cat(ndim,fldTile_all,fldTile);
   end;%for fft=t0:t1;
+  for ff=1:length(nctiles.no);
+    %place tile in fld
+    if size(fldTile,4)>1;
+      fld{nctiles.f{ff}}(nctiles.i{ff},nctiles.j{ff},:,:)=squeeze(fldTile_all(:,:,ff,:,:));
+    else;
+      fld{nctiles.f{ff}}(nctiles.i{ff},nctiles.j{ff},:)=squeeze(fldTile_all(:,:,ff,:));
+    end;
+  end; %for ff=1:length(nctiles.no);
 end;
 
-function flist = findfiles(pattern,basedir)
-% Modified by Ou Wang 20191024
-% Recursively finds all instances of files and folders with a naming pattern
-%
-% FLIST = FINDFILES(PATTERN) returns a cell array of all files and folders
-% matching the naming PATTERN in the current folder and all folders below
-% it in the directory structure. The PATTERN is specified as a string, and
-% can include standard file-matching wildcards.
-%
-% FLIST = FINDFILES(PATTERN,BASEDIR) finds the files starting at the
-% BASEDIR folder instead of the current folder.
-%
-% Examples:
-% Find all MATLAB code files in and below the current folder:
-%   >> files = findfiles('*.m');
-% Find all files and folders starting with "matlab"
-%   >> files = findfiles('matlab*');
-% Find all MAT-files in and below the folder C:\myfolder
-%   >> files = findfiles('*.mat','C:\myfolder');
-%
-% Copyright 2016 The MathWorks, Inc.
-% Maybe need to add extra bulletproofing for stupid things like
-% findfiles('.*')
-% Input check
-if nargin < 2
-    basedir = pwd;
-end
-if ~ischar(pattern) || ~ischar(basedir)
-    error('File name pattern and base folder must be specified as strings')
-end
-if ~isdir(basedir)
-    error(['Invalid folder "',basedir,'"'])
-end
-% Get full-file specification of search pattern
-fullpatt = [basedir,filesep,pattern];
-% Get list of all folders in BASEDIR
-%d = cellstr(ls(basedir));
-dout = dir(basedir);
-%d = cellstr(dout.name); 
-%d
+% Find a list of files whos names have the specified string (pattern). 
+function flist=findfiles(fileName, pattern);
+      if nargin==2;
+       %set the deepest search level to 8
+       searchlev=8;
+      end;
 
-doutcell = struct2cell(dout);
-d = doutcell(1,:);
-d(1:2) = [];
-d(~cellfun(@isdir,strcat(basedir,filesep,d))) = [];
-% Check for a direct match in BASEDIR
-% (Covers the possibility of a folder with the name of PATTERN in BASEDIR)
-if any(strcmp(d,pattern))
-    % If so, that's our match
-    flist = {fullpatt};
-else
-    % If not, do a directory listing
-    %f = ls(fullpatt);
-    f = dir(fullpatt);
-    if isempty(f)
-        flist = {};
-    else
-        fcell = struct2cell(f);
-        fcell =  fcell(1,:);
-        %flist = strcat(basedir,filesep,cellstr(f));
-        flist = strcat(basedir,filesep,fcell);
-    end
-end
-% Recursively go through folders in BASEDIR
-for k = 1:length(d)
-    %flist = [flist;findfiles(pattern,[basedir,filesep,d{k}])]; %#ok<AGROW>
-    flist = horzcat(flist,findfiles(pattern,[basedir,filesep,d{k}])); %#ok<AGROW>
-end
+      flist=[];
+      hasslash=findstr(fileName,'/');
+      if(isempty(hasslash));
+        patterntmp='./';
+        fileNametmp=fileName;
+      else;
+        patterntmp = fileName(1:hasslash(end));
+        fileNametmp=fileName(hasslash(end)+1:end);
+      end;
+
+      for isearchlev=1:searchlev;
+          ftmp=dir([patterntmp pattern]);
+          if(isempty(ftmp));
+             patterntmp=[patterntmp '/*/'];
+          else;
+             [flistfnm,idxtmp]=sort({ftmp.name});
+             [flistdir]={ftmp(idxtmp).folder};
+             flist=strcat(flistdir,'/',flistfnm);
+             break
+          end;
+          %if isearchlev==searchlev;
+          %   warning([fileName pattern ' not found in the subdirectories' ]);
+          %end;
+      end;
 
