@@ -10,7 +10,7 @@ function [fld]=read_nctiles(fileName,fldName,varargin);
 
 gcmfaces_global;
 nz=length(mygrid.RC);
-nctiles_format = 1;
+nctiles_v4r4format = 0;
 
 if nargin==1; 
   tmp1=['/' fileName];
@@ -60,22 +60,40 @@ if test1|test2;
     for ff=1:mygrid.nFaces; nctiles.map{ff}(:)=ff; end;
   else;
     fileIn=sprintf('%s.%04d.nc',fileName,1);
-    if ~length(dir(fileIn));
-      % For v4r3
-      flist=findfiles(fileName, '.0001.nc');
+    if length(dir(fileIn));
+      nc=netcdf.open(fileIn,0);
+    else;
+      % For v4r4 format
+      nctiles_v4r4format=1;
 
-      if isempty(flist);
-        %warning([fileIn ' not found in the current directory']);
-        % Could not find the 13-tiled netCDF files, like v4r3.
-        % Now try to search for any netCDF files 
-        flist=findfiles(fileName, '*.nc');
+      % split the input string "fileName" that may contain both folder and filename
+      %  to folder and filename. 
+      filesep_locs=findstr(fileName,filesep);
+      if(isempty(filesep_locs));
+        dirtmp=['.' filesep];
+        fileNametmp=fileName;
+      else;
+        dirtmp = fileName(1:filesep_locs(end));
+        fileNametmp=fileName(filesep_locs(end)+1:end);
+      end;
+      % Search for a global file with all 13-tiles, e.g. ECCO-GRID.nc for grid
+      flisttmp=dir(fullfile(dirtmp, ['**' filesep], [fileNametmp '.nc']));
+      if ~isempty(flisttmp);
+        flist{1}=fullfile(flisttmp(1).folder,flisttmp(1).name);
+      else;
+        % No global files found. Search for all fileNametmp*.nc files. 
+        flisttmp=dir(fullfile(dirtmp, ['**' filesep], [fileNametmp '*.nc']));
+        flist={};
+        for ijk=1:length(flisttmp);
+          flist{ijk}=fullfile(flisttmp(ijk).folder,flisttmp(ijk).name);
+        end;
+        flist = sort(flist);
         if isempty(flist);
           error([fileIn ' not found in the current directory']);
         end;
-        nctiles_format = 0;
       end;
+      nc=netcdf.open(flist{1},0);
     end;
-    nc=netcdf.open(flist{1},0);
     vv = netcdf.inqVarID(nc,fldName);
     [varname,xtype,dimids,natts]=netcdf.inqVar(nc,vv);
     tileSize=zeros(1,2);
@@ -118,7 +136,7 @@ if test1|test2;
 end;
 
 %B) the file read operation itself
-if(nctiles_format);
+if(~nctiles_v4r4format);
   for ff=1:length(nctiles.no);
 
   %read one tile
@@ -176,8 +194,9 @@ if(nctiles_format);
 
   end;%for ff=1:mygrid.nFaces;
 
-% if each netCDF file contains only one-time record, 13 tiles (like v4r4). 
 else;
+% nctiles_v4r4format=1
+% if each netCDF file contains only one-time record, 13 tiles (like v4r4). 
   lff = 0;
   if (~isempty(flist));
     lff = length(flist);
@@ -197,14 +216,15 @@ else;
     fileIn=flist{fft};
     nc=netcdf.open(fileIn,0);
     vv = netcdf.inqVarID(nc,fldName);
-    [varname,xtype,dimids,natts]=netcdf.inqVar(nc,vv);
   
     if fft==t0;
+      [varname,xtype,dimids,natts]=netcdf.inqVar(nc,vv);
+      lendim=length(dimids);
       siz = [];
 
-      [dimname,siz(1)] = netcdf.inqDim(nc,dimids(1));
-      [dimname,siz(2)] = netcdf.inqDim(nc,dimids(2));
-      [dimname,siz(3)] = netcdf.inqDim(nc,dimids(3));
+      for idim=1:lendim;
+        [dimname,siz(idim)] = netcdf.inqDim(nc,dimids(idim));
+      end;
 
       siz=[siz length(mygrid.RC)];
       if length(dimids)==2;
@@ -220,10 +240,10 @@ else;
          start=[0 0 0 0 0];
          count=[siz(1) siz(2) siz(3) siz(4) 1];
       else;
-      start=[0 0 0 kk(1)-1 0];
-      count=[siz(1) siz(2) siz(3) length(kk) 1];
-    end;
-    ndim = length(count); 
+         start=[0 0 0 kk(1)-1 0];
+         count=[siz(1) siz(2) siz(3) length(kk) 1];
+      end;
+      ndim = length(count); 
     end;
 
     fldTile=netcdf.getVar(nc,vv,start,count);
@@ -242,47 +262,15 @@ else;
       fldTile_all=[];
     end;
 
-  fldTile_all=cat(ndim,fldTile_all,fldTile);
+    fldTile_all=cat(ndim,fldTile_all,fldTile);
   end;%for fft=t0:t1;
+
   for ff=1:length(nctiles.no);
     %place tile in fld
     if size(fldTile,4)>1;
-      fld{nctiles.f{ff}}(nctiles.i{ff},nctiles.j{ff},:,:)=squeeze(fldTile_all(:,:,ff,:,:));
+      fld{nctiles.f{ff}}(nctiles.i{ff},nctiles.j{ff},:,:)=fldTile_all(:,:,ff,:,:);
     else;
-      fld{nctiles.f{ff}}(nctiles.i{ff},nctiles.j{ff},:)=squeeze(fldTile_all(:,:,ff,:));
+      fld{nctiles.f{ff}}(nctiles.i{ff},nctiles.j{ff},:)=fldTile_all(:,:,ff,:);
     end;
   end; %for ff=1:length(nctiles.no);
 end;
-
-% Find a list of files whos names have the specified string (pattern). 
-function flist=findfiles(fileName, pattern);
-      if nargin==2;
-       %set the deepest search level to 8
-       searchlev=8;
-      end;
-
-      flist=[];
-      hasslash=findstr(fileName,'/');
-      if(isempty(hasslash));
-        patterntmp='./';
-        fileNametmp=fileName;
-      else;
-        patterntmp = fileName(1:hasslash(end));
-        fileNametmp=fileName(hasslash(end)+1:end);
-      end;
-
-      for isearchlev=1:searchlev;
-          ftmp=dir([patterntmp pattern]);
-          if(isempty(ftmp));
-             patterntmp=[patterntmp '/*/'];
-          else;
-             [flistfnm,idxtmp]=sort({ftmp.name});
-             [flistdir]={ftmp(idxtmp).folder};
-             flist=strcat(flistdir,'/',flistfnm);
-             break
-          end;
-          %if isearchlev==searchlev;
-          %   warning([fileName pattern ' not found in the subdirectories' ]);
-          %end;
-      end;
-
