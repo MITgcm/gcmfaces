@@ -104,7 +104,7 @@ for ii=1:length(listInterp);
         end
     else
         jj=find(strcmp(deblank(meta.fldList),nameDiag));
-        myDiag=rdmds2gcmfaces([dirDiags subDir fileDiags '*'],NaN,'rec',jj);
+        myDiag=rdmds2gcmfaces([dirDiags subDir fileDiags],NaN,'rec',jj);
         listFiles=dir([dirDiags subDir fileDiags '*.data']);
         is3D=length(size(myDiag{1}))==4;
     end

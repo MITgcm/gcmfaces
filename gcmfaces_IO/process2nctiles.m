@@ -184,7 +184,7 @@ for vv=1:length(listFlds);
         if iscell(fnames)
             
             %read entire time series
-            myDiag=rdmds2gcmfaces([dirIn fileDiags '*'],NaN,'rec',irec);
+            myDiag=rdmds2gcmfaces([dirIn fileDiags],NaN,'rec',irec);
             
             nn=length(size(myDiag{1}));
             nn=size(myDiag{1},nn);
@@ -201,7 +201,7 @@ for vv=1:length(listFlds);
         if iscell(fnames)
             
             %read entire time series
-            myDiag=rdmds2gcmfaces([dirIn fileDiags '*'],NaN,'rec',irec);
+            myDiag=rdmds2gcmfaces([dirIn fileDiags],NaN,'rec',irec);
             
             %set ancilliary time variable
             nn=length(size(myDiag{1}));
@@ -224,7 +224,7 @@ for vv=1:length(listFlds);
             itrs = str2double(fname(extidx(1)+1:extidx(2)-1));
             
             %read one record 
-            myDiag=rdmds2gcmfaces([dirIn fileDiags '*'],itrs,'rec',irec);
+            myDiag=rdmds2gcmfaces([dirIn fileDiags],itrs,'rec',irec);
         end
         
         %if doClim then replace time series with monthly climatology and assign climatology_bounds variable
