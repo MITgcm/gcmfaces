@@ -72,7 +72,7 @@ myparms.budgetList=budget_list;
 if mygrid.memoryLimit==1;
     list0={'hFacS','hFacW'};
     for iFld=1:length(list0);
-        eval(['mygrid.' list0{iFld} '=rdmds2gcmfaces([mygrid.dirGrid ''' list0{iFld} '*'']);']);
+        eval(['mygrid.' list0{iFld} '=rdmds2gcmfaces([mygrid.dirGrid ''' list0{iFld} ''']);']);
     end;
     %
     mygrid.hFacCsurf=mygrid.hFacC;
