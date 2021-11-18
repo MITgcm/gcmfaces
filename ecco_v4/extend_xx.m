@@ -30,7 +30,7 @@ case 7; xxName='precip';
 end;
 
 %read model cost output
-fld_xx=rdmds2gcmfaces([dirIn 'ADXXfiles/xx_' xxName '.00*']);
+fld_xx=rdmds2gcmfaces([dirIn 'ADXXfiles/xx_' xxName '.00']);
 
 %determine already covered time period
 nrec=size(fld_xx{1},3);
