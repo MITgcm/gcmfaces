@@ -113,9 +113,9 @@ yy=convert2array(fld); yy=yy(find(KK~=0));
 % appears fine, while matlab/2021a gives a solution 
 % of all zeros. 
 %xx=A\yy;
-%Use the more robust way to solve yy
+%Use the more robust way to solve xx
 %in a least squares sense. This method
-%can aslo handle sparse matrix and is
+%can also handle sparse matrix and is
 %more efficient than pinv (which cannot handle sparse matrix).
 %Warning is turned on to monitor if the matrix is close to singular.
 xx=lsqminnorm(A,yy,'warn');
