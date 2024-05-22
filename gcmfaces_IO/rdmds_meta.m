@@ -3,7 +3,17 @@ function [meta]=rdmds_meta(fileName);
 %read meta file
 tmp1=dir([fileName '.meta']);
 if isempty(tmp1)&~strcmp(fileName(end),'*'); tmp1=dir([fileName '*.meta']); end;
-if isempty(tmp1); error(['file not found: ' fileName '*']); end; 
+if isempty(tmp1)
+    warning(['file not found: ' fileName '*. Trying one level up.'])
+    fpath = strsplit(fileName,filesep);
+    fileName2 = [strjoin(fpath(1:end-1),filesep) filesep '..' filesep fpath{end}];
+    tmp1=dir([fileName2 '*.meta']);
+    if isempty(tmp1)
+        error(['file not found: ' fileName2 '*'])
+    else
+        fileName = fileName2;
+    end
+end; 
 tmp1=tmp1(1).name;
 tmp2=strfind(fileName,filesep);
 if ~isempty(tmp2); tmp2=tmp2(end); else; tmp2=0; end;

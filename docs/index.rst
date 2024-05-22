@@ -16,7 +16,7 @@ arrays. This object-oriented approach allows users to
 write generic, compact analysis codes that readily become applicable
 to a wide variety of grids (e.g., those in :numref:`sphere_all`).
 `gcmfaces` notably allows for analysis of MITgcm output on any of its
-`familiar grids <ftp://mit.ecco-group.org/ecco_for_las/version_4/grids/>`__.
+`familiar grids <https://engaging-web.mit.edu/~gforget/harbor/version_4/grids/>`__.
 It was originally developed as part the `ECCO version 4` framework along with
 the companion `MITprof` toolbox that handles unevenly
 distributed in-situ ocean observations :cite:`for-eta:15`.

@@ -10,6 +10,7 @@ function [fld]=read_nctiles(fileName,fldName,varargin);
 
 gcmfaces_global;
 nz=length(mygrid.RC);
+nctiles_v4r4format = 0;
 
 if nargin==1; 
   tmp1=['/' fileName];
@@ -41,6 +42,7 @@ end;
 
 global nctiles nctiles_old_tile_order;
 
+flist = [];
 test1=isempty(nctiles);
 test2=0;
 if ~test1; 
@@ -58,7 +60,40 @@ if test1|test2;
     for ff=1:mygrid.nFaces; nctiles.map{ff}(:)=ff; end;
   else;
     fileIn=sprintf('%s.%04d.nc',fileName,1);
-    nc=netcdf.open(fileIn,0);
+    if length(dir(fileIn));
+      nc=netcdf.open(fileIn,0);
+    else;
+      % For v4r4 format
+      nctiles_v4r4format=1;
+
+      % split the input string "fileName" that may contain both folder and filename
+      %  to folder and filename. 
+      filesep_locs=findstr(fileName,filesep);
+      if(isempty(filesep_locs));
+        dirtmp=['.' filesep];
+        fileNametmp=fileName;
+      else;
+        dirtmp = fileName(1:filesep_locs(end));
+        fileNametmp=fileName(filesep_locs(end)+1:end);
+      end;
+      % Search for a global file with all 13-tiles, e.g. ECCO-GRID.nc for grid
+      flisttmp=dir(fullfile(dirtmp, ['**' filesep], [fileNametmp '.nc']));
+      if ~isempty(flisttmp);
+        flist{1}=fullfile(flisttmp(1).folder,flisttmp(1).name);
+      else;
+        % No global files found. Search for all fileNametmp*.nc files. 
+        flisttmp=dir(fullfile(dirtmp, ['**' filesep], [fileNametmp '*.nc']));
+        flist={};
+        for ijk=1:length(flisttmp);
+          flist{ijk}=fullfile(flisttmp(ijk).folder,flisttmp(ijk).name);
+        end;
+        flist = sort(flist);
+        if isempty(flist);
+          error([fileIn ' not found in the current directory']);
+        end;
+      end;
+      nc=netcdf.open(flist{1},0);
+    end;
     vv = netcdf.inqVarID(nc,fldName);
     [varname,xtype,dimids,natts]=netcdf.inqVar(nc,vv);
     tileSize=zeros(1,2);
@@ -101,63 +136,141 @@ if test1|test2;
 end;
 
 %B) the file read operation itself
+if(~nctiles_v4r4format);
+  for ff=1:length(nctiles.no);
 
-for ff=1:length(nctiles.no);
+  %read one tile
+  fileIn=sprintf('%s.%04d.nc',fileName,ff);
+  nc=netcdf.open(fileIn,0);
 
-%read one tile
-fileIn=sprintf('%s.%04d.nc',fileName,ff);
-nc=netcdf.open(fileIn,0);
+  vv = netcdf.inqVarID(nc,fldName);
+  [varname,xtype,dimids,natts]=netcdf.inqVar(nc,vv);
 
-vv = netcdf.inqVarID(nc,fldName);
-[varname,xtype,dimids,natts]=netcdf.inqVar(nc,vv);
+  [dimname,siz(1)] = netcdf.inqDim(nc,dimids(1));
+  [dimname,siz(2)] = netcdf.inqDim(nc,dimids(2));
+  siz=[siz length(mygrid.RC)];
 
-[dimname,siz(1)] = netcdf.inqDim(nc,dimids(1));
-[dimname,siz(2)] = netcdf.inqDim(nc,dimids(2));
-siz=[siz length(mygrid.RC)];
-
-if ~isempty(tt);
-  t0=tt(1)-1;
-  nt=tt(end)-tt(1)+1;
-  if length(dimids)==3;
-    start=[0 0 t0];
-    count=[siz(1) siz(2) nt];
-  elseif isempty(kk);
-    start=[0 0 0 t0]; 
-    count=[siz(1) siz(2) siz(3) nt];
-  else;
-    start=[0 0 kk(1)-1 t0];
-    count=[siz(1) siz(2) length(kk) nt];
+  if ~isempty(tt);
+    t0=tt(1)-1;
+    nt=tt(end)-tt(1)+1;
+    if length(dimids)==3;
+      start=[0 0 t0];
+      count=[siz(1) siz(2) nt];
+    elseif isempty(kk);
+      start=[0 0 0 t0]; 
+      count=[siz(1) siz(2) siz(3) nt];
+    else;
+      start=[0 0 kk(1)-1 t0];
+      count=[siz(1) siz(2) length(kk) nt];
+    end;
+  else
+    [dimname,nt] = netcdf.inqDim(nc,dimids(end));
+    if length(dimids)==2;
+      start=[0 0];
+      count=[siz(1) siz(2)];
+    elseif length(dimids)==3;
+      start=[0 0 0];
+      count=[siz(1) siz(2) nt];
+    elseif isempty(kk);
+       start=[0 0 0 0];
+       count=[siz(1) siz(2) siz(3) nt];
+    else;
+      start=[0 0 kk(1)-1 0];
+      count=[siz(1) siz(2) length(kk) nt];
+    end;
   end;
-else
-  [dimname,nt] = netcdf.inqDim(nc,dimids(end));
-  if length(dimids)==2;
-    start=[0 0];
-    count=[siz(1) siz(2)];
-  elseif length(dimids)==3;
-    start=[0 0 0];
-    count=[siz(1) siz(2) nt];
-  elseif isempty(kk);
-     start=[0 0 0 0];
-     count=[siz(1) siz(2) siz(3) nt];
-  else;
-    start=[0 0 kk(1)-1 0];
-    count=[siz(1) siz(2) length(kk) nt];
+  fldTile=netcdf.getVar(nc,vv,start,count);
+  fldTile=squeeze(fldTile);
+  netcdf.close(nc);
+
+  %initialize fld (full gcmfaces object)
+  if ff==1;
+    siz=[1 1 size(fldTile,3) size(fldTile,4)];
+    fld=NaN*repmat(mygrid.XC,siz);
   end;
+
+  %place tile in fld
+  fld{nctiles.f{ff}}(nctiles.i{ff},nctiles.j{ff},:,:)=fldTile;
+
+  end;%for ff=1:mygrid.nFaces;
+
+else;
+% nctiles_v4r4format=1
+% if each netCDF file contains only one-time record, 13 tiles (like v4r4). 
+  lff = 0;
+  if (~isempty(flist));
+    lff = length(flist);
+  end;
+  
+  if ~isempty(tt);
+    t0=tt(1);
+    nt=tt(end)-tt(1)+1;
+    t1=t0+nt-1;
+  else;
+    t0 = 1;
+    t1 = lff;
+    nt=t1-t0+1;
+  end;
+  for fft=t0:t1;
+    %read one file
+    fileIn=flist{fft};
+    nc=netcdf.open(fileIn,0);
+    vv = netcdf.inqVarID(nc,fldName);
+  
+    if fft==t0;
+      [varname,xtype,dimids,natts]=netcdf.inqVar(nc,vv);
+      lendim=length(dimids);
+      siz = [];
+
+      for idim=1:lendim;
+        [dimname,siz(idim)] = netcdf.inqDim(nc,dimids(idim));
+      end;
+
+      siz=[siz length(mygrid.RC)];
+      if length(dimids)==2;
+        start=[0 0];
+        count=[siz(1) siz(2)];
+      elseif length(dimids)==3;
+        start=[0 0 0];
+        count=[siz(1) siz(2) siz(3)];
+      elseif length(dimids)==4;
+        start=[0 0 0 0];
+        count=[siz(1) siz(2) siz(3) 1];
+      elseif isempty(kk);
+         start=[0 0 0 0 0];
+         count=[siz(1) siz(2) siz(3) siz(4) 1];
+      else;
+         start=[0 0 0 kk(1)-1 0];
+         count=[siz(1) siz(2) siz(3) length(kk) 1];
+      end;
+      ndim = length(count); 
+    end;
+
+    fldTile=netcdf.getVar(nc,vv,start,count);
+
+    fldTile=squeeze(fldTile);
+    netcdf.close(nc);
+
+    %initialize fld (full gcmfaces object)
+    if fft==t0;
+      if size(fldTile,4)>1;
+        siz=[1 1 size(fldTile,4) nt];
+      else;
+        siz=[1 1 nt];
+      end;
+      fld=NaN*repmat(mygrid.XC,siz);
+      fldTile_all=[];
+    end;
+
+    fldTile_all=cat(ndim,fldTile_all,fldTile);
+  end;%for fft=t0:t1;
+
+  for ff=1:length(nctiles.no);
+    %place tile in fld
+    if size(fldTile,4)>1;
+      fld{nctiles.f{ff}}(nctiles.i{ff},nctiles.j{ff},:,:)=fldTile_all(:,:,ff,:,:);
+    else;
+      fld{nctiles.f{ff}}(nctiles.i{ff},nctiles.j{ff},:)=fldTile_all(:,:,ff,:);
+    end;
+  end; %for ff=1:length(nctiles.no);
 end;
-fldTile=netcdf.getVar(nc,vv,start,count);
-fldTile=squeeze(fldTile);
-netcdf.close(nc);
-
-%initialize fld (full gcmfaces object)
-if ff==1;
-  siz=[1 1 size(fldTile,3) size(fldTile,4)];
-  fld=NaN*repmat(mygrid.XC,siz);
-end;
-
-%place tile in fld
-fld{nctiles.f{ff}}(nctiles.i{ff},nctiles.j{ff},:,:)=fldTile;
-
-end;%for ff=1:mygrid.nFaces;
-
-
-
