@@ -11,7 +11,6 @@ function [fld]=read_nctiles(fileName,fldName,varargin);
 gcmfaces_global;
 nz=length(mygrid.RC);
 nctiles_v4r4format = 0;
-nctiles_v4r3_altformat = 0;
 
 if nargin==1; 
   tmp1=['/' fileName];
@@ -63,13 +62,9 @@ if test1|test2;
     fileIn=sprintf('%s.%04d.nc',fileName,1);
     if length(dir(fileIn));
       nc=netcdf.open(fileIn,0);
-    elseif length(dir(sprintf('%s_%04d.nc',fileName,1992)));
-      nctiles_v4r3_altformat=1;
-      flist=dir([fileName '_*.nc']);
-      nc=netcdf.open(sprintf('%s_%04d.nc',fileName,1992),0);
     else;
       % For v4r4 format
-       nctiles_v4r4format=1;
+      nctiles_v4r4format=1;
 
       % split the input string "fileName" that may contain both folder and filename
       %  to folder and filename. 
@@ -141,7 +136,7 @@ if test1|test2;
 end;
 
 %B) the file read operation itself
-if(~nctiles_v4r4format & ~nctiles_v4r3_altformat);
+if(~nctiles_v4r4format);
   for ff=1:length(nctiles.no);
 
   %read one tile
@@ -198,114 +193,6 @@ if(~nctiles_v4r4format & ~nctiles_v4r3_altformat);
   fld{nctiles.f{ff}}(nctiles.i{ff},nctiles.j{ff},:,:)=fldTile;
 
   end;%for ff=1:mygrid.nFaces;
-elseif (nctiles_v4r3_altformat);
-% nctiles_v4r3_altformat=1
-% V4r3_alt has yearly files
-  ntall = 0;
-  lff = 0;
-  if (~isempty(flist));
-    lff = length(flist);
-  end;
-  
-  if ~isempty(tt);
-    t0=tt(1);
-    nt=tt(end)-tt(1)+1;
-    t1=t0+nt-1;
-  end;
-
-  for fft=1:lff;
-    %read one file
-    fileIn=fullfile(flist(fft).folder,flist(fft).name);
-    nc=netcdf.open(fileIn,0);
-    vv = netcdf.inqVarID(nc,fldName);
-
-    ntindfl=getfield(ncinfo(fileIn,'time'),'Size');
-    ntoffset=ntall;
-    ntall=ntall+ntindfl;
-    if isempty(tt);
-      t0 = 1;
-      t1 = ntall;
-      nt = ntall;
-    end;
-    if(t0>ntall);
-      continue
-    end;
-    if(t1<=ntoffset);
-      break;
-    end;
-    if(t0>ntoffset & t0<=ntall);
-       nt0=ntoffset
-    end;
-    
-    [varname,xtype,dimids,natts]=netcdf.inqVar(nc,vv);
-    lendim=length(dimids);
-    siz = [];
-    for idim=1:lendim;
-      [dimname,siz(idim)] = netcdf.inqDim(nc,dimids(idim));
-    end;
-
-    if length(dimids)<2 or length(dimids)>5;
-      error([fileIn ' only implemented for 2d thru 5d fields']);
-    elseif length(dimids)==2;
-      start=[0 0];
-      count=[siz(1) siz(2)];
-    elseif length(dimids)==3;
-      start=[0 0 0];
-      count=[siz(1) siz(2) siz(3)];
-    elseif length(dimids)==4;
-      start=[0 0 0 0];
-      count=[siz(1) siz(2) siz(3) ntindfl];
-    elseif isempty(kk);
-       start=[0 0 0 0 0];
-       count=[siz(1) siz(2) siz(3) siz(4) ntindfl];
-    else;
-       start=[0 0 kk(1)-1 0 0];
-       count=[siz(1) siz(2) length(kk) siz(4) ntindfl];
-    end;
-    ndim = length(count); 
-
-    %initialize fldTile_all (temporary array)
-    if ~exist('fldTile_all');
-      fldTile_all=[];
-    end;
-
-    fldTile=netcdf.getVar(nc,vv,start,count);
-    fldTile=squeeze(fldTile);
-    netcdf.close(nc);
-
-    fldTile_all=cat(ndim,fldTile_all,fldTile);
-  end;%for fft=1:lff;
-
-  % for fields having time axis
-  if(ntindfl>0 & length(dimids)>=4);
-      if ndim==4;
-         fldTile_all=fldTile_all(:,:,:,t0-nt0:t1-nt0);
-      elseif isempty(kk);
-         fldTile_all=fldTile_all(:,:,:,:,t0-nt0:t1-nt0);
-      else;
-         fldTile_all=fldTile_all(:,:,:,:,t0-nt0:t1-nt0);
-      end;
-  end;
-
-  %initialize fld (full gcmfaces object)
-  if(ndim==4);
-    siz=[1 1 nt];
-  elseif (ndim==5);
-    siz=[1 1 size(fldTile,3) nt];
-  end;
-  fld=NaN*repmat(mygrid.XC,siz);
-
-  %map array to gcmfaces object
-  for ff=1:length(nctiles.no);
-    %place tile in fld
-    if size(fldTile_all,5)>1;
-      fld{nctiles.f{ff}}(nctiles.i{ff},nctiles.j{ff},:,:)=fldTile_all(:,:,:,ff,:);
-    elseif size(fldTile_all,4)>1;
-      fld{nctiles.f{ff}}(nctiles.i{ff},nctiles.j{ff},:)=fldTile_all(:,:,ff,:);
-    else;
-      fld{nctiles.f{ff}}(nctiles.i{ff},nctiles.j{ff})=fldTile_all(:,:,ff);
-    end;
-  end; %for ff=1:length(nctiles.no);
 
 else;
 % nctiles_v4r4format=1
