@@ -101,7 +101,25 @@ end; end; end;
 
 %4) solve for potential:
 yy=convert2array(fld); yy=yy(find(KK~=0));
-xx=A\yy;
+%Solving A xx = yy
+%Original, but less robust, way to solve A xx = yy
+% is use xx=A\yy;.
+% When matrix A is close to singular, xx may become 
+% all zeros. Different versions of MATLAB
+% may have different behaviors. For instance,  
+% when using calc_barostream.m (which calls
+% diffsmooth2D_div_inv.m) to calculate barotropic stream function,   
+% gcmfaces using matlab/2017b was able to find a solution that 
+% appears fine, while matlab/2021a gives a solution 
+% of all zeros. 
+%xx=A\yy;
+%Use the more robust way to solve xx
+%in a least squares sense. This method
+%can also handle sparse matrix and is
+%more efficient than pinv (which cannot handle sparse matrix).
+%Warning is turned on to monitor if the matrix is close to singular.
+xx=lsqminnorm(A,yy,'warn');
+
 yyFROMxx=A*xx; 
 
 %5) prepare output:
