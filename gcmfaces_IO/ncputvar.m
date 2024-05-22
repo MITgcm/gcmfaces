@@ -1,5 +1,5 @@
 function []=ncputvar(nc,VARname,VARvalue,varargin);
-% []=ncputvar(ncid,varid,data,[start,count])
+% []=ncputvar(ncid,varid,data,start,count)
 %   write data to MITprof netcdf file
 
 global useNativeMatlabNetcdf; if isempty(useNativeMatlabNetcdf); useNativeMatlabNetcdf = ~isempty(which('netcdf.open')); end;
@@ -12,13 +12,14 @@ if useNativeMatlabNetcdf
     bb=length(size(VARvalue)); VARvalue=permute(VARvalue,[bb:-1:1]);
     if nargin>3;
         %get and flip position vectors:
-        VARpos=fliplr(varargin);
+        start=fliplr(varargin{1});
+        count=fliplr(varargin{2});
         %convert VARpos to start,count:
-        start=[]; count=[];
-        for ii=1:length(VARpos);
-            start=[start VARpos{ii}(1)-1];
-            count=[count VARpos{ii}(end)-VARpos{ii}(1)+1];
-        end;
+%         start=[]; count=[];
+%         for ii=1:length(VARpos{1});
+%             start=[start VARpos{ii}(1)-1];
+%             count=[count VARpos{ii}(end)-VARpos{ii}(1)+1];
+%         end;
         %write to file:
         netcdf.putVar(nc,vv,start,count,VARvalue);
     else;

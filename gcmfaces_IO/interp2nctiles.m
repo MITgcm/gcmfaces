@@ -19,8 +19,10 @@ mygrid_latlon.nFaces=1;
 mygrid_latlon.dirGrid='none';
 mygrid_latlon.fileFormat='straight';
 mygrid_latlon.ioSize=size(lon);
-mygrid_latlon.XC=gcmfaces({lon});
-mygrid_latlon.YC=gcmfaces({lat});
+%mygrid_latlon.XC=gcmfaces({lon});
+mygrid_latlon.XC=lon(:,1);
+%mygrid_latlon.YC=gcmfaces({lat});
+mygrid_latlon.YC=lat(1,:);
 mygrid_latlon.RC=mygrid.RC;
 mygrid_latlon.RF=mygrid.RF;
 %mygrid_latlon.DRC=mygrid.DRC;
@@ -28,6 +30,10 @@ mygrid_latlon.RF=mygrid.RF;
 %mygrid_latlon.mskC=1+0*repmat(mygrid_latlon.XC,[1 1  length(mygrid.RC)]);
 mygrid_latlon.gcm2facesFast=0;
 mygrid_latlon.facesExpand=[];
+if isfield(mygrid,'timeVec')
+    mygrid_latlon.timeVec = mygrid.timeVec;
+    mygrid_latlon.timeUnits = mygrid.timeUnits;
+end
 
 mygrid=mygrid_latlon;
 for ii=1:length(listDo);

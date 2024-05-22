@@ -76,7 +76,7 @@ argument. :numref:`formats` and ``help grid_load;`` provide
 additional information regarding, respectively, and supported file 
 formats and ``grid_load.m`` arguments. As an alternative to 
 ``grid_load.m``, `MITgcm` input grid files can be read ``grid_load_native.m`` 
-as shown `here <http://mit.ecco-group.org/opendap/ecco_for_las/version_4/grids/grids_input/>`__
+as shown `here <https://engaging-web.mit.edu/~gforget/harbor/version_4/grids/grids_input/>`__
 (see README and ``demo_grids.m``).
 
 Both ``grid_load.m`` and ``grid_load_native.m`` store all C-grid variables 
@@ -246,7 +246,7 @@ The provided I/O functions (``rdmds2gcmfaces.m`` and ``read_bin.m``) rely on
 ``convert2gcmfaces.m`` to convert `mds` output to `gcmfaces` objects on the fly.
 The reverse conversion occurs when ``convert2gcmfaces.m`` is called with a `gcmfaces`
 input argument. This approach provides a unified framework to analyze MITgcm output or 
-prepare MITgcm input for `all known grids <http://mit.ecco-group.org/opendap/ecco_for_las/version_4/grids/grids_output/contents.html>`__
+prepare MITgcm input for `all known grids <https://engaging-web.mit.edu/~gforget/harbor/version_4/grids/grids_output/>`__
 (see README and ``demo_grids.m``).
 
 .. [1]

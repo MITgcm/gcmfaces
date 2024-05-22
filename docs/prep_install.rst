@@ -30,8 +30,8 @@ Obtain Input Data
 -----------------
 
 The `gcmfaces` toolbox allows users to seamlessly deal with various gridding
-approaches (e.g., all grids distributed via `this FTP server
-<ftp://mit.ecco-group.org/ecco_for_las/version_4/grids/>`__)
+approaches (e.g., all grids distributed via `this MIT server
+<https://engaging-web.mit.edu/~gforget/harbor/version_4/grids>`__)
 using compact and generic codes as explained in this user guide. Once a
 grid has been loaded to memory (see below and :numref:`Cgrid`), `gcmfaces` can be used
 to analyze ocean model solutions and state estimates on that grid
@@ -39,8 +39,8 @@ to analyze ocean model solutions and state estimates on that grid
 
 
 To get started in :numref:`getting_started` and :numref:`features`, it
-suffices to download ``nctiles_grid/`` (145M) either from `this ftp
-server <ftp://mit.ecco-group.org/ecco_for_las/version_4/release2/nctiles_grid/>`__
+suffices to download ``nctiles_grid/`` (145M) either from `this MIT
+server <https://engaging-web.mit.edu/~gforget/harbor/version_4/release2/nctiles_grid/>`__
 or from `this permanent archive <http://dx.doi.org/10.7910/DVN/H8W5VW>`__.
 :numref:`demo` and :numref:`standard` use ``nctiles_climatology/`` (10G)
 to illustrate higher-level functionalities. One download method, from the
@@ -61,8 +61,7 @@ function calls as explained at the end of :numref:`standard`.
 
 ::
 
-    setenv FTPv4r2 'ftp://mit.ecco-group.org/ecco_for_las/version_4/release2/'
-    #export FTPv4r2='ftp://mit.ecco-group.org/ecco_for_las/version_4/release2/'
+    setenv FTPv4r2 'https://engaging-web.mit.edu/~gforget/harbor/version_4/release2'
     wget --recursive {$FTPv4r2}/nctiles_grid
     wget --recursive {$FTPv4r2}/nctiles_climatology
     #wget --recursive {$FTPv4r2}/nctiles_monthly
