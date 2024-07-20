@@ -73,7 +73,7 @@ tmp1=find(isnan(coeff)); coeff(tmp1)=nrIn-0.01; %quick fix
 %vertical interpolation to mygrid.RC:
 fldOut=repmat(0*mygrid.XC,[1 1 nrOut]);
 for kk=1:nrOut;
-    tmp1=coeff(kk); tmp2=floor(tmp1); tmp1=tmp1-tmp2;
+    tmp1=coeff(kk); tmp2=floor(tmp1); tmp1=double(tmp1-tmp2);
     if tmp2==nrIn;
         tmp3=fldIn(:,:,tmp2);
     else;
